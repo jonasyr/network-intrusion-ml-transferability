@@ -111,9 +111,10 @@ def main():
     if tests_passed == total_tests:
         print("✅ ALL TESTS PASSED! 🎉")
         print("\n🎯 You're ready to run:")
-        print("   • jupyter lab notebooks/01_initial_data_analysis.ipynb")
-        print("   • python quick_start.py")
-        print("   • python run_analysis.py")
+        print("   • python quick_start.py                    # Quick data insights")
+        print("   • python instant_test.py                  # Fast smoke test")
+        print("   • python scripts/run_baseline.py          # Full baseline training")
+        print("   • jupyter lab notebooks/01_data_exploration.ipynb  # Interactive analysis")
     else:
         print("❌ Some tests failed. Check the messages above.")
         print("\n💡 Quick fixes:")
