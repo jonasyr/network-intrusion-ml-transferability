@@ -147,6 +147,10 @@ class NSLKDDPreprocessor:
         """Create binary classification labels (Normal vs Attack)"""
         data = data.copy()
         data['is_attack'] = (data['attack_type'] != 'normal').astype(int)
+        
+        # Ensure labels are integers for classification
+        data['is_attack'] = data['is_attack'].astype('int32')
+        
         return data
     
     def balance_classes(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -212,16 +216,16 @@ class NSLKDDPreprocessor:
         
         # Select target based on type
         if target_type == 'binary':
-            y = data['is_attack'].values
+            y = data['is_attack'].values.astype('int32')  # Ensure integer labels
         elif target_type == 'category':
             # Encode attack categories
             le_target = LabelEncoder()
-            y = le_target.fit_transform(data['attack_category'])
+            y = le_target.fit_transform(data['attack_category']).astype('int32')
             self.label_encoders['target'] = le_target
         else:  # multiclass
             # Encode attack types
             le_target = LabelEncoder()
-            y = le_target.fit_transform(data['attack_type'])
+            y = le_target.fit_transform(data['attack_type']).astype('int32')
             self.label_encoders['target'] = le_target
         
         # Train/validation split
@@ -230,6 +234,10 @@ class NSLKDDPreprocessor:
             random_state=self.random_state, 
             stratify=y
         )
+        
+        # Debug: Check label types and values
+        print(f"✓ Labels - Type: {y_train.dtype}, Unique values: {np.unique(y_train)}")
+        print(f"✓ Label distribution: {np.bincount(y_train)}")
         
         # Balance training data
         X_train, y_train = self.balance_classes(X_train, y_train)
@@ -273,10 +281,10 @@ class NSLKDDPreprocessor:
         
         # Select target based on type
         if target_type == 'binary':
-            y = data['is_attack'].values
+            y = data['is_attack'].values.astype('int32')
         elif target_type == 'category':
             if 'target' in self.label_encoders:
-                y = self.label_encoders['target'].transform(data['attack_category'])
+                y = self.label_encoders['target'].transform(data['attack_category']).astype('int32')
             else:
                 raise ValueError("No fitted target encoder found")
         else:  # multiclass
@@ -289,7 +297,7 @@ class NSLKDDPreprocessor:
                         y.append(self.label_encoders['target'].transform([attack])[0])
                     else:
                         y.append(-1)  # Unknown attack
-                y = np.array(y)
+                y = np.array(y, dtype='int32')
             else:
                 raise ValueError("No fitted target encoder found")
         
