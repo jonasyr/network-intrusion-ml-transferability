@@ -1,0 +1,13 @@
+NSL-KDD Quick Analysis Summary
+========================================
+
+Dataset: KDDTrain+_20Percent.txt
+Records: 25,192
+Features: 42
+
+Attack Distribution:
+  Normal: 13,449 (53.4%)
+  DoS: 9,234 (36.7%)
+  Probe: 2,289 (9.1%)
+  R2L: 209 (0.8%)
+  U2R: 11 (0.0%)
