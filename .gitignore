@@ -208,3 +208,16 @@ __marimo__/
 
 # Project Specific
 /data/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*/__pycache__/
+
+# Generated data (optional)
+data/processed/*.csv
+data/processed/*.pkl
+
