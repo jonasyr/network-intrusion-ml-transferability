@@ -1,7 +1,14 @@
-# test_setup.py
+# check_setup.py
 """
-Quick test to verify your setup is working
-Run this after creating the missing files
+Environment Validation Script
+
+Comprehensive test to verify your ML anomaly detection setup:
+- Tests all package imports
+- Validates data file accessibility  
+- Confirms core analysis pipeline works
+
+Run this first after installation to ensure everything is configured correctly.
+Perfect for: "Is my environment ready for development?"
 """
 
 import sys
@@ -89,8 +96,8 @@ def test_quick_analysis():
         return False
 
 def main():
-    """Run all tests"""
-    print("🚀 TESTING YOUR SETUP")
+    """Run comprehensive environment validation"""
+    print("🚀 ENVIRONMENT VALIDATION")
     print("=" * 50)
     
     tests_passed = 0
@@ -111,8 +118,8 @@ def main():
     if tests_passed == total_tests:
         print("✅ ALL TESTS PASSED! 🎉")
         print("\n🎯 You're ready to run:")
-        print("   • python quick_start.py                    # Quick data insights")
-        print("   • python instant_test.py                  # Fast smoke test")
+        print("   • python check_data.py                     # Data insights & overview")
+        print("   • python check_smoke.py                    # Fast smoke test")
         print("   • python scripts/run_baseline.py          # Full baseline training")
         print("   • jupyter lab notebooks/01_data_exploration.ipynb  # Interactive analysis")
     else:
