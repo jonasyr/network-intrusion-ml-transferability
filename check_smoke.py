@@ -1,12 +1,13 @@
-# instant_test.py - Quick smoke test for core functionality
+# check_smoke.py - Lightning-fast smoke test
 """
-Fast validation script (~10 seconds) to verify:
+Fast validation script (~1 second) to verify:
 - Data loading works
 - Basic preprocessing works  
 - Simple models can train
 - Core pipeline is functional
 
 Use this for quick debugging and validation during development.
+Perfect for: "Did I break anything with my last change?"
 """
 import sys
 sys.path.append('src')

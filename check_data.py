@@ -1,7 +1,15 @@
-# quick_start.py
+# check_data.py
 """
-Quick start script for NSL-KDD analysis
-Provides immediate insights and validates setup
+Data Overview & Insights Script
+
+Quick analysis script for NSL-KDD dataset that provides:
+- Dataset file overview and sizes
+- Attack category distribution
+- Data quality assessment
+- Protocol analysis
+- Summary file generation
+
+Perfect for: "What does my data look like?" and demo purposes.
 """
 
 import sys
@@ -93,7 +101,7 @@ def main():
                 
         except Exception as e:
             print(f"❌ Error during analysis: {e}")
-            print(f"💡 Try running the test script: python test_setup.py")
+            print("💡 Try running the test script: python check_setup.py")
             
     except ImportError as e:
         print(f"❌ Import error: {e}")
