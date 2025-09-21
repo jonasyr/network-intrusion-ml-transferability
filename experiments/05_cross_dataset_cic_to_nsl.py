@@ -40,9 +40,9 @@ def run_reverse_cross_dataset_evaluation():
     nsl_preprocessor = NSLKDDPreprocessor(balance_method='smote')
     cic_preprocessor = CICIDSPreprocessor()
     
-    # Load CIC-IDS-2017 data for training
-    print("\n📁 Loading CIC-IDS-2017 dataset for training...")
-    cic_data = cic_preprocessor.load_data("data/raw/cic_ids_2017/cic_ids_sample.csv")
+    # Load CIC-IDS-2017 data for training (full dataset)
+    print("\n📁 Loading CIC-IDS-2017 full dataset for training...")
+    cic_data = cic_preprocessor.load_data(use_full_dataset=True)
     
     if cic_data is None:
         print("❌ Failed to load CIC-IDS-2017 dataset")
