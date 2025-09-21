@@ -208,7 +208,7 @@ __marimo__/
 
 # Project Specific
 # /data/
-data/models/advanced/*.joblib
+# data/models/advanced/*.joblib
 
 # Jupyter checkpoints
 .ipynb_checkpoints/
