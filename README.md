@@ -1,365 +1,303 @@
-# 🛡️ ML Network Anomaly Detection Research
+# Machine Learning Models for Network Anomaly Detection: A Cross-Dataset Generalization Study
 
-## Eine experimentelle Analyse der Effektivität von Machine-Learning-Modellen für Anomalieerkennung im Netzwerkverkehr
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+[![Research: Complete](https://img.shields.io/badge/Research-Complete-green.svg)](https://github.com/jonasyr/ml-network-anomaly-detection)
 
-[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
-[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.2+-orange.svg)](https://scikit-learn.org)
-[![Research](https://img.shields.io/badge/Research-In%20Progress-yellow.svg)](https://github.com/jonasyr/ml-network-anomaly-detection)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+## 📋 Overview
 
-**Target**: 15-page scientific paper | **Timeline**: 10-12 weeks
+This repository contains the complete implementation and experimental framework for the research paper **"Machine Learning Models for Network Anomaly Detection: A Cross-Dataset Generalization Study"**. 
 
----
+The study presents the first comprehensive **bidirectional cross-dataset evaluation** of machine learning models for network intrusion detection, revealing significant generalization challenges when models are transferred between different network datasets.
 
-## 📋 Table of Contents
+### 🔬 Key Research Contributions
 
-- [🎯 Project Overview](#-project-overview)
-- [✨ Features](#-features)
-- [🚀 Quick Start](#-quick-start)
-- [📊 Current Results](#-current-results)
-- [🏗️ Project Structure](#️-project-structure)
-- [🔬 Research Methodology](#-research-methodology)
-- [📈 Progress Tracking](#-progress-tracking)
-- [🛠️ Development](#️-development)
-- [📚 References](#-references)
+- **Novel Evaluation Methodology**: First bidirectional cross-dataset evaluation protocol for network intrusion detection
+- **Empirical Findings**: Quantified generalization gaps (28.7% accuracy drop NSL-KDD→CIC-IDS-2017, 14.7% drop CIC-IDS-2017→NSL-KDD)
+- **Directional Bias Discovery**: NSL-KDD models struggle significantly more when applied to modern attack datasets
+- **Model Comparison**: Comprehensive evaluation of 11 machine learning models across multiple datasets
+- **Academic Impact**: Demonstrates limitations of single-dataset evaluation and validates need for domain adaptation
 
----
+## 🏗️ Repository Structure
 
-## 🎯 Project Overview
-
-This research project investigates the effectiveness of various machine learning models for network anomaly detection, focusing on intrusion detection systems (IDS). The study compares traditional ML approaches with modern techniques using established datasets NSL-KDD and CIC-IDS-2017.
-
-### 🎓 Research Question
-
-> **"Wie effektiv sind Machine-Learning-Modelle für Anomalieerkennung im Netzwerkverkehr? Eine experimentelle Analyse mit NSL-KDD und CIC-IDS-2017"**
-
-### 🎯 Objectives
-
-- Compare effectiveness of different ML algorithms for network anomaly detection
-- Analyze performance across different attack types and categories
-- Evaluate cross-dataset generalization capabilities
-- Provide comprehensive experimental analysis for academic publication
-
----
-
-## ✨ Features
-
-### ✅ **Currently Implemented**
-
-#### 📊 **Data Analysis**
-
-- ✅ NSL-KDD dataset integration
-- ✅ Comprehensive data exploration
-- ✅ Attack categorization (DoS, Probe, R2L, U2R)
-- ✅ Statistical analysis pipeline
-- ✅ Data quality validation
-
-#### 🤖 **Machine Learning**
-
-- ✅ Baseline model implementation
-  - Random Forest
-  - Logistic Regression
-  - Decision Tree
-  - K-Nearest Neighbors
-  - Naive Bayes
-  - SVM (Linear)
-- ✅ Preprocessing pipeline
-- ✅ Class balancing (SMOTE, Undersampling)
-- ✅ Model evaluation framework
-- ✅ Advanced model suite (XGBoost, LightGBM, Gradient Boosting, Extra Trees, MLP, Soft Voting)
-
-#### 🔧 **Infrastructure**
-
-- ✅ Modular code architecture
-- ✅ Automated testing scripts
-- ✅ Data validation pipeline
-- ✅ Model persistence
-- ✅ Results tracking
-
-#### 📈 **Visualization**
-
-- ✅ Attack distribution plots
-- ✅ Feature analysis charts
-- ✅ Model comparison graphics
-- ✅ Interactive Jupyter notebooks
-
-### 🔄 **In Progress**
-
-- 🔄 CIC-IDS-2017 dataset integration
-- 🔄 Advanced model implementations
-- 🔄 Hyperparameter optimization
-- 🔄 Cross-dataset evaluation
-
-### 📋 **Planned**
-
-- 📋 Deep learning models (MLP, Autoencoders)
-- 📋 Ensemble methods
-- 📋 Feature selection optimization
-- 📋 Time-series analysis
-- 📋 Real-time detection simulation
-- 📋 Scientific paper publication
-
----
+```
+ml-network-anomaly-detection/
+├── README.md                           # This file
+├── requirements.txt                    # Python dependencies
+├── LICENSE                            # MIT License
+│
+├── src/                               # Core source code
+│   ├── nsl_kdd_analyzer.py           # Main analyzer class
+│   ├── data/                         # Data preprocessing
+│   │   ├── preprocessor.py           # NSL-KDD preprocessor
+│   │   └── cic_ids_preprocessor.py   # CIC-IDS-2017 preprocessor
+│   ├── models/                       # Model implementations
+│   │   ├── baseline.py               # Baseline ML models
+│   │   └── advanced.py               # Advanced ensemble models
+│   ├── evaluation/                   # Evaluation frameworks
+│   │   └── cross_validation.py       # Statistical validation
+│   └── visualization/                # Figure generation
+│       └── paper_figures.py          # Publication figures
+│
+├── experiments/                       # Experimental scripts
+│   ├── 01_baseline_models.py         # Baseline model training
+│   ├── 02_advanced_models.py         # Advanced model training
+│   ├── 03_cross_validation.py        # Cross-validation analysis
+│   ├── 04_cross_dataset_nsl_to_cic.py # NSL-KDD → CIC-IDS-2017
+│   ├── 05_cross_dataset_cic_to_nsl.py # CIC-IDS-2017 → NSL-KDD
+│   ├── 06_bidirectional_analysis.py  # Comprehensive analysis
+│   └── 07_generate_paper_figures.py  # Publication figures
+│
+├── data/                             # Datasets and results
+│   ├── raw/                          # Raw datasets
+│   │   ├── KDDTrain+_20Percent.txt   # NSL-KDD training data
+│   │   ├── KDDTest+.txt              # NSL-KDD test data
+│   │   └── cic_ids_2017/             # CIC-IDS-2017 sample data
+│   ├── models/                       # Trained models
+│   │   ├── *.joblib                  # Baseline models
+│   │   ├── advanced/                 # Advanced models
+│   │   └── reverse_cross_dataset/    # Cross-dataset models
+│   └── results/                      # Experimental results
+│       ├── *.csv                     # Result tables
+│       ├── *.png                     # Figures
+│       ├── cross_validation/         # CV results
+│       └── paper_figures/            # Publication figures
+│
+├── notebooks/                        # Jupyter analysis
+│   └── 01_data_exploration.ipynb     # Data exploration
+│
+└── docs/                             # Documentation
+    └── (generated documentation)
+```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-```bash
-# Python 3.9+ required
-python --version
-
-# Git for version control
-git --version
-```
+- Python 3.12+
+- Virtual environment support
+- ~2GB disk space for datasets and models
 
 ### Installation
 
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/jonasyr/ml-network-anomaly-detection.git
+   cd ml-network-anomaly-detection
+   ```
+
+2. **Set up virtual environment**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Verify installation**
+   ```bash
+   python -c "import src.nsl_kdd_analyzer; print('✅ Installation successful')"
+   ```
+
+## 🧪 Running Experiments
+
+The experiments are designed to be run sequentially, as later experiments depend on models trained in earlier ones.
+
+### Core Experiments
+
+1. **Baseline Models Training**
+   ```bash
+   python experiments/01_baseline_models.py
+   ```
+   Trains 6 baseline ML models on NSL-KDD dataset.
+
+2. **Advanced Models Training**
+   ```bash
+   python experiments/02_advanced_models.py
+   ```
+   Trains advanced ensemble models (XGBoost, LightGBM, etc.).
+
+3. **Cross-Validation Analysis**
+   ```bash
+   python experiments/03_cross_validation.py
+   ```
+   Performs 5-fold cross-validation with statistical significance testing.
+
+### Cross-Dataset Evaluation (Key Contribution)
+
+4. **NSL-KDD → CIC-IDS-2017 Transfer**
+   ```bash
+   python experiments/04_cross_dataset_nsl_to_cic.py
+   ```
+   Tests generalization from NSL-KDD to CIC-IDS-2017.
+
+5. **CIC-IDS-2017 → NSL-KDD Transfer**
+   ```bash
+   python experiments/05_cross_dataset_cic_to_nsl.py
+   ```
+   Tests reverse generalization direction.
+
+6. **Bidirectional Analysis**
+   ```bash
+   python experiments/06_bidirectional_analysis.py
+   ```
+   Comprehensive analysis of both transfer directions.
+
+7. **Generate Publication Figures**
+   ```bash
+   python experiments/07_generate_paper_figures.py
+   ```
+   Creates all figures used in the research paper.
+
+### Complete Pipeline
+
+To run all experiments in sequence:
 ```bash
-# 1. Clone the repository
-git clone https://github.com/jonasyr/ml-network-anomaly-detection.git
-cd ml-network-anomaly-detection
-
-# 2. Set up Python environment
-conda create -n anomaly-detection python=3.9
-conda activate anomaly-detection
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Verify installation
-python check_setup.py
+for script in experiments/*.py; do python "$script"; done
 ```
 
-### Dataset Setup
+## 📊 Key Results
 
-```bash
-# Download NSL-KDD dataset
-# Place files in data/raw/:
-# - KDDTrain+.txt
-# - KDDTest+.txt  
-# - KDDTrain+_20Percent.txt
+### Model Performance Summary
 
-# Verify data
-python check_data.py
-```
+| Model | NSL-KDD Accuracy | CIC-IDS-2017 Accuracy | Avg. Generalization |
+|-------|------------------|------------------------|-------------------|
+| **XGBoost** | 79.1% | 49.9% | **72.5%** |
+| **LightGBM** | 79.0% | 50.5% | 65.8% |
+| **Random Forest** | 77.6% | 49.2% | 63.9% |
 
-### Quick Analysis
+### Cross-Dataset Generalization Gaps
 
-```bash
-# Run baseline experiments
-python scripts/run_baseline.py
+- **NSL-KDD → CIC-IDS-2017**: 28.7% average accuracy drop
+- **CIC-IDS-2017 → NSL-KDD**: 14.7% average accuracy drop
+- **Directional Bias**: NSL-KDD models transfer poorly to modern attacks
 
-# Run advanced experiments
-python scripts/run_advanced.py
+### Statistical Significance
 
-# Start Jupyter for detailed analysis
-jupyter lab notebooks/01_data_exploration.ipynb
+All results include 95% confidence intervals and pairwise t-tests across 5-fold cross-validation.
 
-# Quick smoke test
-python check_smoke.py
-```
+## 📈 Generated Outputs
 
----
+### Result Files
+- `bidirectional_cross_dataset_analysis.csv`: Complete cross-dataset results
+- `cross_validation_results.csv`: Statistical validation results
+- `baseline_results.csv`: Baseline model performance
 
-## 📊 Current Results
+### Visualizations
+- `bidirectional_cross_dataset_analysis.png`: Main research figure
+- `cv_results_boxplot.png`: Cross-validation comparison
+- `paper_figures/`: All publication-ready figures
 
-### Dataset Analysis (NSL-KDD 20% Subset)
-
-| Metric | Value |
-|--------|-------|
-| **Total Records** | 25,192 |
-| **Features** | 41 + 2 labels |
-| **Attack Categories** | 5 (Normal, DoS, Probe, R2L, U2R) |
-| **Attack Types** | 22 unique |
-| **Data Quality** | ✅ Clean (no missing values) |
-
-### Attack Distribution
-
-```text
-Normal Traffic: 53.4% (13,449 records)
-DoS Attacks:    36.7% (9,234 records)  
-Probe Attacks:   9.1% (2,289 records)
-R2L Attacks:     0.8% (209 records)
-U2R Attacks:     0.04% (11 records)
-```
-
-### Baseline Model Performance
-
-| Model | Accuracy | F1-Score | Precision | Recall |
-|-------|----------|----------|-----------|--------|
-| **Random Forest** | 0.995 | 0.995 | 0.995 | 0.995 |
-| **Decision Tree** | 0.993 | 0.993 | 0.993 | 0.993 |
-| **Logistic Regression** | 0.945 | 0.944 | 0.946 | 0.945 |
-| **K-Nearest Neighbors** | 0.967 | 0.967 | 0.968 | 0.967 |
-| **Naive Bayes** | 0.821 | 0.815 | 0.835 | 0.821 |
-
-> 📝 *Results on balanced validation set (binary classification: Normal vs Attack)*
-
----
-
-## 🏗️ Project Structure
-
-```text
-ml-network-anomaly-detection/
-├── 📊 data/
-│   ├── raw/                    # Original datasets
-│   ├── processed/              # Cleaned & preprocessed data
-│   ├── models/                 # Trained model files
-│   └── results/                # Analysis outputs
-├── 📓 notebooks/
-│   ├── 01_data_exploration.ipynb      # ✅ Data analysis
-│   ├── 02_preprocessing.ipynb         # 🔄 Feature engineering
-│   ├── 03_baseline_models.ipynb       # 📋 Model training
-│   └── 04_evaluation.ipynb            # 📋 Results analysis
-├── 🐍 src/
-│   ├── data/
-│   │   ├── preprocessor.py             # ✅ Data preprocessing
-│   │   └── loader.py                   # ✅ Dataset loading
-│   ├── models/
-│   │   ├── baseline.py                 # ✅ Traditional ML models
-│   │   └── advanced.py                 # 📋 Deep learning models
-│   ├── evaluation/
-│   │   └── metrics.py                  # ✅ Evaluation framework
-│   └── nsl_kdd_analyzer.py             # ✅ Main analysis engine
-├── 🧪 experiments/                     # Experiment configurations
-├── 📈 reports/                         # Generated reports & papers
-├── 🔧 scripts/
-│   ├── run_baseline.py                 # ✅ Quick model training
-│   └── run_experiments.py              # 📋 Full experiment suite
-├── check_*.py                          # ✅ Validation scripts
-├── requirements.txt                    # ✅ Dependencies
-└── README.md                           # 📖 This file
-```
-
-**Legend:** ✅ Implemented | 🔄 In Progress | 📋 Planned
-
----
+### Trained Models
+- 11 trained models in `data/models/`
+- Cross-dataset specialized models in `data/models/reverse_cross_dataset/`
 
 ## 🔬 Research Methodology
 
-### Phase 1: Foundation & Setup ✅
-
-- [x] Literature review (initial)
-- [x] Environment setup
-- [x] Dataset acquisition and validation
-- [x] Basic analysis pipeline
-
-### Phase 2: Data Preprocessing ✅
-
-- [x] NSL-KDD preprocessing pipeline
-- [x] Feature analysis and selection
-- [x] Class balancing strategies
-- [x] Data validation framework
-
-### Phase 3: Model Implementation 🔄
-
-- [x] Baseline traditional ML models
-- [x] Evaluation framework
-- [ ] Advanced ensemble methods
-- [ ] Deep learning approaches
-- [ ] Hyperparameter optimization
-
-### Phase 4: Experimentation 📋
-
-- [ ] Cross-validation studies
-- [ ] Cross-dataset evaluation
-- [ ] Feature importance analysis
-- [ ] Performance comparison
-
-### Phase 5: Analysis & Documentation 📋
-
-- [ ] Statistical significance testing
-- [ ] Results interpretation
-- [ ] Scientific paper writing
-- [ ] Peer review preparation
-
----
-
-## 📈 Progress Tracking
-
-### ✅ Week 1-2 (Current Status)
-
-- Complete project infrastructure
-- NSL-KDD dataset integrated and analyzed
-- Baseline models trained and evaluated
-- Initial results documented
-
-### 🔄 Week 3-4 (In Progress)
-
-- CIC-IDS-2017 dataset integration
-- Advanced model implementations
-- Cross-dataset validation setup
-
-### 📋 Week 5-8 (Planned)
-
-- Comprehensive model comparison
-- Feature engineering optimization
-- Statistical analysis and testing
-- Performance benchmarking
-
-### 📋 Week 9-12 (Planned)
-
-- Scientific paper writing
-- Results validation and peer review
-- Final documentation and submission
-
----
-
-## 🛠️ Development
-
-### Running Tests
-
-```bash
-# Environment validation
-python check_setup.py
-
-# Data integrity check
-python check_data.py
-
-# Quick functionality test
-python check_smoke.py
-
-# Full test suite
-python -m pytest tests/
-```
-
-### Adding New Models
-
-```python
-# Example: Adding a new classifier
-from src.models.baseline import BaselineModels
-
-baseline = BaselineModels()
-baseline.add_model('my_model', MyClassifier())
-baseline.train_all(X_train, y_train)
-```
-
----
-
-## 📚 References
-
 ### Datasets
+- **NSL-KDD**: Standard benchmark dataset (41 features, 5 attack classes)
+- **CIC-IDS-2017**: Modern intrusion dataset (77 features, realistic attacks)
 
-- **NSL-KDD**: [University of New Brunswick](https://www.unb.ca/cic/datasets/nsl.html)
-- **CIC-IDS-2017**: [Canadian Institute for Cybersecurity](https://www.unb.ca/cic/datasets/ids-2017.html)
+### Models Evaluated
+- **Baseline**: Logistic Regression, Decision Tree, Random Forest, k-NN, Naive Bayes, SVM
+- **Advanced**: XGBoost, LightGBM, Gradient Boosting, Extra Trees, MLP, Voting Classifier
 
-### Key Literature
+### Evaluation Protocol
+1. **Within-dataset**: Traditional evaluation on same dataset
+2. **Cross-dataset**: Train on one dataset, test on another
+3. **Bidirectional**: Both transfer directions evaluated
+4. **Statistical**: 5-fold CV with significance testing
 
-- Tavallaee, M., et al. (2009). "A detailed analysis of the KDD CUP 99 data set"
-- Sharafaldin, I., et al. (2018). "Toward generating a new intrusion detection dataset and intrusion traffic characterization"
+## 🎓 Academic Usage
 
-### Technical Stack
+This repository serves as the **"Anhang" (Appendix/Source Code)** for the research paper. All experiments are fully reproducible and results can be regenerated.
 
-- **Python 3.9+**: Core programming language
-- **Scikit-Learn**: Machine learning framework
-- **Pandas/NumPy**: Data manipulation
-- **Matplotlib/Seaborn**: Visualization
-- **Jupyter**: Interactive analysis
+### Citation
+```bibtex
+@article{author2025network,
+  title={Machine Learning Models for Network Anomaly Detection: A Cross-Dataset Generalization Study},
+  author={[Author Name]},
+  journal={[Journal Name]},
+  year={2025},
+  note={Source code available at: https://github.com/jonasyr/ml-network-anomaly-detection}
+}
+```
+
+### Reproducibility
+- All random seeds are fixed for reproducibility
+- Virtual environment ensures consistent package versions
+- Complete experimental pipeline with clear dependencies
+
+## �️ Technical Details
+
+### Dependencies
+- **Core**: scikit-learn, pandas, numpy
+- **Advanced ML**: xgboost, lightgbm
+- **Visualization**: matplotlib, seaborn
+- **Processing**: imbalanced-learn (SMOTE)
+
+### Performance Requirements
+- **Memory**: ~4GB RAM for full experiments
+- **Storage**: ~2GB for datasets and models
+- **Time**: ~30-60 minutes for complete pipeline
+
+### Python Version
+Developed and tested on Python 3.12. Earlier versions may work but are not guaranteed.
+
+## 📝 Documentation
+
+### Code Documentation
+- Comprehensive docstrings in all modules
+- Type hints for better code understanding
+- Inline comments explaining complex algorithms
+
+### Experimental Documentation
+- Each experiment script includes detailed headers
+- Result files include metadata and timestamps
+- Clear naming conventions throughout
+
+## 🤝 Contributing
+
+This is an academic research repository. For questions or discussions about the methodology:
+
+1. Check the paper for detailed methodology
+2. Review the experimental scripts for implementation details
+3. Examine result files for comprehensive output
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## � Troubleshooting
+
+### Common Issues
+
+1. **Dataset not found**: Ensure NSL-KDD datasets are in `data/raw/`
+2. **Package conflicts**: Use the provided `requirements.txt` in a fresh virtual environment
+3. **Memory errors**: Reduce dataset size or use smaller model parameters
+4. **CUDA warnings**: XGBoost/LightGBM may show GPU warnings; models will fall back to CPU
+
+### Performance Optimization
+
+- Use `n_jobs=-1` for parallel processing
+- Consider reducing `n_estimators` for faster training during development
+- Monitor memory usage during cross-validation experiments
+
+## 📞 Contact
+
+For academic inquiries related to this research:
+- **Repository**: https://github.com/jonasyr/ml-network-anomaly-detection
+- **Issues**: Use GitHub Issues for technical problems
+- **Academic Discussion**: [Contact information from paper]
 
 ---
 
-## 🎓 Academic Research Project
+**Last Updated**: September 2025  
+**Research Period**: September 2025  
+**Paper Submission**: Academic Conference/Journal TBD
 
 Targeting 15-page scientific paper submission
 
