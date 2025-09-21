@@ -218,6 +218,6 @@ __pycache__/
 */__pycache__/
 
 # Generated data (optional)
-data/processed/*.csv
-data/processed/*.pkl
+# data/processed/*.csv
+# data/processed/*.pkl
 
