@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # scripts/run_baseline.py
 """
 Fixed baseline training script
