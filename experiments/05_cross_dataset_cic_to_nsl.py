@@ -213,7 +213,7 @@ def run_reverse_cross_dataset_evaluation():
             })
             
             # Save trained model
-            model_save_path = Path(f"data/models/reverse_cross_dataset/{model_name.lower().replace(' ', '_')}_cic_trained.joblib")
+            model_save_path = Path(f"data/models/{model_name.lower().replace(' ', '_')}_cic_trained.joblib")
             model_save_path.parent.mkdir(parents=True, exist_ok=True)
             joblib.dump(model, model_save_path)
             print(f"   💾 Saved model to: {model_save_path}")

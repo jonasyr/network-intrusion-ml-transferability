@@ -353,24 +353,28 @@ class AdvancedModels:
     # ------------------------------------------------------------------
     # Persistence helpers
     # ------------------------------------------------------------------
-    def save_models(self, output_dir: str | Path, results_filename: str = "advanced_results.csv") -> None:
+    def save_models(self, output_dir: str | Path, results_dir: Optional[str | Path] = None, results_filename: str = "advanced_results.csv") -> None:
         """Persist trained models and aggregated results to disk."""
 
-        output_path = Path(output_dir)
-        output_path.mkdir(parents=True, exist_ok=True)
+        models_path = Path(output_dir)
+        models_path.mkdir(parents=True, exist_ok=True)
+        
+        # Use separate results directory if provided, otherwise same as models
+        results_path = Path(results_dir) if results_dir else models_path
+        results_path.mkdir(parents=True, exist_ok=True)
 
         import joblib
 
         for model_name, model in self.trained_models.items():
-            model_path = output_path / f"{model_name}.joblib"
+            model_path = models_path / f"{model_name}.joblib"
             joblib.dump(model, model_path)
             print(f"💾 Saved {model_name} to {model_path}")
 
         if self.results:
             results_df = pd.DataFrame(self.results)
-            results_path = output_path / results_filename
-            results_df.to_csv(results_path, index=False)
-            print(f"💾 Saved evaluation results to {results_path}")
+            results_file_path = results_path / results_filename
+            results_df.to_csv(results_file_path, index=False)
+            print(f"💾 Saved evaluation results to {results_file_path}")
 
     # ------------------------------------------------------------------
     # Convenience API
