@@ -38,19 +38,30 @@ class CICIDSPreprocessor:
             'Web Attack – Sql Injection': 1, 'Heartbleed': 1
         }
     
-    def load_data(self, file_path: str) -> pd.DataFrame:
+    def load_data(self, file_path: str = None, use_full_dataset: bool = True) -> pd.DataFrame:
         """
-        Load CIC-IDS-2017 data from CSV
+        Load CIC-IDS-2017 data from CSV file(s)
         
         Args:
-            file_path: Path to CIC-IDS-2017 CSV file
+            file_path: Path to specific CSV file, or None to load full dataset
+            use_full_dataset: If True and file_path is None, load all files from full dataset
             
         Returns:
             Loaded DataFrame
         """
         try:
+            if file_path is None and use_full_dataset:
+                # Load full dataset from multiple files
+                return self._load_full_dataset()
+            elif file_path is None:
+                # Load sample dataset (backward compatibility)
+                file_path = "data/raw/cic_ids_2017/cic_ids_sample.csv"
+            
             print(f"📁 Loading CIC-IDS-2017 data from {file_path}...")
             data = pd.read_csv(file_path)
+            
+            # Clean column names (remove leading/trailing spaces)
+            data.columns = data.columns.str.strip()
             
             # Basic data cleaning
             data = self._clean_data(data)
@@ -62,8 +73,55 @@ class CICIDSPreprocessor:
             return data
             
         except Exception as e:
-            print(f"❌ Error loading CIC-IDS-2017 data: {e}")
+            print(f"❌ Error loading data: {e}")
             return None
+    
+    def _load_full_dataset(self) -> pd.DataFrame:
+        """
+        Load and combine all files from the full CIC-IDS-2017 dataset
+        
+        Returns:
+            Combined DataFrame from all daily files
+        """
+        from pathlib import Path
+        
+        dataset_dir = Path("data/raw/cic_ids_2017/full_dataset")
+        csv_files = list(dataset_dir.glob("*.csv"))
+        
+        if not csv_files:
+            raise FileNotFoundError(f"No CSV files found in {dataset_dir}")
+        
+        print(f"📁 Loading full CIC-IDS-2017 dataset from {len(csv_files)} files...")
+        
+        combined_data = pd.DataFrame()
+        total_rows = 0
+        
+        for i, csv_file in enumerate(sorted(csv_files)):
+            print(f"   Loading {csv_file.name}... ({i+1}/{len(csv_files)})")
+            
+            try:
+                # Load individual file
+                df = pd.read_csv(csv_file)
+                
+                # Clean column names (remove leading/trailing spaces)
+                df.columns = df.columns.str.strip()
+                
+                # Combine with main dataset
+                combined_data = pd.concat([combined_data, df], ignore_index=True)
+                total_rows += len(df)
+                
+                print(f"     ✅ {len(df):,} rows added (total: {total_rows:,})")
+                
+            except Exception as e:
+                print(f"     ❌ Error loading {csv_file.name}: {e}")
+                continue
+        
+        print(f"✅ Full dataset loaded: {combined_data.shape}")
+        
+        # Clean the combined data
+        combined_data = self._clean_data(combined_data)
+        
+        return combined_data
     
     def _clean_data(self, data: pd.DataFrame) -> pd.DataFrame:
         """Clean CIC-IDS-2017 data"""
@@ -173,23 +231,44 @@ class CICIDSPreprocessor:
 
 
 def test_cic_preprocessor():
-    """Test the CIC-IDS-2017 preprocessor"""
-    print("🧪 Testing CIC-IDS-2017 Preprocessor")
+    """Test the CIC-IDS-2017 preprocessor with full dataset"""
+    print("🧪 Testing CIC-IDS-2017 Preprocessor (Full Dataset)")
     print("=" * 50)
     
-    # Load sample data
     preprocessor = CICIDSPreprocessor()
-    data = preprocessor.load_data("data/raw/cic_ids_2017/cic_ids_sample.csv")
+    
+    # Test with full dataset
+    print("📊 Loading full dataset...")
+    data = preprocessor.load_data(use_full_dataset=True)
     
     if data is not None:
         # Test preprocessing
-        X, y = preprocessor.fit_transform(data)
+        X, y = preprocessor.prepare_features(data)
         
         print(f"\n📊 Preprocessing Results:")
         print(f"   Features shape: {X.shape}")
         print(f"   Labels shape: {y.shape}")
         print(f"   Feature range: [{X.min():.3f}, {X.max():.3f}]")
         print(f"   Class distribution: {np.bincount(y)}")
+        
+        # Show attack type distribution
+        print(f"\n🏷️ Attack Type Distribution:")
+        labels_df = pd.DataFrame({'Label': data['Label']})
+        distribution = labels_df['Label'].value_counts()
+        for label, count in distribution.items():
+            percentage = (count / len(data)) * 100
+            print(f"   {label}: {count:,} ({percentage:.1f}%)")
+        
+        # Compare with sample if available
+        print(f"\n🔍 Testing sample dataset for comparison...")
+        try:
+            sample_data = preprocessor.load_data("data/raw/cic_ids_2017/cic_ids_sample.csv", use_full_dataset=False)
+            if sample_data is not None:
+                print(f"   Sample size: {sample_data.shape}")
+                print(f"   Full dataset: {data.shape}")
+                print(f"   Size increase: {len(data) / len(sample_data):.1f}x")
+        except:
+            print("   Sample file not available")
         
         return True
     
