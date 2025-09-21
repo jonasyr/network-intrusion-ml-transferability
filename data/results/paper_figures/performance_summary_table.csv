@@ -1,0 +1,12 @@
+Rank,Model,Category,Accuracy,Precision,Recall,F1-Score,ROC-AUC
+1,Lightgbm,Ensemble Methods,0.9974,0.9974,0.9974,0.9974,1.0000
+2,Xgboost,Ensemble Methods,0.9968,0.9968,0.9968,0.9968,1.0000
+3,Random Forest,Traditional ML,0.9966,0.9966,0.9966,0.9966,0.9999
+4,Voting Classifier,Ensemble Methods,0.9964,0.9964,0.9964,0.9964,0.9999
+5,Gradient Boosting,Ensemble Methods,0.9964,0.9964,0.9964,0.9964,0.9997
+6,Extra Trees,Ensemble Methods,0.9960,0.9960,0.9960,0.9960,0.9997
+7,Decision Tree,Traditional ML,0.9946,0.9946,0.9946,0.9946,0.9947
+8,Mlp,Neural Networks,0.9921,0.9921,0.9921,0.9921,0.9981
+9,Knn,Traditional ML,0.9911,0.9911,0.9911,0.9911,0.9960
+10,Logistic Regression,Traditional ML,0.9502,0.9502,0.9502,0.9502,0.9886
+11,Naive Bayes,Traditional ML,0.8964,0.8968,0.8964,0.8965,0.9569
