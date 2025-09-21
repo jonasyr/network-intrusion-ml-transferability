@@ -66,6 +66,7 @@ This research project investigates the effectiveness of various machine learning
 - ✅ Preprocessing pipeline
 - ✅ Class balancing (SMOTE, Undersampling)
 - ✅ Model evaluation framework
+- ✅ Advanced model suite (XGBoost, LightGBM, Gradient Boosting, Extra Trees, MLP, Soft Voting)
 
 #### 🔧 **Infrastructure**
 
@@ -148,6 +149,9 @@ python check_data.py
 ```bash
 # Run baseline experiments
 python scripts/run_baseline.py
+
+# Run advanced experiments
+python scripts/run_advanced.py
 
 # Start Jupyter for detailed analysis
 jupyter lab notebooks/01_data_exploration.ipynb
