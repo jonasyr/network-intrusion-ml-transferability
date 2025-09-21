@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""
+Run All Experiments Pipeline
+Complete experimental pipeline for the research paper
+"""
+
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+def run_experiment(script_path, description):
+    """Run a single experiment script"""
+    print(f"\n{'='*60}")
+    print(f"🧪 {description}")
+    print(f"{'='*60}")
+    print(f"📜 Running: {script_path}")
+    
+    start_time = time.time()
+    
+    try:
+        result = subprocess.run([sys.executable, script_path], 
+                              capture_output=True, text=True, check=True)
+        duration = time.time() - start_time
+        
+        print(f"✅ Completed in {duration:.1f}s")
+        if result.stdout:
+            print("📤 Output:")
+            print(result.stdout[-500:])  # Last 500 chars
+        return True
+        
+    except subprocess.CalledProcessError as e:
+        duration = time.time() - start_time
+        print(f"❌ Failed after {duration:.1f}s")
+        print(f"Error: {e}")
+        if e.stderr:
+            print("Error output:")
+            print(e.stderr[-500:])
+        return False
+
+def main():
+    """Run complete experimental pipeline"""
+    print("🚀 COMPLETE EXPERIMENTAL PIPELINE")
+    print("🎓 Machine Learning Models for Network Anomaly Detection")
+    print("=" * 80)
+    
+    # Define experiment sequence
+    experiments = [
+        ("experiments/01_baseline_models.py", "Baseline Models Training"),
+        ("experiments/02_advanced_models.py", "Advanced Models Training"),
+        ("experiments/03_cross_validation.py", "Cross-Validation Analysis"),
+        ("experiments/04_cross_dataset_nsl_to_cic.py", "NSL-KDD → CIC-IDS-2017 Transfer"),
+        ("experiments/05_cross_dataset_cic_to_nsl.py", "CIC-IDS-2017 → NSL-KDD Transfer"),
+        ("experiments/06_bidirectional_analysis.py", "Bidirectional Analysis"),
+        ("experiments/07_generate_paper_figures.py", "Generate Publication Figures")
+    ]
+    
+    total_start_time = time.time()
+    successful = 0
+    failed = 0
+    
+    for script_path, description in experiments:
+        if Path(script_path).exists():
+            success = run_experiment(script_path, description)
+            if success:
+                successful += 1
+            else:
+                failed += 1
+        else:
+            print(f"⚠️ Script not found: {script_path}")
+            failed += 1
+    
+    total_duration = time.time() - total_start_time
+    
+    print(f"\n{'='*80}")
+    print(f"🎯 PIPELINE COMPLETE")
+    print(f"{'='*80}")
+    print(f"⏱️ Total Duration: {total_duration/60:.1f} minutes")
+    print(f"✅ Successful: {successful}")
+    print(f"❌ Failed: {failed}")
+    print(f"📊 Success Rate: {successful/(successful+failed)*100:.1f}%")
+    
+    if failed == 0:
+        print("\n🎉 ALL EXPERIMENTS COMPLETED SUCCESSFULLY!")
+        print("📝 Ready for paper writing!")
+    else:
+        print(f"\n⚠️ {failed} experiments failed. Check logs above.")
+    
+    return failed == 0
+
+if __name__ == "__main__":
+    success = main()
+    sys.exit(0 if success else 1)
