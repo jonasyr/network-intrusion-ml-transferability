@@ -278,26 +278,31 @@ class BaselineModels:
         
         return report
     
-    def save_models(self, output_dir: str):
+    def save_models(self, output_dir: str, results_dir: str = None):
         """
         Save all trained models to disk
         
         Args:
             output_dir: Directory to save models
+            results_dir: Directory to save results (defaults to output_dir)
         """
-        output_path = Path(output_dir)
-        output_path.mkdir(parents=True, exist_ok=True)
+        models_path = Path(output_dir)
+        models_path.mkdir(parents=True, exist_ok=True)
+        
+        # Use separate results directory if provided, otherwise same as models
+        results_path = Path(results_dir) if results_dir else models_path
+        results_path.mkdir(parents=True, exist_ok=True)
         
         for model_name, model in self.trained_models.items():
-            model_path = output_path / f"{model_name}.joblib"
+            model_path = models_path / f"{model_name}.joblib"
             joblib.dump(model, model_path)
             print(f"💾 Saved {model_name} to {model_path}")
         
         # Save results DataFrame
         if self.results:
             results_df = pd.DataFrame(self.results)
-            results_path = output_path / "baseline_results.csv"
-            results_df.to_csv(results_path, index=False)
+            results_file_path = results_path / "baseline_results.csv"
+            results_df.to_csv(results_file_path, index=False)
             print(f"💾 Saved results to {results_path}")
     
     def load_models(self, input_dir: str):

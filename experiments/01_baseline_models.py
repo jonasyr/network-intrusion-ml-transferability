@@ -67,12 +67,13 @@ def main():
             
             # Save models
             print(f"\n💾 Saving models...")
-            baseline.save_models("data/models")
+            baseline.save_models("data/models", "data/results")
             preprocessor.save("data/models/preprocessor.pkl")
             
             print(f"\n✅ Training complete!")
             print(f"🎯 Best model: {best_model_name}")
             print(f"📁 Models saved to: data/models/")
+            print(f"📊 Results saved to: data/results/")
         
     except ImportError as e:
         print(f"❌ Import error: {e}")

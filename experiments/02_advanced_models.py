@@ -74,9 +74,11 @@ def main() -> None:
     else:
         print("⚠️ No validation results available. Skipping test evaluation.")
 
-    output_dir = PROJECT_ROOT / "data" / "models" / "advanced"
-    print(f"\n💾 Saving models and validation results to {output_dir}")
-    advanced_models.save_models(output_dir, results_filename="advanced_results.csv")
+    model_output_dir = PROJECT_ROOT / "data" / "models"
+    results_output_dir = PROJECT_ROOT / "data" / "results"
+    print(f"\n💾 Saving models to {model_output_dir}")
+    print(f"💾 Saving results to {results_output_dir}")
+    advanced_models.save_models(model_output_dir, results_dir=results_output_dir, results_filename="advanced_results.csv")
 
     print("\n✅ Advanced training pipeline complete!")
 

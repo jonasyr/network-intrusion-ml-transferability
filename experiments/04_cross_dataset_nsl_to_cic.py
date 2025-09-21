@@ -71,8 +71,8 @@ def run_cross_dataset_evaluation():
     # Load trained models (the best performers)
     model_paths = {
         'Random Forest': 'data/models/random_forest.joblib',
-        'XGBoost': 'data/models/advanced/xgboost.joblib',
-        'LightGBM': 'data/models/advanced/lightgbm.joblib'
+        'XGBoost': 'data/models/xgboost.joblib',
+        'LightGBM': 'data/models/lightgbm.joblib'
     }
     
     results = []
