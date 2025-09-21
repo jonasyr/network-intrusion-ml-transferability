@@ -9,6 +9,13 @@ import sys
 import time
 from pathlib import Path
 
+def get_python_executable():
+    """Get the correct Python executable (virtual environment if available)"""
+    venv_python = Path(".venv/bin/python")
+    if venv_python.exists():
+        return str(venv_python.absolute())
+    return sys.executable
+
 def run_experiment(script_path, description):
     """Run a single experiment script"""
     print(f"\n{'='*60}")
@@ -17,9 +24,11 @@ def run_experiment(script_path, description):
     print(f"📜 Running: {script_path}")
     
     start_time = time.time()
+    python_exe = get_python_executable()
+    print(f"🐍 Using Python: {python_exe}")
     
     try:
-        result = subprocess.run([sys.executable, script_path], 
+        result = subprocess.run([python_exe, script_path], 
                               capture_output=True, text=True, check=True)
         duration = time.time() - start_time
         
