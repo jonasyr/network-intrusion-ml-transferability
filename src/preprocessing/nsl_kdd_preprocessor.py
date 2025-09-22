@@ -65,7 +65,21 @@ class NSLKDDPreprocessor:
         
         # Categorical features that need encoding
         self.categorical_features = ['protocol_type', 'service', 'flag']
-        
+
+    @staticmethod
+    def _augment_features(data: pd.DataFrame) -> pd.DataFrame:
+        """Create additional flow statistics shared with CIC-IDS-2017."""
+
+        df = data.copy()
+        if {'src_bytes', 'dst_bytes'}.issubset(df.columns):
+            df['total_bytes'] = df['src_bytes'] + df['dst_bytes']
+            dst_safe = np.where(df['dst_bytes'] <= 0, 1.0, df['dst_bytes'])
+            df['byte_ratio'] = df['src_bytes'] / dst_safe
+        if {'src_bytes', 'dst_bytes', 'duration'}.issubset(df.columns):
+            duration_safe = np.where(df['duration'] <= 0, 1.0, df['duration'])
+            df['bytes_per_second'] = (df['src_bytes'] + df['dst_bytes']) / duration_safe
+        return df
+
     def add_attack_categories(self, data: pd.DataFrame) -> pd.DataFrame:
         """Add attack category column based on attack_type"""
         data = data.copy()
@@ -204,7 +218,10 @@ class NSLKDDPreprocessor:
         
         # Encode categorical features
         data = self.encode_categorical_features(data, fit=True)
-        
+
+        # Create additional shared statistics before scaling
+        data = self._augment_features(data)
+
         # Scale numerical features
         data = self.scale_numerical_features(data, fit=True)
         
@@ -270,7 +287,10 @@ class NSLKDDPreprocessor:
         
         # Encode categorical features (no fitting)
         data = self.encode_categorical_features(data, fit=False)
-        
+
+        # Create additional shared statistics before scaling
+        data = self._augment_features(data)
+
         # Scale numerical features (no fitting)
         data = self.scale_numerical_features(data, fit=False)
         

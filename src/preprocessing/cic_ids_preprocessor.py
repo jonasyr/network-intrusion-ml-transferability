@@ -32,12 +32,30 @@ class CICIDSPreprocessor:
             'BENIGN': 0,  # Normal traffic
             # All attacks mapped to 1
             'DoS Hulk': 1, 'PortScan': 1, 'DDoS': 1, 'DoS GoldenEye': 1,
-            'FTP-Patator': 1, 'SSH-Patator': 1, 'DoS slowloris': 1, 
+            'FTP-Patator': 1, 'SSH-Patator': 1, 'DoS slowloris': 1,
             'DoS Slowhttptest': 1, 'Bot': 1, 'Web Attack – Brute Force': 1,
-            'Web Attack – XSS': 1, 'Infiltration': 1, 
+            'Web Attack – XSS': 1, 'Infiltration': 1,
             'Web Attack – Sql Injection': 1, 'Heartbleed': 1
         }
-    
+
+    @staticmethod
+    def _augment_features(features: pd.DataFrame) -> pd.DataFrame:
+        """Add shared traffic statistics used for cross-dataset alignment."""
+
+        df = features.copy()
+        forward = 'Total_Length_of_Fwd_Packets'
+        backward = 'Total_Length_of_Bwd_Packets'
+        duration = 'Flow_Duration'
+
+        if {forward, backward}.issubset(df.columns):
+            df['total_bytes'] = df[forward] + df[backward]
+            backward_safe = np.where(df[backward] <= 0, 1.0, df[backward])
+            df['byte_ratio'] = df[forward] / backward_safe
+        if {forward, backward, duration}.issubset(df.columns):
+            duration_safe = np.where(df[duration] <= 0, 1.0, df[duration])
+            df['bytes_per_second'] = (df[forward] + df[backward]) / duration_safe
+        return df
+
     def load_data(self, file_path: str = None, use_full_dataset: bool = True) -> pd.DataFrame:
         """
         Load CIC-IDS-2017 data from CSV file(s)
@@ -157,6 +175,10 @@ class CICIDSPreprocessor:
         # Separate features and labels
         feature_cols = [col for col in data.columns if col != 'Label']
         X = data[feature_cols].copy()
+        X = self._augment_features(X)
+
+        if fit:
+            feature_cols = list(X.columns)
 
         if not fit and self.feature_names:
             missing = [col for col in self.feature_names if col not in X.columns]
@@ -165,7 +187,7 @@ class CICIDSPreprocessor:
                     f"Missing expected CIC-IDS-2017 features: {', '.join(missing)}"
                 )
             X = X[self.feature_names]
-        
+
         # Store feature names
         if fit:
             self.feature_names = feature_cols
