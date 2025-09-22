@@ -55,7 +55,7 @@ class CICIDSPreprocessor:
                 return self._load_full_dataset()
             elif file_path is None:
                 # Load sample dataset (backward compatibility)
-                file_path = "data/raw/cic_ids_2017/cic_ids_sample.csv"
+                file_path = "data/raw/cic-ids-2017/cic_ids_sample_backup.csv"
             
             print(f"📁 Loading CIC-IDS-2017 data from {file_path}...")
             data = pd.read_csv(file_path)
@@ -85,7 +85,7 @@ class CICIDSPreprocessor:
         """
         from pathlib import Path
         
-        dataset_dir = Path("data/raw/cic_ids_2017/full_dataset")
+        dataset_dir = Path("data/raw/cic-ids-2017/full_dataset")
         csv_files = list(dataset_dir.glob("*.csv"))
         
         if not csv_files:
@@ -157,6 +157,14 @@ class CICIDSPreprocessor:
         # Separate features and labels
         feature_cols = [col for col in data.columns if col != 'Label']
         X = data[feature_cols].copy()
+
+        if not fit and self.feature_names:
+            missing = [col for col in self.feature_names if col not in X.columns]
+            if missing:
+                raise ValueError(
+                    f"Missing expected CIC-IDS-2017 features: {', '.join(missing)}"
+                )
+            X = X[self.feature_names]
         
         # Store feature names
         if fit:

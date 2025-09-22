@@ -11,8 +11,10 @@ import numpy as np
 import time
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-# Add src to path
-sys.path.append(str(Path(__file__).parent.parent / "src"))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(str(PROJECT_ROOT))
 
 def run_cic_baseline_analysis():
     """
@@ -25,8 +27,8 @@ def run_cic_baseline_analysis():
     
     try:
         # Import modules
-        from data.cic_ids_preprocessor import CICIDSPreprocessor
-        from models.baseline import BaselineModels
+        from src.preprocessing import CICIDSPreprocessor
+        from src.models import BaselineModels
         
         # Load and preprocess CIC-IDS-2017 data
         print("\n📁 Loading CIC-IDS-2017 dataset...")

@@ -12,6 +12,9 @@ from pathlib import Path
 import joblib
 from typing import Dict, List, Tuple, Optional
 import warnings
+
+from src.preprocessing import CICIDSPreprocessor
+
 warnings.filterwarnings('ignore')
 
 # Set publication-ready style
@@ -216,10 +219,8 @@ class PaperFigureGenerator:
         """
         # Load NSL-KDD data for analysis
         try:
-            import sys
-            sys.path.append('src')
-            from nsl_kdd_analyzer import NSLKDDAnalyzer
-            
+            from src.preprocessing import NSLKDDAnalyzer
+
             analyzer = NSLKDDAnalyzer()
             train_data = analyzer.load_data("KDDTrain+_20Percent.txt")
             test_data = analyzer.load_data("KDDTest+.txt")
@@ -335,10 +336,6 @@ class PaperFigureGenerator:
         """
         # Load CIC-IDS-2017 data for analysis
         try:
-            import sys
-            sys.path.append('src')
-            from data.cic_ids_preprocessor import CICIDSPreprocessor
-            
             preprocessor = CICIDSPreprocessor()
             cic_data = preprocessor.load_data(use_full_dataset=True)
             
