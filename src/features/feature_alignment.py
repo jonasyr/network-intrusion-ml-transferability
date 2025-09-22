@@ -30,38 +30,21 @@ class FeatureAligner:
         # corpora. This allows reproducible experiments while acknowledging the
         # structural differences between the datasets.
         self.feature_mappings: Dict[str, Dict[str, object]] = {
-            "duration": {"nsl_name": "duration", "cic_name": "Flow Duration"},
-            "protocol": {"nsl_name": "protocol_type", "cic_name": "Protocol"},
-            "src_bytes": {"nsl_name": "src_bytes", "cic_name": "Total Fwd Packets"},
-            "dst_bytes": {"nsl_name": "dst_bytes", "cic_name": "Total Backward Packets"},
-            "wrong_fragment": {
-                "nsl_name": "wrong_fragment",
-                "cic_name": "Fwd Packets Length Std",
+            "duration": {"nsl_name": "duration", "cic_name": "Flow_Duration"},
+            "forward_bytes": {
+                "nsl_name": "src_bytes",
+                "cic_name": "Total_Length_of_Fwd_Packets",
             },
-            "urgent": {"nsl_name": "urgent", "cic_name": "Bwd Packets Length Std"},
-            "count": {"nsl_name": "count", "cic_name": "Flow Packets/s"},
-            "srv_count": {"nsl_name": "srv_count", "cic_name": "Flow IAT Mean"},
-            "serror_rate": {"nsl_name": "serror_rate", "cic_name": "Fwd IAT Std"},
-            "srv_serror_rate": {
-                "nsl_name": "srv_serror_rate",
-                "cic_name": "Bwd IAT Std",
+            "backward_bytes": {
+                "nsl_name": "dst_bytes",
+                "cic_name": "Total_Length_of_Bwd_Packets",
             },
-            "same_srv_rate": {
-                "nsl_name": "same_srv_rate",
-                "cic_name": "Subflow Fwd Packets",
+            "total_bytes": {"nsl_name": "total_bytes", "cic_name": "total_bytes"},
+            "bytes_per_second": {
+                "nsl_name": "bytes_per_second",
+                "cic_name": "bytes_per_second",
             },
-            "diff_srv_rate": {
-                "nsl_name": "diff_srv_rate",
-                "cic_name": "Subflow Bwd Packets",
-            },
-            "dst_host_count": {
-                "nsl_name": "dst_host_count",
-                "cic_name": "Fwd Packets Length Mean",
-            },
-            "dst_host_srv_count": {
-                "nsl_name": "dst_host_srv_count",
-                "cic_name": "Bwd Packets Length Mean",
-            },
+            "byte_ratio": {"nsl_name": "byte_ratio", "cic_name": "byte_ratio"},
         }
 
     # ------------------------------------------------------------------
