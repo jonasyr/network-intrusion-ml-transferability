@@ -6,8 +6,8 @@ from pathlib import Path
 
 # Ensure the src package is importable when running as a script
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT / "src") not in sys.path:
-    sys.path.append(str(PROJECT_ROOT / "src"))
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(str(PROJECT_ROOT))
 
 
 def main() -> None:
@@ -15,9 +15,8 @@ def main() -> None:
     print("=" * 60)
 
     try:
-        from nsl_kdd_analyzer import NSLKDDAnalyzer
-        from data.preprocessor import NSLKDDPreprocessor
-        from models.advanced import AdvancedModels
+        from src.preprocessing import NSLKDDAnalyzer, NSLKDDPreprocessor
+        from src.models import AdvancedModels
     except ImportError as exc:  # pragma: no cover - runtime feedback only
         print(f"❌ Import error: {exc}")
         print("💡 Ensure the repository structure is intact and dependencies installed.")

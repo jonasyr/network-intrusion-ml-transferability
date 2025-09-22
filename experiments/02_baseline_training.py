@@ -6,7 +6,9 @@ Fixed baseline training script
 
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent / "src"))
+
+project_root = Path(__file__).parent.parent
+sys.path.append(str(project_root))
 
 def main():
     print("🚀 Quick Baseline Training")
@@ -14,9 +16,8 @@ def main():
     
     try:
         # Import modules
-        from nsl_kdd_analyzer import NSLKDDAnalyzer
-        from data.preprocessor import NSLKDDPreprocessor  
-        from models.baseline import BaselineModels  # Fixed: Use BaselineModels, not QuickBaseline
+        from src.preprocessing import NSLKDDAnalyzer, NSLKDDPreprocessor
+        from src.models import BaselineModels  # Fixed: Use BaselineModels, not QuickBaseline
         
         # Load data
         print("📁 Loading data...")

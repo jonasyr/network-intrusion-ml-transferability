@@ -1,6 +1,6 @@
-"""Model collections available for the NSL-KDD research project."""
+"""Model implementations for the intrusion detection study."""
 
-from .advanced import AdvancedModels, TrainingResult  # noqa: F401
-from .baseline import BaselineModels  # noqa: F401
+from .baseline_models import BaselineModels
+from .advanced_models import AdvancedModels
 
-__all__ = ["AdvancedModels", "TrainingResult", "BaselineModels"]
+__all__ = ["BaselineModels", "AdvancedModels"]

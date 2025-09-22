@@ -1,289 +1,265 @@
 #!/usr/bin/env python3
-# scripts/run_reverse_cross_dataset.py
-"""
-Reverse cross-dataset evaluation: Train on CIC-IDS-2017, test on NSL-KDD
-This completes the bidirectional generalization analysis
-"""
+"""Cross-dataset evaluation: train on CIC-IDS-2017 and test on NSL-KDD."""
+
+from __future__ import annotations
 
 import sys
-from pathlib import Path
-import pandas as pd
-import numpy as np
-import joblib
 import time
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-import warnings
-warnings.filterwarnings('ignore')
+from pathlib import Path
+from typing import Dict, List
 
-# Add src to path
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.model_selection import train_test_split
+
 current_dir = Path(__file__).parent
 project_root = current_dir.parent
-sys.path.append(str(project_root / 'src'))
+sys.path.append(str(project_root))
 
-def run_reverse_cross_dataset_evaluation():
-    """
-    Train on CIC-IDS-2017, test on NSL-KDD
-    """
-    print("🔄 REVERSE CROSS-DATASET EVALUATION")
-    print("=" * 60)
-    print("Training on CIC-IDS-2017, Testing on NSL-KDD")
-    print("This completes the bidirectional generalization analysis!")
-    print("=" * 60)
-    
-    # Import required modules
-    from nsl_kdd_analyzer import NSLKDDAnalyzer
-    from data.preprocessor import NSLKDDPreprocessor
-    from data.cic_ids_preprocessor import CICIDSPreprocessor
-    
-    # Initialize preprocessors
-    nsl_preprocessor = NSLKDDPreprocessor(balance_method='smote')
+from src.features import FeatureAligner
+from src.metrics.cross_dataset_metrics import (
+    calculate_generalization_gap,
+    calculate_relative_performance_drop,
+    calculate_transfer_ratio,
+    compute_domain_divergence,
+)
+from src.preprocessing import CICIDSPreprocessor, NSLKDDAnalyzer, NSLKDDPreprocessor
+
+try:  # Optional dependencies
+    import xgboost as xgb
+except ImportError:  # pragma: no cover - optional component
+    xgb = None
+
+try:  # Optional dependencies
+    import lightgbm as lgb
+except ImportError:  # pragma: no cover - optional component
+    lgb = None
+
+RANDOM_STATE = 42
+RESULTS_PATH = project_root / "data/results/reverse_cross_dataset_evaluation_fixed.csv"
+
+
+def _format_percentage(value: float) -> str:
+    return f"{value * 100:.2f}%"
+
+
+def run_reverse_cross_dataset_evaluation() -> bool:
+    """Execute the CIC→NSL cross-dataset experiment."""
+
+    print("🔄 CROSS-DATASET EVALUATION (CIC-IDS-2017 → NSL-KDD)")
+    print("=" * 80)
+
+    analyzer = NSLKDDAnalyzer()
+    nsl_preprocessor = NSLKDDPreprocessor(balance_method="smote")
     cic_preprocessor = CICIDSPreprocessor()
-    
-    # Load CIC-IDS-2017 data for training (full dataset)
-    print("\n📁 Loading CIC-IDS-2017 full dataset for training...")
-    cic_data = cic_preprocessor.load_data(use_full_dataset=True)
-    
-    if cic_data is None:
-        print("❌ Failed to load CIC-IDS-2017 dataset")
-        return False
-    
-    # Load NSL-KDD data for testing
-    print("\n📁 Loading NSL-KDD dataset for testing...")
-    nsl_analyzer = NSLKDDAnalyzer()
-    nsl_test = nsl_analyzer.load_data("KDDTest+.txt")
-    
-    if nsl_test is None:
-        print("❌ Failed to load NSL-KDD test data")
-        return False
-    
-    # Preprocess CIC-IDS-2017 for training
-    print("\n🔄 Preprocessing CIC-IDS-2017 for training...")
-    x_cic_train, y_cic_train = cic_preprocessor.fit_transform(cic_data)
-    
-    # Split CIC data for training and within-dataset validation
-    from sklearn.model_selection import train_test_split
-    x_cic_train_split, x_cic_val, y_cic_train_split, y_cic_val = train_test_split(
-        x_cic_train, y_cic_train, test_size=0.2, random_state=42, stratify=y_cic_train
-    )
-    
-    # Preprocess NSL-KDD for testing
-    print("\n🔄 Preprocessing NSL-KDD for testing...")
-    # We need to fit the NSL-KDD preprocessor first to handle categorical encoding
-    nsl_train_sample = nsl_analyzer.load_data("KDDTrain+_20Percent.txt")
-    if nsl_train_sample is not None:
-        # Fit preprocessor on training data to get proper encoders
-        _, _, _, _ = nsl_preprocessor.fit_transform(nsl_train_sample)
-    # Now transform test data with fitted encoders
-    x_nsl_test, y_nsl_test = nsl_preprocessor.transform(nsl_test)
-    
-    print(f"\n📊 Dataset Summary:")
-    print(f"   CIC-IDS-2017 Training: {x_cic_train_split.shape} features: {x_cic_train_split.shape[1]}")
-    print(f"   CIC-IDS-2017 Validation: {x_cic_val.shape}")
-    print(f"   NSL-KDD Test: {x_nsl_test.shape} features: {x_nsl_test.shape[1]}")
-    
-    # Handle feature mismatch (CIC has 77 features, NSL-KDD has 41)
-    print(f"\n🔧 Handling feature dimension mismatch...")
-    print(f"   CIC features: {x_cic_train_split.shape[1]}")
-    print(f"   NSL features: {x_nsl_test.shape[1]}")
-    
-    if x_cic_train_split.shape[1] != x_nsl_test.shape[1]:
-        # Strategy: Train on CIC features, then align NSL-KDD to match
-        if x_nsl_test.shape[1] < x_cic_train_split.shape[1]:
-            # Pad NSL-KDD features to match CIC dimensions
-            print(f"   📈 Padding NSL-KDD features to match CIC dimensions...")
-            padding_cols = x_cic_train_split.shape[1] - x_nsl_test.shape[1]
-            padding = np.zeros((x_nsl_test.shape[0], padding_cols))
-            x_nsl_test_aligned = np.hstack([x_nsl_test, padding])
-            print(f"   ✅ Padded NSL-KDD: {x_nsl_test_aligned.shape}")
-        else:
-            # Truncate NSL-KDD features (shouldn't happen in this case)
-            x_nsl_test_aligned = x_nsl_test[:, :x_cic_train_split.shape[1]]
-    else:
-        x_nsl_test_aligned = x_nsl_test
-    
-    # Train models on CIC-IDS-2017
-    models_to_train = {
-        'Random Forest': RandomForestClassifier(
-            n_estimators=100, 
-            random_state=42, 
-            n_jobs=-1,
-            max_depth=10
-        ),
-        'XGBoost': None,  # Will try to import
-        'LightGBM': None  # Will try to import
-    }
-    
-    # Try to import advanced models
-    try:
-        import xgboost as xgb
-        models_to_train['XGBoost'] = xgb.XGBClassifier(
-            n_estimators=100,
-            random_state=42,
-            n_jobs=-1,
-            max_depth=6
-        )
-    except ImportError:
-        print("⚠️ XGBoost not available")
-        del models_to_train['XGBoost']
-    
-    try:
-        import lightgbm as lgb
-        models_to_train['LightGBM'] = lgb.LGBMClassifier(
-            n_estimators=100,
-            random_state=42,
-            n_jobs=-1,
-            max_depth=6,
-            verbosity=-1
-        )
-    except ImportError:
-        print("⚠️ LightGBM not available")
-        del models_to_train['LightGBM']
-    
-    results = []
-    
-    print(f"\n🚀 TRAINING MODELS ON CIC-IDS-2017")
-    print("=" * 60)
-    
-    for model_name, model in models_to_train.items():
-        if model is None:
-            continue
-            
-        print(f"\n🤖 Training {model_name}...")
-        
-        try:
-            # Train on CIC-IDS-2017
-            print(f"   📚 Training on CIC-IDS-2017...")
-            start_time = time.time()
-            model.fit(x_cic_train_split, y_cic_train_split)
-            training_time = time.time() - start_time
-            print(f"   ⏱️ Training time: {training_time:.2f}s")
-            
-            # Test 1: Within-dataset validation (CIC → CIC)
-            print(f"   📊 Within-dataset validation (CIC → CIC)...")
-            y_pred_cic = model.predict(x_cic_val)
-            
-            cic_accuracy = accuracy_score(y_cic_val, y_pred_cic)
-            cic_precision = precision_score(y_cic_val, y_pred_cic, average='binary')
-            cic_recall = recall_score(y_cic_val, y_pred_cic, average='binary')
-            cic_f1 = f1_score(y_cic_val, y_pred_cic, average='binary')
-            
-            print(f"      Accuracy: {cic_accuracy:.4f}")
-            print(f"      F1-Score: {cic_f1:.4f}")
-            
-            # Test 2: Cross-dataset evaluation (CIC → NSL-KDD)
-            print(f"   🔄 Cross-dataset evaluation (CIC → NSL-KDD)...")
-            start_time = time.time()
-            y_pred_nsl = model.predict(x_nsl_test_aligned)
-            prediction_time = time.time() - start_time
-            
-            nsl_accuracy = accuracy_score(y_nsl_test, y_pred_nsl)
-            nsl_precision = precision_score(y_nsl_test, y_pred_nsl, average='binary')
-            nsl_recall = recall_score(y_nsl_test, y_pred_nsl, average='binary')
-            nsl_f1 = f1_score(y_nsl_test, y_pred_nsl, average='binary')
-            
-            print(f"      Accuracy: {nsl_accuracy:.4f}")
-            print(f"      F1-Score: {nsl_f1:.4f}")
-            print(f"      Prediction time: {prediction_time:.2f}s")
-            
-            # Performance drop analysis
-            accuracy_drop = cic_accuracy - nsl_accuracy
-            f1_drop = cic_f1 - nsl_f1
-            
-            print(f"      📉 Performance Drop:")
-            print(f"         Accuracy: {accuracy_drop:.4f} ({accuracy_drop/cic_accuracy*100:.1f}%)")
-            print(f"         F1-Score: {f1_drop:.4f} ({f1_drop/cic_f1*100:.1f}%)")
-            
-            # Store results
-            results.append({
-                'Model': model_name,
-                'CIC_Accuracy': cic_accuracy,
-                'CIC_F1': cic_f1,
-                'CIC_Precision': cic_precision,
-                'CIC_Recall': cic_recall,
-                'NSL_Accuracy': nsl_accuracy,
-                'NSL_F1': nsl_f1,
-                'NSL_Precision': nsl_precision,
-                'NSL_Recall': nsl_recall,
-                'Accuracy_Drop': accuracy_drop,
-                'F1_Drop': f1_drop,
-                'Generalization_Score': 1 - (accuracy_drop / cic_accuracy),
-                'Training_Time': training_time,
-                'Prediction_Time': prediction_time
-            })
-            
-            # Save trained model
-            model_save_path = Path(f"data/models/{model_name.lower().replace(' ', '_')}_cic_trained.joblib")
-            model_save_path.parent.mkdir(parents=True, exist_ok=True)
-            joblib.dump(model, model_save_path)
-            print(f"   💾 Saved model to: {model_save_path}")
-            
-        except Exception as e:
-            print(f"      ❌ Error with {model_name}: {e}")
-            import traceback
-            traceback.print_exc()
-    
-    # Create results summary
-    if results:
-        results_df = pd.DataFrame(results)
-        
-        print(f"\n📊 REVERSE CROSS-DATASET EVALUATION RESULTS")
-        print("=" * 80)
-        print("Training: CIC-IDS-2017 → Testing: NSL-KDD")
-        print("=" * 80)
-        print(results_df.round(4).to_string(index=False))
-        
-        # Save results
-        output_path = Path("data/results/reverse_cross_dataset_evaluation.csv")
-        results_df.to_csv(output_path, index=False)
-        print(f"\n💾 Results saved to: {output_path}")
-        
-        # Key insights
-        print(f"\n🔍 KEY INSIGHTS (CIC → NSL):")
-        if len(results_df) > 0:
-            best_generalizer = results_df.loc[results_df['Generalization_Score'].idxmax()]
-            worst_drop = results_df.loc[results_df['Accuracy_Drop'].idxmax()]
-            
-            print(f"   🏆 Best Generalizing Model: {best_generalizer['Model']}")
-            print(f"      Generalization Score: {best_generalizer['Generalization_Score']:.4f}")
-            print(f"      Accuracy Drop: {best_generalizer['Accuracy_Drop']:.4f}")
-            
-            print(f"   📉 Largest Performance Drop: {worst_drop['Model']}")
-            print(f"      Accuracy Drop: {worst_drop['Accuracy_Drop']:.4f}")
-            
-            avg_drop = results_df['Accuracy_Drop'].mean()
-            print(f"   📊 Average Accuracy Drop: {avg_drop:.4f}")
-            
-            print(f"\n💡 RESEARCH IMPLICATIONS:")
-            if avg_drop > 0.2:
-                print(f"   • Significant bidirectional generalization challenge")
-                print(f"   • Dataset-specific feature importance patterns")
-                print(f"   • Need for domain-invariant feature learning")
-            elif avg_drop > 0.1:
-                print(f"   • Moderate reverse generalization gap")
-                print(f"   • Different dataset characteristics impact transfer")
-            else:
-                print(f"   • Good reverse generalization capability")
-                print(f"   • Models learned generalizable patterns")
-        
-        return True
-    
-    else:
-        print("❌ No results generated")
+
+    print("\n📁 Loading datasets…")
+    cic_data = cic_preprocessor.load_data(use_full_dataset=False)
+    nsl_train = analyzer.load_data("KDDTrain+_20Percent.txt")
+    nsl_test = analyzer.load_data("KDDTest+.txt")
+
+    if cic_data is None or nsl_train is None or nsl_test is None:
+        print("❌ Failed to load one or more datasets")
         return False
 
-def main():
-    """Main function"""
+    print("\n🔄 Preprocessing datasets…")
+    X_cic, y_cic = cic_preprocessor.fit_transform(cic_data)
+    X_cic_train, X_cic_val, y_cic_train, y_cic_val = train_test_split(
+        X_cic,
+        y_cic,
+        test_size=0.2,
+        random_state=RANDOM_STATE,
+        stratify=y_cic,
+    )
+
+    _ = nsl_preprocessor.fit_transform(nsl_train)
+    X_nsl_test, y_nsl_test = nsl_preprocessor.transform(nsl_test)
+
+    print("\n📐 Aligning feature spaces…")
+    aligner = FeatureAligner()
+
+    try:
+        common = aligner.extract_common_features(
+            X_nsl_test,
+            X_cic_train,
+            nsl_preprocessor.feature_names,
+            cic_preprocessor.feature_names,
+        )
+    except ValueError as exc:
+        print(f"   ❌ Failed to identify overlapping features: {exc}")
+        return False
+
+    selected_nsl_features = common.metadata["source_features"]
+    selected_cic_features = common.metadata["target_features"]
+    print(
+        "   • Identified "
+        f"{len(selected_nsl_features)} semantically aligned feature pairs"
+    )
+
+    feature_pairs = common.metadata.get("feature_pairs", [])
+    if feature_pairs:
+        sample_pair = feature_pairs[0]
+        print(
+            "   • Example mapping: "
+            f"{sample_pair['source_feature']} ↔ {sample_pair['target_feature']} "
+            f"({sample_pair['semantic_feature']})"
+        )
+
+    cic_train_common = common.target
+    nsl_test_common = common.source
+
+    statistical_alignment = aligner.statistical_alignment(
+        cic_train_common, nsl_test_common
+    )
+    domain_divergence = compute_domain_divergence(
+        statistical_alignment.source, statistical_alignment.target
+    )
+    print(f"   • Domain divergence (Wasserstein distance): {domain_divergence:.4f}")
+
+    n_components = min(20, cic_train_common.shape[1])
+    pca_alignment = aligner.pca_alignment(
+        cic_train_common, nsl_test_common, n_components=n_components
+    )
+    scaler = pca_alignment.metadata["scaler"]
+    pca = pca_alignment.metadata["pca"]
+
+    X_cic_train_aligned = pca_alignment.source
+    X_cic_val_common = aligner.transform_dataset(
+        X_cic_val,
+        cic_preprocessor.feature_names,
+        selected_cic_features,
+    )
+    X_cic_val_aligned = pca.transform(scaler.transform(X_cic_val_common))
+    X_nsl_test_aligned = pca_alignment.target
+
+    print(
+        f"   • PCA alignment to {X_cic_train_aligned.shape[1]} dimensions "
+        f"(explained variance: {pca_alignment.metadata['explained_variance_ratio'].sum():.2f})"
+    )
+
+    models: Dict[str, object] = {
+        "Random Forest": RandomForestClassifier(
+            n_estimators=200,
+            max_depth=25,
+            random_state=RANDOM_STATE,
+            n_jobs=-1,
+        )
+    }
+
+    if xgb is not None:
+        models["XGBoost"] = xgb.XGBClassifier(
+            n_estimators=200,
+            max_depth=8,
+            learning_rate=0.1,
+            subsample=0.9,
+            colsample_bytree=0.9,
+            random_state=RANDOM_STATE,
+            n_jobs=-1,
+            objective="binary:logistic",
+            eval_metric="logloss",
+        )
+    else:
+        print("   ⚠️ XGBoost not available – skipping")
+
+    if lgb is not None:
+        models["LightGBM"] = lgb.LGBMClassifier(
+            n_estimators=300,
+            max_depth=8,
+            learning_rate=0.05,
+            subsample=0.8,
+            colsample_bytree=0.8,
+            random_state=RANDOM_STATE,
+            n_jobs=-1,
+        )
+    else:
+        print("   ⚠️ LightGBM not available – skipping")
+
+    results: List[Dict[str, float]] = []
+
+    for model_name, model in models.items():
+        print(f"\n🤖 Training {model_name} on aligned CIC-IDS-2017 features…")
+        start_time = time.time()
+        model.fit(X_cic_train_aligned, y_cic_train)
+        training_time = time.time() - start_time
+        print(f"   ✓ Training completed in {training_time:.2f}s")
+
+        print("   📊 Evaluating within CIC-IDS-2017…")
+        y_pred_cic = model.predict(X_cic_val_aligned)
+        source_accuracy = accuracy_score(y_cic_val, y_pred_cic)
+        source_precision = precision_score(y_cic_val, y_pred_cic, zero_division=0)
+        source_recall = recall_score(y_cic_val, y_pred_cic, zero_division=0)
+        source_f1 = f1_score(y_cic_val, y_pred_cic, zero_division=0)
+
+        print("   🔄 Evaluating on NSL-KDD…")
+        y_pred_nsl = model.predict(X_nsl_test_aligned)
+        target_accuracy = accuracy_score(y_nsl_test, y_pred_nsl)
+        target_precision = precision_score(y_nsl_test, y_pred_nsl, zero_division=0)
+        target_recall = recall_score(y_nsl_test, y_pred_nsl, zero_division=0)
+        target_f1 = f1_score(y_nsl_test, y_pred_nsl, zero_division=0)
+
+        gap = calculate_generalization_gap(source_accuracy, target_accuracy)
+        relative_drop = calculate_relative_performance_drop(source_accuracy, target_accuracy)
+        transfer_ratio = calculate_transfer_ratio(source_accuracy, target_accuracy)
+
+        print(f"      Source accuracy: {_format_percentage(source_accuracy)}")
+        print(f"      Target accuracy: {_format_percentage(target_accuracy)}")
+        print(f"      Generalization gap: {gap:.4f}")
+        print(f"      Relative drop: {relative_drop:.2f}%")
+        print(f"      Transfer ratio: {transfer_ratio:.4f}")
+
+        results.append(
+            {
+                "Model": model_name,
+                "Source_Accuracy": round(float(source_accuracy), 4),
+                "Source_Precision": round(float(source_precision), 4),
+                "Source_Recall": round(float(source_recall), 4),
+                "Source_F1": round(float(source_f1), 4),
+                "Target_Accuracy": round(float(target_accuracy), 4),
+                "Target_Precision": round(float(target_precision), 4),
+                "Target_Recall": round(float(target_recall), 4),
+                "Target_F1": round(float(target_f1), 4),
+                "Generalization_Gap": round(float(gap), 4),
+                "Relative_Drop_%": round(float(relative_drop), 2),
+                "Transfer_Ratio": round(float(transfer_ratio), 4),
+                "Domain_Divergence": round(float(domain_divergence), 4),
+                "Training_Time_s": round(training_time, 2),
+                "Aligned_Features": X_cic_train_aligned.shape[1],
+            }
+        )
+
+    if not results:
+        print("❌ No models were evaluated")
+        return False
+
+    results_df = pd.DataFrame(results)
+    RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    results_df.to_csv(RESULTS_PATH, index=False)
+
+    print("\n📊 CROSS-DATASET RESULTS (CIC-IDS-2017 → NSL-KDD)")
+    print(results_df.to_string(index=False))
+    print(f"\n💾 Results saved to {RESULTS_PATH}")
+
+    best_model = results_df.sort_values("Transfer_Ratio", ascending=False).iloc[0]
+    print("\n🔍 Key Findings")
+    print(
+        f"   • Best transfer performance: {best_model['Model']} (transfer ratio {best_model['Transfer_Ratio']:.3f})"
+    )
+    print(
+        f"   • Average relative performance drop: {results_df['Relative_Drop_%'].mean():.2f}%"
+    )
+    print(f"   • Domain divergence (lower is better): {domain_divergence:.4f}")
+
+    return True
+
+
+def main() -> bool:
     success = run_reverse_cross_dataset_evaluation()
-    
     if success:
-        print("\n🎯 REVERSE CROSS-DATASET EVALUATION COMPLETE!")
-        print("📊 Check data/results/reverse_cross_dataset_evaluation.csv")
-        print("🔄 Bidirectional generalization analysis is now complete!")
-        print("📝 Ready for comprehensive paper writing!")
-    
+        print("\n🎯 Reverse cross-dataset evaluation complete!")
     return success
 
+
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    sys.exit(0 if main() else 1)

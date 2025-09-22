@@ -8,10 +8,11 @@ import sys
 import os
 from pathlib import Path
 
-# Add src to path
+# Add project root to path
 current_dir = Path(__file__).parent
 project_root = current_dir.parent
-sys.path.append(str(project_root / 'src'))
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
 
 def main():
     """Generate all figures for the paper"""
@@ -20,7 +21,7 @@ def main():
     
     try:
         # Import the visualization module
-        from visualization.paper_figures import PaperFigureGenerator
+        from src.visualization.paper_figures import PaperFigureGenerator
         
         # Initialize generator
         generator = PaperFigureGenerator()

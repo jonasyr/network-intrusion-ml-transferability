@@ -20,7 +20,7 @@ class NSLKDDAnalyzer:
     Designed for the intrusion detection research project
     """
     
-    def __init__(self, data_dir="data/raw", output_dir="data/results"):
+    def __init__(self, data_dir="data/raw/nsl-kdd", output_dir="data/results"):
         """
         Initialize the analyzer with project directory structure
         
@@ -445,13 +445,16 @@ def setup_project_directories():
     Ensure all necessary directories exist
     """
     directories = [
+        "data/raw/nsl-kdd",
+        "data/raw/cic-ids-2017",
         "data/processed",
-        "data/results", 
-        "notebooks",
-        "src/data_preprocessing",
-        "src/models",
-        "src/evaluation",
-        "src/visualization"
+        "data/models",
+        "data/results",
+        "docs/figures",
+        "src/features",
+        "src/preprocessing",
+        "src/metrics",
+        "src/visualization",
     ]
     
     for directory in directories:

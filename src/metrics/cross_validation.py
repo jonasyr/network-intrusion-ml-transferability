@@ -1,4 +1,4 @@
-# src/evaluation/cross_validation.py
+# src/metrics/cross_validation.py
 """
 Cross-validation and statistical validation framework
 For rigorous model comparison and academic publication
@@ -322,10 +322,12 @@ def run_full_cross_validation():
     # Import required modules
     import sys
     from pathlib import Path
-    sys.path.append(str(Path(__file__).parent.parent))
-    
-    from nsl_kdd_analyzer import NSLKDDAnalyzer
-    from data.preprocessor import NSLKDDPreprocessor
+
+    project_root = Path(__file__).resolve().parents[1]
+    if str(project_root) not in sys.path:
+        sys.path.append(str(project_root))
+
+    from src.preprocessing import NSLKDDAnalyzer, NSLKDDPreprocessor
     
     # Load data
     print("📁 Loading data...")

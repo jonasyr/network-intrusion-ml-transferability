@@ -8,10 +8,11 @@ import sys
 import os
 from pathlib import Path
 
-# Add src to path
+# Add project root to path
 current_dir = Path(__file__).parent
 project_root = current_dir.parent
-sys.path.append(str(project_root / 'src'))
+if str(project_root) not in sys.path:
+    sys.path.append(str(project_root))
 
 def main():
     """Run cross-validation pipeline"""
@@ -20,7 +21,7 @@ def main():
     
     try:
         # Import the cross-validation module
-        from evaluation.cross_validation import run_full_cross_validation
+        from src.metrics import run_full_cross_validation
         
         # Run the analysis
         cv_framework, results = run_full_cross_validation()

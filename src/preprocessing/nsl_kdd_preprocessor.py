@@ -211,7 +211,8 @@ class NSLKDDPreprocessor:
         # Prepare features and labels
         exclude_cols = ['attack_type', 'attack_category', 'difficulty_level', 'is_attack']
         feature_cols = [col for col in data.columns if col not in exclude_cols]
-        
+        self.feature_names = feature_cols
+
         X = data[feature_cols].values
         
         # Select target based on type
@@ -275,8 +276,12 @@ class NSLKDDPreprocessor:
         
         # Prepare features and labels
         exclude_cols = ['attack_type', 'attack_category', 'difficulty_level', 'is_attack']
-        feature_cols = [col for col in data.columns if col not in exclude_cols]
-        
+        if self.feature_names:
+            feature_cols = [col for col in self.feature_names if col in data.columns]
+        else:
+            feature_cols = [col for col in data.columns if col not in exclude_cols]
+            self.feature_names = feature_cols
+
         X = data[feature_cols].values
         
         # Select target based on type
@@ -346,9 +351,12 @@ if __name__ == "__main__":
     # Test the preprocessor
     import sys
     from pathlib import Path
-    sys.path.append(str(Path(__file__).parent.parent))
-    
-    from nsl_kdd_analyzer import NSLKDDAnalyzer
+
+    project_root = Path(__file__).resolve().parents[1]
+    if str(project_root) not in sys.path:
+        sys.path.append(str(project_root))
+
+    from src.preprocessing import NSLKDDAnalyzer
     
     # Load data
     analyzer = NSLKDDAnalyzer()
