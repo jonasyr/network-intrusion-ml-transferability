@@ -221,4 +221,4 @@ __pycache__/
 # Generated data (optional)
 # data/processed/*.csv
 # data/processed/*.pkl
-data/models
+data/models/
