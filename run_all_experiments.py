@@ -8,6 +8,8 @@ import subprocess
 import sys
 import time
 import threading
+import os
+import select
 from pathlib import Path
 from datetime import datetime, timedelta
 
@@ -29,19 +31,126 @@ def format_duration(seconds):
         minutes = int((seconds % 3600) // 60)
         return f"{hours}h {minutes}min"
 
-def progress_indicator(stop_event, experiment_name, start_time):
-    """Show a progress indicator with elapsed time"""
-    chars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-    idx = 0
+def parse_experiment_output(output_line):
+    """Parse experiment output to extract meaningful progress information"""
+    line = output_line.strip()
+    line_lower = line.lower()
     
-    while not stop_event.is_set():
-        elapsed = time.time() - start_time
-        print(f"\r{chars[idx]} {experiment_name} - Elapsed: {format_duration(elapsed)}", end="", flush=True)
-        idx = (idx + 1) % len(chars)
-        time.sleep(0.2)
+    # Common progress indicators to look for
+    progress_indicators = [
+        ("loading", "📂 Loading data"),
+        ("preprocessing", "⚙️ Preprocessing"),
+        ("training", "🏋️ Training model"),
+        ("fitting", "🏋️ Fitting model"),
+        ("evaluating", "📊 Evaluating"),
+        ("testing", "🧪 Testing"),
+        ("validating", "✅ Validating"),
+        ("cross-validation", "🔄 Cross-validating"),
+        ("feature", "🎯 Feature processing"),
+        ("model selection", "🎯 Model selection"),
+        ("hyperparameter", "⚙️ Tuning parameters"),
+        ("saving", "💾 Saving results"),
+        ("generating", "📋 Generating output"),
+        ("computing", "🧮 Computing metrics"),
+        ("analyzing", "🔍 Analyzing"),
+        ("baseline", "📐 Baseline processing"),
+        ("advanced", "🚀 Advanced processing"),
+        ("random forest", "🌲 Random Forest"),
+        ("gradient boosting", "⚡ Gradient Boosting"),
+        ("neural network", "🧠 Neural Network"),
+        ("svm", "🎯 Support Vector Machine"),
+        ("logistic regression", "📈 Logistic Regression"),
+        ("accuracy", "🎯 Accuracy"),
+        ("precision", "🔍 Precision"),
+        ("recall", "📡 Recall"),
+        ("f1-score", "⚖️ F1-Score"),
+        ("auc", "📊 AUC Score"),
+        ("confusion matrix", "🔢 Confusion Matrix"),
+    ]
+    
+    for keyword, icon in progress_indicators:
+        if keyword in line_lower:
+            # Try to preserve important parts of the original line
+            if any(metric in line_lower for metric in ['accuracy', 'precision', 'recall', 'f1', 'auc']):
+                # For metrics, show the actual values if present
+                return f"{icon} {line[:80]}"
+            else:
+                return f"{icon} {line_lower.capitalize()[:60]}"
+    
+    # Check for percentage or numerical progress
+    if any(indicator in line_lower for indicator in ["epoch", "fold", "iteration", "step"]):
+        return f"📈 {line[:70]}"
+    
+    # Check for completion indicators
+    completion_indicators = ["completed", "finished", "done", "saved", "wrote"]
+    for indicator in completion_indicators:
+        if indicator in line_lower:
+            return f"✨ {line[:70]}"
+    
+    # Check for dataset information
+    if any(keyword in line_lower for keyword in ["dataset", "samples", "features", "classes"]):
+        return f"📋 {line[:70]}"
+    
+    # Check for model performance outputs
+    if any(keyword in line_lower for keyword in ["best", "score", "performance", "results"]):
+        return f"🏆 {line[:70]}"
+    
+    return None
 
-def run_experiment(script_path, description, step_num, total_steps):
-    """Run a single experiment script with enhanced progress tracking"""
+def parse_experiment_output(line):
+    """Parse experiment output for activity detection"""
+    if not line:
+        return None
+    
+    line = line.strip()
+    
+    # Skip empty lines, debug info, and warnings
+    if (not line or 
+        "DEBUG" in line.upper() or 
+        "WARNING" in line.upper() or 
+        "FutureWarning" in line or 
+        "DeprecationWarning" in line or
+        line.startswith("2024-") or  # Skip timestamp-only lines
+        len(line) < 5):
+        return None
+    
+    # Look for meaningful activity indicators
+    activity_keywords = [
+        ("Loading", ["loading", "reading", "importing", "load", "read"]),
+        ("Preprocessing", ["preprocessing", "preprocess", "normalizing", "scaling", "encoding"]),
+        ("Feature", ["feature", "selection", "extraction", "engineering"]),
+        ("Training", ["training", "fit", "fitting", "epoch", "learning"]),
+        ("Evaluating", ["evaluating", "evaluate", "testing", "validation", "score", "accuracy"]),
+        ("Cross-validating", ["cross", "cv", "fold"]),
+        ("Saving", ["saving", "save", "export", "writing"]),
+        ("Generating", ["generating", "generate", "creating", "create"])
+    ]
+    
+    lower_line = line.lower()
+    for activity, keywords in activity_keywords:
+        if any(keyword in lower_line for keyword in keywords):
+            return f"{activity}: {line[:50]}{'...' if len(line) > 50 else ''}"
+    
+    return None
+
+
+def format_duration(seconds):
+    """Format duration in human-readable format"""
+    if seconds < 60:
+        return f"{seconds:.1f}s"
+    elif seconds < 3600:
+        minutes = int(seconds // 60)
+        secs = int(seconds % 60)
+        return f"{minutes:02d}:{secs:02d}"
+    else:
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        secs = int(seconds % 60)
+        return f"{hours}:{minutes:02d}:{secs:02d}"
+
+
+def run_experiment(script_path, description, step_num, total_steps, experiment_durations=None):
+    """Run a single experiment script with real-time progress tracking"""
     print(f"\n{'='*80}")
     print(f"🧪 STEP {step_num}/{total_steps}: {description}")
     print(f"{'='*80}")
@@ -51,62 +160,199 @@ def run_experiment(script_path, description, step_num, total_steps):
     start_time = time.time()
     python_exe = get_python_executable()
     print(f"🐍 Python: {python_exe}")
+    print()  # Add space before progress indicator
     
-    # Start progress indicator in a separate thread
-    stop_event = threading.Event()
-    progress_thread = threading.Thread(
-        target=progress_indicator, 
-        args=(stop_event, description, start_time)
-    )
-    progress_thread.daemon = True
-    progress_thread.start()
-    
+    # Shared variables for threading
+    output_lines = []
     try:
-        result = subprocess.run([python_exe, script_path], 
-                              capture_output=True, text=True, check=True)
+        # Use Popen for real-time output streaming
+        process = subprocess.Popen(
+            [python_exe, script_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            universal_newlines=True
+        )
         
-        # Stop progress indicator
-        stop_event.set()
-        progress_thread.join(timeout=1)
+        # Real-time output processing with periodic progress updates
+        print("🔄 Live Output (filtering DEBUG messages):")
+        print("-" * 80)
         
-        duration = time.time() - start_time
-        end_time = datetime.now()
+        # Show initial progress
+        progress_percent = int((step_num - 1) / total_steps * 100)
+        print(f"📊 [{step_num}/{total_steps}] {progress_percent}% | Starting | ⏱️ 0.0s")
         
-        print(f"\r✅ COMPLETED in {format_duration(duration)}")
-        print(f"⏰ Finished at: {end_time.strftime('%H:%M:%S')}")
+        last_progress_time = time.time()
+        line_count = 0
         
-        if result.stdout:
-            print("📤 Last 500 characters of output:")
-            print("-" * 50)
-            print(result.stdout[-500:])
-            print("-" * 50)
-        
-        return True, duration
-        
-    except subprocess.CalledProcessError as e:
-        # Stop progress indicator
-        stop_event.set()
-        progress_thread.join(timeout=1)
-        
-        duration = time.time() - start_time
-        end_time = datetime.now()
-        
-        print(f"\r❌ FAILED after {format_duration(duration)}")
-        print(f"⏰ Failed at: {end_time.strftime('%H:%M:%S')}")
-        print(f"💥 Error code: {e.returncode}")
-        
-        if e.stderr:
-            print("🚨 Error output:")
-            print("-" * 50)
-            print(e.stderr[-1000:])  # Show more error context
-            print("-" * 50)
-        
-        if e.stdout:
-            print("📤 Standard output:")
-            print("-" * 50)
-            print(e.stdout[-500:])
-            print("-" * 50)
+        while True:
+            # Check if process has finished
+            if process.poll() is not None:
+                # Read any remaining output
+                remaining = process.stdout.read()
+                if remaining:
+                    for line in remaining.split('\n'):
+                        if line.strip():
+                            output_lines.append(line + '\n')
+                            clean_line = line.strip()
+                            if clean_line and not any(keyword in clean_line for keyword in ['debug', 'DEBUG', 'TRACE', 'trace', 'UserWarning:', 'FutureWarning:', 'DeprecationWarning:', '/opt/conda/', '/usr/local/lib/', 'site-packages/', '__pycache__', '.pyc', 'pytest-warning']):
+                                timestamp = datetime.now().strftime('%H:%M:%S')
+                                print(f"[{timestamp}] {clean_line}")
+                break
             
+            # Check for progress update regardless of whether there's new output
+            current_time = time.time()
+            if current_time - last_progress_time > 60.0:
+                elapsed = current_time - start_time
+                progress_percent = int((step_num - 1) / total_steps * 100)
+                
+                # Analyze recent output for current phase
+                current_phase = "Processing"
+                if output_lines:
+                    recent_lines = output_lines[-5:]
+                    for line in reversed(recent_lines):
+                        activity = parse_experiment_output(line.strip())
+                        if activity:
+                            if "Loading" in activity:
+                                current_phase = "Data Loading"
+                            elif "Preprocessing" in activity or "Feature" in activity:
+                                current_phase = "Data Processing" 
+                            elif "Training" in activity or "Fitting" in activity:
+                                current_phase = "Model Training"
+                            elif "Evaluating" in activity or "Testing" in activity:
+                                current_phase = "Model Evaluation"
+                            elif "Cross-validating" in activity:
+                                current_phase = "Cross-Validation"
+                            elif "Saving" in activity or "Generating" in activity:
+                                current_phase = "Results Generation"
+                            break
+                
+                # Calculate ETA
+                eta_str = ""
+                if len(experiment_durations or []) > 0 and step_num > 1:
+                    completed_durations = [d[1] for d in experiment_durations if d[2]]
+                    if completed_durations:
+                        avg_duration = sum(completed_durations) / len(completed_durations)
+                        remaining_experiments = total_steps - step_num
+                        estimated_remaining = avg_duration * remaining_experiments
+                        if elapsed < avg_duration:
+                            estimated_remaining += (avg_duration - elapsed)
+                        eta_time = datetime.now() + timedelta(seconds=estimated_remaining)
+                        eta_str = f" | ETA: {eta_time.strftime('%H:%M')}"
+                
+                print(f"📊 [{step_num}/{total_steps}] {progress_percent}% | {current_phase} | ⏱️ {format_duration(elapsed)}{eta_str}")
+                last_progress_time = current_time
+            
+            # Use select to check if there's data to read (non-blocking)
+            if select.select([process.stdout], [], [], 0.1)[0]:  # 0.1 second timeout
+                output = process.stdout.readline()
+                if output:
+                    output_lines.append(output)
+                    line_count += 1
+                    
+                    # Filter out debug messages and other noise
+                    clean_line = output.strip()
+                    should_show = True
+                    
+                    # Filter criteria
+                    filter_keywords = [
+                        'debug', 'DEBUG', 'TRACE', 'trace',
+                        'UserWarning:', 'FutureWarning:', 'DeprecationWarning:',
+                        '/opt/conda/', '/usr/local/lib/', 'site-packages/',
+                        '__pycache__', '.pyc', 'pytest-warning'
+                    ]
+                    
+                    # Skip empty lines and filtered content
+                    if not clean_line:
+                        should_show = False
+                    else:
+                        for keyword in filter_keywords:
+                            if keyword in clean_line:
+                                should_show = False
+                                break
+                    
+                    # Show relevant output in real-time
+                    if should_show:
+                        timestamp = datetime.now().strftime('%H:%M:%S')
+                        print(f"[{timestamp}] {clean_line}")
+            else:
+                # Small sleep to prevent busy waiting when no data is available
+                time.sleep(0.05)
+        
+        # Show final progress update
+        final_elapsed = time.time() - start_time
+        progress_percent = int((step_num) / total_steps * 100)
+        print(f"📊 [{step_num}/{total_steps}] {progress_percent}% | Complete | ⏱️ {format_duration(final_elapsed)}")
+        
+        print("-" * 80)
+        print("🔄 Experiment output complete, processing results...")
+        print()
+        
+        # Real-time output processing
+        current_phase = "Initializing"
+        line_count = 0
+        
+        while True:
+            output = process.stdout.readline()
+            if output == '' and process.poll() is not None:
+                break
+                
+            if output:
+                output_lines.append(output)
+                line_count += 1
+                current_time = time.time()
+                
+                # Parse for meaningful progress information
+                progress_info = parse_experiment_output(output.strip())
+                
+                # Update current phase based on output
+                if progress_info:
+                    if "Loading" in progress_info:
+                        current_phase = "Data Loading"
+                    elif "Preprocessing" in progress_info or "Feature" in progress_info:
+                        current_phase = "Data Processing"
+                    elif "Training" in progress_info or "Fitting" in progress_info:
+                        current_phase = "Model Training"
+                    elif "Evaluating" in progress_info or "Testing" in progress_info:
+                        current_phase = "Model Evaluation"
+                    elif "Cross-validating" in progress_info:
+                        current_phase = "Cross-Validation"
+                    elif "Saving" in progress_info or "Generating" in progress_info:
+                        current_phase = "Results Generation"
+                
+                # Show progress updates every 1.5 seconds or for meaningful output
+                if progress_info or (current_time - last_progress_update > 1.5):
+                    elapsed = current_time - start_time
+                    
+                    if progress_info:
+                        # Clear the line and show progress with phase
+                        print(f"\r⏱️ {format_duration(elapsed):>8} | 📍 {current_phase:<18} | {progress_info:<60}", end="", flush=True)
+                        last_progress_update = current_time
+                    else:
+                        # Show generic progress with current phase and line count
+                        if line_count % 5 == 0:  # Update every 5 lines to reduce flickering
+                            print(f"\r⏱️ {format_duration(elapsed):>8} | � {current_phase:<18} | 🔄 Processing... ({line_count} lines)", end="", flush=True)
+                            last_progress_update = current_time
+        
+        # Wait for process to complete
+        return_code = process.poll()
+        duration = time.time() - start_time
+        end_time = datetime.now()
+        
+        if return_code == 0:
+            print(f"✅ EXPERIMENT COMPLETED in {format_duration(duration)}")
+            print(f"⏰ Finished at: {end_time.strftime('%H:%M:%S')}")
+            print(f"� Next: Starting experiment {step_num + 1}/{total_steps}" if step_num < total_steps else "🎯 All experiments complete!")
+            return True, duration
+        else:
+            print(f"❌ EXPERIMENT FAILED after {format_duration(duration)} (exit code {return_code})")
+            print(f"⏰ Failed at: {end_time.strftime('%H:%M:%S')}")
+            return False, duration
+            
+    except Exception as e:
+        duration = time.time() - start_time
+        print(f"❌ EXPERIMENT EXCEPTION after {format_duration(duration)}: {str(e)}")
         return False, duration
 
 def main():
@@ -181,7 +427,7 @@ def main():
     for i, (script_path, description) in enumerate(experiments, 1):
         if Path(script_path).exists():
             print(f"\n🔄 Starting experiment {i}/{len(experiments)}...")
-            success, duration = run_experiment(script_path, description, i, len(experiments))
+            success, duration = run_experiment(script_path, description, i, len(experiments), experiment_durations)
             experiment_durations.append((description, duration, success))
             
             if success:
