@@ -1,0 +1,12 @@
+model_name,model_type,accuracy,f1_score,precision,recall,roc_auc
+lightgbm,Advanced,0.9994,0.9994,0.9994,0.9994,1.0
+xgboost,Advanced,0.9993,0.9993,0.9993,0.9993,1.0
+random_forest,Baseline,0.9992,0.9992,0.9992,0.9992,1.0
+voting_classifier,Advanced,0.999,0.999,0.999,0.999,1.0
+extra_trees,Advanced,0.9989,0.9989,0.9989,0.9989,0.9999
+gradient_boosting,Advanced,0.9987,0.9987,0.9987,0.9987,0.9999
+decision_tree,Baseline,0.9984,0.9984,0.9984,0.9984,0.9984
+mlp,Advanced,0.9965,0.9965,0.9965,0.9965,0.9998
+knn,Baseline,0.9963,0.9963,0.9963,0.9963,0.9996
+logistic_regression,Baseline,0.9529,0.9529,0.9529,0.9529,0.9922
+naive_bayes,Baseline,0.8862,0.8861,0.8862,0.8862,0.9529
