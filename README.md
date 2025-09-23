@@ -4,9 +4,11 @@
 This research investigates the generalization capabilities of machine learning models across different network intrusion detection datasets (NSL-KDD and CIC-IDS-2017), revealing significant performance degradation when models are applied across domains.
 
 ## Key Findings
-- Average performance drop of 31.2% when transferring models between datasets
-- PCA-based feature alignment improves cross-dataset performance by 12.4%
-- Random Forest shows best generalization with transfer ratio of 0.63
+- Average performance drop of 38.6% when transferring models between datasets (NSL-KDD → CIC-IDS-2017)
+- Mean transfer ratio across models: 0.807 (best: XGBoost 0.618)
+- LightGBM achieves best single-dataset performance (99.9% accuracy)
+- Significant transfer asymmetry: CIC → NSL shows better generalization than NSL → CIC
+- Cross-validation reveals high within-dataset stability (F1: 0.999 ± 0.0001)
 
 ## Repository Structure
 ```
@@ -67,9 +69,27 @@ ml-network-anomaly-detection/
     └── figures/
 ```
 
+## Data Setup
+### Required Datasets
+
+1. **NSL-KDD Dataset**
+   - Download from: https://www.unb.ca/cic/datasets/nsl.html
+   - Place files in: `data/raw/nsl-kdd/`
+   - Required files: `KDDTrain+.txt`, `KDDTest+.txt`
+
+2. **CIC-IDS-2017 Dataset**
+   - Download from: https://www.unb.ca/cic/datasets/ids-2017.html
+   - Place files in: `data/raw/cic-ids-2017/full_dataset/`
+   - Or use sample file in: `data/raw/cic-ids-2017/cic_ids_sample_backup.csv`
+
+### System Requirements
+- Python 3.8+
+- 16GB+ RAM recommended (8GB minimum with memory optimization)
+- CUDA support optional for XGBoost/LightGBM acceleration
+
 ## Installation
 ```bash
-git clone https://github.com/username/ml-network-anomaly-detection
+git clone https://github.com/jonasyr/ml-network-anomaly-detection
 cd ml-network-anomaly-detection
 pip install -r requirements.txt
 python setup.py install
@@ -77,13 +97,19 @@ python setup.py install
 
 ## Quick Start
 ```bash
+# Verify environment and data
+python3 validate_environment.py
+
 # Run complete experimental pipeline
-python experiments/run_all_experiments.py
+python3 run_all_experiments.py
 
 # Or run individual experiments
-python experiments/01_data_exploration.py
-python experiments/02_baseline_training.py
+python3 experiments/01_data_exploration.py
+python3 experiments/02_baseline_training.py
 # ... etc
+
+# Validate results
+python3 validate_results.py
 ```
 
 ## Reproducibility
@@ -92,11 +118,12 @@ All experiments use fixed random seeds (42) for reproducibility. Results are sav
 ## Citation
 If you use this repository in your research, please cite it as:
 
-```
-@misc{ml_network_anomaly_detection,
+```bibtex
+@misc{ml_network_anomaly_detection_2025,
   title={Machine Learning Models for Network Anomaly Detection: A Cross-Dataset Generalization Study},
-  author={Your Name},
-  year={2024},
-  url={https://github.com/username/ml-network-anomaly-detection}
+  author={Jonas Weirauch},
+  year={2025},
+  url={https://github.com/jonasyr/ml-network-anomaly-detection},
+  note={Cross-dataset evaluation of ML models for network intrusion detection}
 }
 ```
