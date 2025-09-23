@@ -18,7 +18,7 @@ def run_data_exploration() -> bool:
     print("=" * 60)
 
     analyzer = NSLKDDAnalyzer()
-    nsl_data = analyzer.load_data("KDDTrain+_20Percent.txt")
+    nsl_data = analyzer.load_data("KDDTrain+.txt")
 
     if nsl_data is None:
         print("❌ Failed to load NSL-KDD sample")

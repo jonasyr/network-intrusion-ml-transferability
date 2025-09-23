@@ -380,7 +380,7 @@ if __name__ == "__main__":
     
     # Load data
     analyzer = NSLKDDAnalyzer()
-    train_data = analyzer.load_data("KDDTrain+_20Percent.txt")
+    train_data = analyzer.load_data("KDDTrain+.txt")
     test_data = analyzer.load_data("KDDTest+.txt")
     
     if train_data is not None and test_data is not None:

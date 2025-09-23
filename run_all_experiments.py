@@ -60,7 +60,9 @@ def main():
         ("experiments/03_advanced_training.py", "Advanced Models Training"),
         ("experiments/04_cross_validation.py", "Cross-Validation Analysis"),
         ("experiments/05_cross_dataset_evaluation.py", "Cross-Dataset Evaluation Pipeline"),
-        ("experiments/06_generate_figures.py", "Generate Publication Figures"),
+        ("experiments/06_harmonized_evaluation.py", "Harmonized Feature Evaluation"),
+        ("experiments/07_generate_results_summary.py", "Aggregate Experiment Summaries"),
+        ("experiments/08_generate_paper_figures.py", "Generate Publication Figures"),
     ]
     
     total_start_time = time.time()

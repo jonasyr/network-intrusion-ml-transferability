@@ -353,8 +353,15 @@ class AdvancedModels:
     # ------------------------------------------------------------------
     # Persistence helpers
     # ------------------------------------------------------------------
-    def save_models(self, output_dir: str | Path, results_dir: Optional[str | Path] = None, results_filename: str = "advanced_results.csv") -> None:
-        """Persist trained models and aggregated results to disk."""
+    def save_models(self, output_dir: str | Path, results_dir: Optional[str | Path] = None, results_filename: str = "advanced_results.csv", dataset_suffix: str = "") -> None:
+        """Persist trained models and aggregated results to disk.
+        
+        Args:
+            output_dir: Directory to save models
+            results_dir: Directory to save results (defaults to output_dir)
+            results_filename: Name of the results CSV file
+            dataset_suffix: Optional suffix to add to model names (e.g., "_cic_trained")
+        """
 
         models_path = Path(output_dir)
         models_path.mkdir(parents=True, exist_ok=True)
@@ -366,7 +373,8 @@ class AdvancedModels:
         import joblib
 
         for model_name, model in self.trained_models.items():
-            model_path = models_path / f"{model_name}.joblib"
+            filename = f"{model_name}{dataset_suffix}.joblib"
+            model_path = models_path / filename
             joblib.dump(model, model_path)
             print(f"💾 Saved {model_name} to {model_path}")
 

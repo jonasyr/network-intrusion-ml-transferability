@@ -53,10 +53,9 @@ ml-network-anomaly-detection/
 │   ├── 03_advanced_training.py
 │   ├── 04_cross_validation.py
 │   ├── 05_cross_dataset_evaluation.py
-│   ├── 04_cross_dataset_nsl_to_cic.py
-│   ├── 05_cross_dataset_cic_to_nsl.py
-│   ├── 06_bidirectional_analysis.py
-│   └── 06_generate_figures.py
+│   ├── 06_harmonized_evaluation.py
+│   ├── 07_generate_results_summary.py
+│   └── 08_generate_paper_figures.py
 │
 ├── tests/
 │   ├── __init__.py

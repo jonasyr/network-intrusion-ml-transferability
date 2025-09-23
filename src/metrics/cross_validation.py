@@ -332,7 +332,7 @@ def run_full_cross_validation():
     # Load data
     print("📁 Loading data...")
     analyzer = NSLKDDAnalyzer()
-    train_data = analyzer.load_data("KDDTrain+_20Percent.txt")
+    train_data = analyzer.load_data("KDDTrain+.txt")
     
     if train_data is None:
         print("❌ Failed to load training data")
@@ -356,11 +356,11 @@ def run_full_cross_validation():
     print("📂 Loading trained models...")
     model_paths = {
         # Baseline models
-        'random_forest': 'data/models/random_forest.joblib',
-        'logistic_regression': 'data/models/logistic_regression.joblib',
-        'decision_tree': 'data/models/decision_tree.joblib',
-        'naive_bayes': 'data/models/naive_bayes.joblib',
-        'knn': 'data/models/knn.joblib',
+        'random_forest': 'data/models/baseline/random_forest.joblib',
+        'logistic_regression': 'data/models/baseline/logistic_regression.joblib',
+        'decision_tree': 'data/models/baseline/decision_tree.joblib',
+        'naive_bayes': 'data/models/baseline/naive_bayes.joblib',
+        'knn': 'data/models/baseline/knn.joblib',
         
         # Advanced models
         'xgboost': 'data/models/advanced/xgboost.joblib',

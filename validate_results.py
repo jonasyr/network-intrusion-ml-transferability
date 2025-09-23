@@ -12,7 +12,7 @@ RESULTS_FILE = Path("data/results/cross_dataset_evaluation_fixed.csv")
 def main() -> None:
     if not RESULTS_FILE.exists():
         raise FileNotFoundError(
-            "Cross-dataset results not found. Run experiments/04_cross_dataset_nsl_to_cic.py first."
+            "Cross-dataset results not found. Run experiments/05_cross_dataset_evaluation.py first."
         )
 
     results = pd.read_csv(RESULTS_FILE)

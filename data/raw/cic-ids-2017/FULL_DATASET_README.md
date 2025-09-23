@@ -51,8 +51,7 @@ data/raw/cic_ids_2017/
 - ✅ Automatic deduplication (removed 308K duplicates)
 
 ### 3. Experiment Script Updates:
-- ✅ Updated `04_cross_dataset_nsl_to_cic.py` to use full dataset
-- ✅ Updated `05_cross_dataset_cic_to_nsl.py` to use full dataset
+- ✅ Unified NSL↔CIC evaluation in `experiments/05_cross_dataset_evaluation.py`
 - ✅ Backward compatibility maintained for other scripts
 
 ## 🚀 Usage:

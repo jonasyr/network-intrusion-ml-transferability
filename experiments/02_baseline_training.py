@@ -22,7 +22,7 @@ def main():
         # Load data
         print("📁 Loading data...")
         analyzer = NSLKDDAnalyzer()
-        train_data = analyzer.load_data("KDDTrain+_20Percent.txt")
+        train_data = analyzer.load_data("KDDTrain+.txt")
         test_data = analyzer.load_data("KDDTest+.txt")
         
         if train_data is None or test_data is None:
@@ -68,12 +68,12 @@ def main():
             
             # Save models
             print(f"\n💾 Saving models...")
-            baseline.save_models("data/models", "data/results")
+            baseline.save_models("data/models/baseline", "data/results", dataset_suffix="")
             preprocessor.save("data/models/preprocessor.pkl")
             
             print(f"\n✅ Training complete!")
             print(f"🎯 Best model: {best_model_name}")
-            print(f"📁 Models saved to: data/models/")
+            print(f"📁 Models saved to: data/models/baseline/")
             print(f"📊 Results saved to: data/results/")
         
     except ImportError as e:

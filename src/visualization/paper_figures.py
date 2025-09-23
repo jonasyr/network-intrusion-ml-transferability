@@ -222,7 +222,7 @@ class PaperFigureGenerator:
             from src.preprocessing import NSLKDDAnalyzer
 
             analyzer = NSLKDDAnalyzer()
-            train_data = analyzer.load_data("KDDTrain+_20Percent.txt")
+            train_data = analyzer.load_data("KDDTrain+.txt")
             test_data = analyzer.load_data("KDDTest+.txt")
             
             if train_data is None or test_data is None:

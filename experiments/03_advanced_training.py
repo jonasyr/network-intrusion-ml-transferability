@@ -23,7 +23,7 @@ def main() -> None:
         return
 
     analyzer = NSLKDDAnalyzer()
-    train_data = analyzer.load_data("KDDTrain+_20Percent.txt")
+    train_data = analyzer.load_data("KDDTrain+.txt")
     test_data = analyzer.load_data("KDDTest+.txt")
 
     if train_data is None or test_data is None:
@@ -73,11 +73,11 @@ def main() -> None:
     else:
         print("⚠️ No validation results available. Skipping test evaluation.")
 
-    model_output_dir = PROJECT_ROOT / "data" / "models"
+    model_output_dir = PROJECT_ROOT / "data" / "models" / "advanced"
     results_output_dir = PROJECT_ROOT / "data" / "results"
     print(f"\n💾 Saving models to {model_output_dir}")
     print(f"💾 Saving results to {results_output_dir}")
-    advanced_models.save_models(model_output_dir, results_dir=results_output_dir, results_filename="advanced_results.csv")
+    advanced_models.save_models(model_output_dir, results_dir=results_output_dir, results_filename="advanced_results.csv", dataset_suffix="")
 
     print("\n✅ Advanced training pipeline complete!")
 

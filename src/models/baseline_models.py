@@ -278,13 +278,14 @@ class BaselineModels:
         
         return report
     
-    def save_models(self, output_dir: str, results_dir: str = None):
+    def save_models(self, output_dir: str, results_dir: str = None, dataset_suffix: str = ""):
         """
         Save all trained models to disk
         
         Args:
             output_dir: Directory to save models
             results_dir: Directory to save results (defaults to output_dir)
+            dataset_suffix: Optional suffix to add to model names (e.g., "_cic_trained")
         """
         models_path = Path(output_dir)
         models_path.mkdir(parents=True, exist_ok=True)
@@ -294,7 +295,8 @@ class BaselineModels:
         results_path.mkdir(parents=True, exist_ok=True)
         
         for model_name, model in self.trained_models.items():
-            model_path = models_path / f"{model_name}.joblib"
+            filename = f"{model_name}{dataset_suffix}.joblib"
+            model_path = models_path / filename
             joblib.dump(model, model_path)
             print(f"💾 Saved {model_name} to {model_path}")
         
@@ -362,7 +364,7 @@ def quick_baseline_training():
     # Load data
     print("📁 Loading data...")
     analyzer = NSLKDDAnalyzer()
-    train_data = analyzer.load_data("KDDTrain+_20Percent.txt")  # Start with 20% for speed
+    train_data = analyzer.load_data("KDDTrain+.txt")
     test_data = analyzer.load_data("KDDTest+.txt")
     
     if train_data is None or test_data is None:
