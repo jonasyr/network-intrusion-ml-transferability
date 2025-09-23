@@ -4,6 +4,7 @@ Script to fix redundant results storage and enhance scientific value
 import os
 import sys
 import shutil
+import gc
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -140,34 +141,35 @@ def enhance_scientific_value():
         Path("data/models/advanced")
     ]
     
-    trained_models = {}
+    # Find all model files first (to avoid loading all models at once)
+    model_files = []
     
-    print("\n🤖 Loading trained models...")
+    print("\n🤖 Finding trained models...")
     for model_dir in model_dirs:
         if model_dir.exists():
             for model_file in model_dir.glob("*.joblib"):
                 if "preprocessor" not in model_file.name:
-                    try:
-                        model_name = model_file.stem.replace('_', ' ').title()
-                        model = joblib.load(model_file)
-                        trained_models[model_name] = model
-                        print(f"  ✅ Loaded: {model_name}")
-                    except Exception as e:
-                        print(f"  ❌ Failed to load {model_file}: {e}")
+                    model_name = model_file.stem.replace('_', ' ').title()
+                    model_files.append((model_file, model_name))
+                    print(f"  📋 Found: {model_name}")
     
-    if not trained_models:
+    if not model_files:
         print("⚠️ No trained models found. Train models first using experiments 01-02.")
         return None
     
-    print(f"\n📈 Analyzing {len(trained_models)} models...")
+    print(f"\n📈 Analyzing {len(model_files)} models (processing one at a time to conserve memory)...")
     
-    # Comprehensive analysis for each model
+    # Comprehensive analysis for each model (process one at a time to avoid memory issues)
     all_model_results = []
     
-    for model_name, model in trained_models.items():
-        print(f"\n🔍 Analyzing: {model_name}")
+    for model_file, model_name in model_files:
+        print(f"\n🔍 Loading and analyzing: {model_name}")
         
         try:
+            # Load model (only one at a time)
+            model = joblib.load(model_file)
+            print(f"  ✅ Loaded model from: {model_file}")
+            
             # Comprehensive analysis
             analysis_results = evaluator.comprehensive_model_analysis(
                 model=model,
@@ -216,10 +218,22 @@ def enhance_scientific_value():
             
             print(f"  ✅ Analysis complete for {model_name}")
             
+            # Free memory immediately after processing each model
+            del model
+            gc.collect()
+            print(f"  🗑️ Memory freed for {model_name}")
+            
         except Exception as e:
             print(f"  ❌ Error analyzing {model_name}: {e}")
             import traceback
             traceback.print_exc()
+            
+            # Clean up even if there was an error
+            try:
+                del model
+                gc.collect()
+            except:
+                pass
     
     # Generate top models comparison
     if len(all_model_results) >= 3:

@@ -226,22 +226,30 @@ def create_comprehensive_summary_report(validation_results):
         
         f.write("## 🔍 Model Analysis Summary\n\n")
         
-        # Try to load and summarize some key results
+        # Try to load and summarize some key results with proper error handling
         try:
             baseline_df = pd.read_csv(results_dir / "baseline_results.csv")
             if not baseline_df.empty:
                 best_baseline = baseline_df.loc[baseline_df['f1_score'].idxmax()]
                 f.write(f"**Best Baseline Model:** {best_baseline['model_name']} (F1: {best_baseline['f1_score']:.4f})\n\n")
-        except:
-            pass
+            else:
+                f.write("**Baseline Results:** No data available\n\n")
+        except FileNotFoundError:
+            f.write("**Baseline Results:** ⚠️ baseline_results.csv not found\n\n")
+        except Exception as e:
+            f.write(f"**Baseline Results:** ❌ Error loading data: {e}\n\n")
         
         try:
             advanced_df = pd.read_csv(results_dir / "advanced_results.csv")
             if not advanced_df.empty:
                 best_advanced = advanced_df.loc[advanced_df['f1_score'].idxmax()]
                 f.write(f"**Best Advanced Model:** {best_advanced['model_name']} (F1: {best_advanced['f1_score']:.4f})\n\n")
-        except:
-            pass
+            else:
+                f.write("**Advanced Results:** No data available\n\n")
+        except FileNotFoundError:
+            f.write("**Advanced Results:** ⚠️ advanced_results.csv not found\n\n")
+        except Exception as e:
+            f.write(f"**Advanced Results:** ❌ Error loading data: {e}\n\n")
         
         f.write("## 🚀 Next Steps\n\n")
         f.write("1. **Review generated visualizations** - Check confusion matrices and ROC curves\n")
@@ -268,24 +276,31 @@ def generate_latex_ready_summary():
     # Combine all results into one comprehensive table
     all_results = []
     
-    # Load baseline results
+    # Load baseline results with proper error handling
     try:
         baseline_df = pd.read_csv(results_dir / "baseline_results.csv")
         baseline_df['model_type'] = 'Baseline'
         all_results.append(baseline_df)
-    except:
-        pass
+        print(f"✅ Loaded baseline results: {len(baseline_df)} models")
+    except FileNotFoundError:
+        print("⚠️ Baseline results not found, skipping...")
+    except Exception as e:
+        print(f"❌ Error loading baseline results: {e}")
     
-    # Load advanced results  
+    # Load advanced results with proper error handling
     try:
         advanced_df = pd.read_csv(results_dir / "advanced_results.csv")
         advanced_df['model_type'] = 'Advanced'
         all_results.append(advanced_df)
-    except:
-        pass
+        print(f"✅ Loaded advanced results: {len(advanced_df)} models")
+    except FileNotFoundError:
+        print("⚠️ Advanced results not found, skipping...")
+    except Exception as e:
+        print(f"❌ Error loading advanced results: {e}")
     
     if all_results:
         combined_df = pd.concat(all_results, ignore_index=True)
+        print(f"✅ Combined results from {len(all_results)} sources: {len(combined_df)} total models")
         
         # Create summary table
         summary_cols = ['model_name', 'model_type', 'accuracy', 'f1_score', 'precision', 'recall', 'roc_auc']
@@ -351,6 +366,11 @@ def generate_latex_ready_summary():
             
             if 'f1_score' in summary_df.columns:
                 print(f"🏆 Best model: {summary_df.iloc[0]['model_name']} (F1: {summary_df.iloc[0]['f1_score']:.4f})")
+        else:
+            print("⚠️ No valid columns found for summary table generation")
+    else:
+        print("⚠️ No results files found - unable to generate comprehensive summary")
+        print("💡 Make sure to run experiments 02-03 to generate baseline and advanced results")
 
 def main():
     """
