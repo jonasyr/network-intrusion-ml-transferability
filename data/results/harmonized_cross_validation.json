@@ -1,0 +1,1078 @@
+{
+  "schema_version": "1.0",
+  "max_samples": 50000,
+  "batch_size": 10000,
+  "training_method": "incremental_full_dataset",
+  "nsl_summary": {
+    "rows": 125973,
+    "nan_share_top20": {
+      "Fwd_Packet_Length_Max": 1.0,
+      "Total_Backward_Bytes": 1.0,
+      "Total_Fwd_Bytes": 1.0,
+      "Total_Length_of_Bwd_Packets": 1.0,
+      "Total_Length_of_Fwd_Packets": 1.0,
+      "Init_Win_bytes_forward": 1.0,
+      "Init_Win_bytes_backward": 1.0,
+      "act_data_pkt_fwd": 1.0,
+      "min_seg_size_forward": 1.0,
+      "Active_Mean": 1.0,
+      "Fwd_Packet_Length_Min": 1.0,
+      "Fwd_Packet_Length_Mean": 1.0,
+      "Fwd_Packet_Length_Std": 1.0,
+      "Bwd_Packet_Length_Max": 1.0,
+      "Bwd_Packet_Length_Min": 1.0,
+      "Flow_IAT_Std": 1.0,
+      "Flow_IAT_Mean": 1.0,
+      "Bwd_Packet_Length_Std": 1.0,
+      "Bwd_Packet_Length_Mean": 1.0,
+      "Flow_Packets/s": 1.0
+    },
+    "numeric_min_max": {
+      "duration": {
+        "min": 0.0,
+        "max": 42908.0
+      },
+      "src_bytes": {
+        "min": 0.0,
+        "max": 1379963888.0
+      },
+      "dst_bytes": {
+        "min": 0.0,
+        "max": 1309937401.0
+      },
+      "land": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "wrong_fragment": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "urgent": {
+        "min": 0.0,
+        "max": 3.0
+      },
+      "hot": {
+        "min": 0.0,
+        "max": 77.0
+      },
+      "num_failed_logins": {
+        "min": 0.0,
+        "max": 5.0
+      },
+      "logged_in": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "num_compromised": {
+        "min": 0.0,
+        "max": 7479.0
+      },
+      "root_shell": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "su_attempted": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "num_root": {
+        "min": 0.0,
+        "max": 7468.0
+      },
+      "num_file_creations": {
+        "min": 0.0,
+        "max": 43.0
+      },
+      "num_shells": {
+        "min": 0.0,
+        "max": 2.0
+      },
+      "num_access_files": {
+        "min": 0.0,
+        "max": 9.0
+      },
+      "num_outbound_cmds": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "is_host_login": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "is_guest_login": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "count": {
+        "min": 0.0,
+        "max": 511.0
+      },
+      "srv_count": {
+        "min": 0.0,
+        "max": 511.0
+      },
+      "serror_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "srv_serror_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "rerror_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "srv_rerror_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "same_srv_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "diff_srv_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "srv_diff_host_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "dst_host_count": {
+        "min": 0.0,
+        "max": 255.0
+      },
+      "dst_host_srv_count": {
+        "min": 0.0,
+        "max": 255.0
+      },
+      "dst_host_same_srv_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "dst_host_diff_srv_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "dst_host_same_src_port_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "dst_host_srv_diff_host_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "dst_host_serror_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "dst_host_srv_serror_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "dst_host_rerror_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "dst_host_srv_rerror_rate": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "difficulty": {
+        "min": 0.0,
+        "max": 21.0
+      },
+      "Source_Port": {
+        "min": null,
+        "max": null
+      },
+      "Destination_Port": {
+        "min": null,
+        "max": null
+      },
+      "Protocol": {
+        "min": null,
+        "max": null
+      },
+      "Flow_Duration": {
+        "min": null,
+        "max": null
+      },
+      "Total_Fwd_Packets": {
+        "min": null,
+        "max": null
+      },
+      "Total_Backward_Packets": {
+        "min": null,
+        "max": null
+      },
+      "Total_Length_of_Fwd_Packets": {
+        "min": null,
+        "max": null
+      },
+      "Total_Length_of_Bwd_Packets": {
+        "min": null,
+        "max": null
+      },
+      "Total_Fwd_Bytes": {
+        "min": null,
+        "max": null
+      },
+      "Total_Backward_Bytes": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_Packet_Length_Max": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_Packet_Length_Min": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_Packet_Length_Mean": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_Packet_Length_Std": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_Packet_Length_Max": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_Packet_Length_Min": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_Packet_Length_Mean": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_Packet_Length_Std": {
+        "min": null,
+        "max": null
+      },
+      "Flow_Bytes/s": {
+        "min": null,
+        "max": null
+      },
+      "Flow_Packets/s": {
+        "min": null,
+        "max": null
+      },
+      "Flow_IAT_Mean": {
+        "min": null,
+        "max": null
+      },
+      "Flow_IAT_Std": {
+        "min": null,
+        "max": null
+      },
+      "Flow_IAT_Max": {
+        "min": null,
+        "max": null
+      },
+      "Flow_IAT_Min": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_IAT_Total": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_IAT_Mean": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_IAT_Std": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_IAT_Max": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_IAT_Min": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_IAT_Total": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_IAT_Mean": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_IAT_Std": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_IAT_Max": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_IAT_Min": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_PSH_Flags": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_PSH_Flags": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_URG_Flags": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_URG_Flags": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_Header_Length": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_Header_Length": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_Packets/s": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_Packets/s": {
+        "min": null,
+        "max": null
+      },
+      "Min_Packet_Length": {
+        "min": null,
+        "max": null
+      },
+      "Max_Packet_Length": {
+        "min": null,
+        "max": null
+      },
+      "Packet_Length_Mean": {
+        "min": null,
+        "max": null
+      },
+      "Packet_Length_Std": {
+        "min": null,
+        "max": null
+      },
+      "Packet_Length_Variance": {
+        "min": null,
+        "max": null
+      },
+      "FIN_Flag_Count": {
+        "min": null,
+        "max": null
+      },
+      "SYN_Flag_Count": {
+        "min": null,
+        "max": null
+      },
+      "RST_Flag_Count": {
+        "min": null,
+        "max": null
+      },
+      "PSH_Flag_Count": {
+        "min": null,
+        "max": null
+      },
+      "ACK_Flag_Count": {
+        "min": null,
+        "max": null
+      },
+      "URG_Flag_Count": {
+        "min": null,
+        "max": null
+      },
+      "CWE_Flag_Count": {
+        "min": null,
+        "max": null
+      },
+      "ECE_Flag_Count": {
+        "min": null,
+        "max": null
+      },
+      "Down/Up_Ratio": {
+        "min": null,
+        "max": null
+      },
+      "Average_Packet_Size": {
+        "min": null,
+        "max": null
+      },
+      "Avg_Fwd_Segment_Size": {
+        "min": null,
+        "max": null
+      },
+      "Avg_Bwd_Segment_Size": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_Header_Length.1": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_Avg_Bytes/Bulk": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_Avg_Packets/Bulk": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_Avg_Bulk_Rate": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_Avg_Bytes/Bulk": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_Avg_Packets/Bulk": {
+        "min": null,
+        "max": null
+      },
+      "Bwd_Avg_Bulk_Rate": {
+        "min": null,
+        "max": null
+      },
+      "Subflow_Fwd_Packets": {
+        "min": null,
+        "max": null
+      },
+      "Subflow_Fwd_Bytes": {
+        "min": null,
+        "max": null
+      },
+      "Subflow_Bwd_Packets": {
+        "min": null,
+        "max": null
+      },
+      "Subflow_Bwd_Bytes": {
+        "min": null,
+        "max": null
+      },
+      "Init_Win_bytes_forward": {
+        "min": null,
+        "max": null
+      },
+      "Init_Win_bytes_backward": {
+        "min": null,
+        "max": null
+      },
+      "act_data_pkt_fwd": {
+        "min": null,
+        "max": null
+      },
+      "min_seg_size_forward": {
+        "min": null,
+        "max": null
+      },
+      "Active_Mean": {
+        "min": null,
+        "max": null
+      },
+      "Active_Std": {
+        "min": null,
+        "max": null
+      },
+      "Active_Max": {
+        "min": null,
+        "max": null
+      },
+      "Active_Min": {
+        "min": null,
+        "max": null
+      },
+      "Idle_Mean": {
+        "min": null,
+        "max": null
+      },
+      "Idle_Std": {
+        "min": null,
+        "max": null
+      },
+      "Idle_Max": {
+        "min": null,
+        "max": null
+      },
+      "Idle_Min": {
+        "min": null,
+        "max": null
+      },
+      "label_binary": {
+        "min": 0.0,
+        "max": 1.0
+      }
+    },
+    "schema_version": "1.0"
+  },
+  "cic_summary": {
+    "rows": 225745,
+    "nan_share_top20": {
+      "duration": 1.0,
+      "src_bytes": 1.0,
+      "wrong_fragment": 1.0,
+      "land": 1.0,
+      "dst_bytes": 1.0,
+      "dst_host_serror_rate": 1.0,
+      "dst_host_srv_serror_rate": 1.0,
+      "dst_host_rerror_rate": 1.0,
+      "urgent": 1.0,
+      "hot": 1.0,
+      "num_failed_logins": 1.0,
+      "logged_in": 1.0,
+      "num_compromised": 1.0,
+      "root_shell": 1.0,
+      "su_attempted": 1.0,
+      "num_root": 1.0,
+      "num_file_creations": 1.0,
+      "num_shells": 1.0,
+      "num_access_files": 1.0,
+      "num_outbound_cmds": 1.0
+    },
+    "numeric_min_max": {
+      "duration": {
+        "min": null,
+        "max": null
+      },
+      "src_bytes": {
+        "min": null,
+        "max": null
+      },
+      "dst_bytes": {
+        "min": null,
+        "max": null
+      },
+      "land": {
+        "min": null,
+        "max": null
+      },
+      "wrong_fragment": {
+        "min": null,
+        "max": null
+      },
+      "urgent": {
+        "min": null,
+        "max": null
+      },
+      "hot": {
+        "min": null,
+        "max": null
+      },
+      "num_failed_logins": {
+        "min": null,
+        "max": null
+      },
+      "logged_in": {
+        "min": null,
+        "max": null
+      },
+      "num_compromised": {
+        "min": null,
+        "max": null
+      },
+      "root_shell": {
+        "min": null,
+        "max": null
+      },
+      "su_attempted": {
+        "min": null,
+        "max": null
+      },
+      "num_root": {
+        "min": null,
+        "max": null
+      },
+      "num_file_creations": {
+        "min": null,
+        "max": null
+      },
+      "num_shells": {
+        "min": null,
+        "max": null
+      },
+      "num_access_files": {
+        "min": null,
+        "max": null
+      },
+      "num_outbound_cmds": {
+        "min": null,
+        "max": null
+      },
+      "is_host_login": {
+        "min": null,
+        "max": null
+      },
+      "is_guest_login": {
+        "min": null,
+        "max": null
+      },
+      "count": {
+        "min": null,
+        "max": null
+      },
+      "srv_count": {
+        "min": null,
+        "max": null
+      },
+      "serror_rate": {
+        "min": null,
+        "max": null
+      },
+      "srv_serror_rate": {
+        "min": null,
+        "max": null
+      },
+      "rerror_rate": {
+        "min": null,
+        "max": null
+      },
+      "srv_rerror_rate": {
+        "min": null,
+        "max": null
+      },
+      "same_srv_rate": {
+        "min": null,
+        "max": null
+      },
+      "diff_srv_rate": {
+        "min": null,
+        "max": null
+      },
+      "srv_diff_host_rate": {
+        "min": null,
+        "max": null
+      },
+      "dst_host_count": {
+        "min": null,
+        "max": null
+      },
+      "dst_host_srv_count": {
+        "min": null,
+        "max": null
+      },
+      "dst_host_same_srv_rate": {
+        "min": null,
+        "max": null
+      },
+      "dst_host_diff_srv_rate": {
+        "min": null,
+        "max": null
+      },
+      "dst_host_same_src_port_rate": {
+        "min": null,
+        "max": null
+      },
+      "dst_host_srv_diff_host_rate": {
+        "min": null,
+        "max": null
+      },
+      "dst_host_serror_rate": {
+        "min": null,
+        "max": null
+      },
+      "dst_host_srv_serror_rate": {
+        "min": null,
+        "max": null
+      },
+      "dst_host_rerror_rate": {
+        "min": null,
+        "max": null
+      },
+      "dst_host_srv_rerror_rate": {
+        "min": null,
+        "max": null
+      },
+      "Flow_ID": {
+        "min": null,
+        "max": null
+      },
+      "Source_IP": {
+        "min": null,
+        "max": null
+      },
+      "Source_Port": {
+        "min": null,
+        "max": null
+      },
+      "Destination_IP": {
+        "min": null,
+        "max": null
+      },
+      "Destination_Port": {
+        "min": 0.0,
+        "max": 65532.0
+      },
+      "Protocol": {
+        "min": null,
+        "max": null
+      },
+      "Timestamp": {
+        "min": null,
+        "max": null
+      },
+      "Flow_Duration": {
+        "min": -1.0,
+        "max": 119999937.0
+      },
+      "Total_Fwd_Packets": {
+        "min": 1.0,
+        "max": 1932.0
+      },
+      "Total_Backward_Packets": {
+        "min": 0.0,
+        "max": 2942.0
+      },
+      "Total_Length_of_Fwd_Packets": {
+        "min": 0.0,
+        "max": 183012.0
+      },
+      "Total_Length_of_Bwd_Packets": {
+        "min": 0.0,
+        "max": 5172346.0
+      },
+      "Total_Fwd_Bytes": {
+        "min": null,
+        "max": null
+      },
+      "Total_Backward_Bytes": {
+        "min": null,
+        "max": null
+      },
+      "Fwd_Packet_Length_Max": {
+        "min": 0.0,
+        "max": 11680.0
+      },
+      "Fwd_Packet_Length_Min": {
+        "min": 0.0,
+        "max": 1472.0
+      },
+      "Fwd_Packet_Length_Mean": {
+        "min": 0.0,
+        "max": 3867.0
+      },
+      "Fwd_Packet_Length_Std": {
+        "min": 0.0,
+        "max": 6692.644993
+      },
+      "Bwd_Packet_Length_Max": {
+        "min": 0.0,
+        "max": 11680.0
+      },
+      "Bwd_Packet_Length_Min": {
+        "min": 0.0,
+        "max": 1460.0
+      },
+      "Bwd_Packet_Length_Mean": {
+        "min": 0.0,
+        "max": 5800.5
+      },
+      "Bwd_Packet_Length_Std": {
+        "min": 0.0,
+        "max": 8194.660487
+      },
+      "Flow_Bytes/s": {
+        "min": -12000000.0,
+        "max": Infinity
+      },
+      "Flow_Packets/s": {
+        "min": -2000000.0,
+        "max": Infinity
+      },
+      "Flow_IAT_Mean": {
+        "min": -1.0,
+        "max": 107000000.0
+      },
+      "Flow_IAT_Std": {
+        "min": 0.0,
+        "max": 69200000.0
+      },
+      "Flow_IAT_Max": {
+        "min": -1.0,
+        "max": 120000000.0
+      },
+      "Flow_IAT_Min": {
+        "min": -12.0,
+        "max": 107000000.0
+      },
+      "Fwd_IAT_Total": {
+        "min": 0.0,
+        "max": 120000000.0
+      },
+      "Fwd_IAT_Mean": {
+        "min": 0.0,
+        "max": 120000000.0
+      },
+      "Fwd_IAT_Std": {
+        "min": 0.0,
+        "max": 76700000.0
+      },
+      "Fwd_IAT_Max": {
+        "min": 0.0,
+        "max": 120000000.0
+      },
+      "Fwd_IAT_Min": {
+        "min": -12.0,
+        "max": 120000000.0
+      },
+      "Bwd_IAT_Total": {
+        "min": 0.0,
+        "max": 120000000.0
+      },
+      "Bwd_IAT_Mean": {
+        "min": 0.0,
+        "max": 120000000.0
+      },
+      "Bwd_IAT_Std": {
+        "min": 0.0,
+        "max": 76700000.0
+      },
+      "Bwd_IAT_Max": {
+        "min": 0.0,
+        "max": 120000000.0
+      },
+      "Bwd_IAT_Min": {
+        "min": 0.0,
+        "max": 120000000.0
+      },
+      "Fwd_PSH_Flags": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "Bwd_PSH_Flags": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Fwd_URG_Flags": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Bwd_URG_Flags": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Fwd_Header_Length": {
+        "min": 0.0,
+        "max": 39396.0
+      },
+      "Bwd_Header_Length": {
+        "min": 0.0,
+        "max": 58852.0
+      },
+      "Fwd_Packets/s": {
+        "min": 0.0,
+        "max": 3000000.0
+      },
+      "Bwd_Packets/s": {
+        "min": 0.0,
+        "max": 2000000.0
+      },
+      "Min_Packet_Length": {
+        "min": 0.0,
+        "max": 337.0
+      },
+      "Max_Packet_Length": {
+        "min": 0.0,
+        "max": 11680.0
+      },
+      "Packet_Length_Mean": {
+        "min": 0.0,
+        "max": 1936.833333
+      },
+      "Packet_Length_Std": {
+        "min": 0.0,
+        "max": 4731.522394
+      },
+      "Packet_Length_Variance": {
+        "min": 0.0,
+        "max": 22400000.0
+      },
+      "FIN_Flag_Count": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "SYN_Flag_Count": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "RST_Flag_Count": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "PSH_Flag_Count": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "ACK_Flag_Count": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "URG_Flag_Count": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "CWE_Flag_Count": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "ECE_Flag_Count": {
+        "min": 0.0,
+        "max": 1.0
+      },
+      "Down/Up_Ratio": {
+        "min": 0.0,
+        "max": 7.0
+      },
+      "Average_Packet_Size": {
+        "min": 0.0,
+        "max": 2528.0
+      },
+      "Avg_Fwd_Segment_Size": {
+        "min": 0.0,
+        "max": 3867.0
+      },
+      "Avg_Bwd_Segment_Size": {
+        "min": 0.0,
+        "max": 5800.5
+      },
+      "Fwd_Header_Length.1": {
+        "min": 0.0,
+        "max": 39396.0
+      },
+      "Fwd_Avg_Bytes/Bulk": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Fwd_Avg_Packets/Bulk": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Fwd_Avg_Bulk_Rate": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Bwd_Avg_Bytes/Bulk": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Bwd_Avg_Packets/Bulk": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Bwd_Avg_Bulk_Rate": {
+        "min": 0.0,
+        "max": 0.0
+      },
+      "Subflow_Fwd_Packets": {
+        "min": 1.0,
+        "max": 1932.0
+      },
+      "Subflow_Fwd_Bytes": {
+        "min": 0.0,
+        "max": 183012.0
+      },
+      "Subflow_Bwd_Packets": {
+        "min": 0.0,
+        "max": 2942.0
+      },
+      "Subflow_Bwd_Bytes": {
+        "min": 0.0,
+        "max": 5172346.0
+      },
+      "Init_Win_bytes_forward": {
+        "min": -1.0,
+        "max": 65535.0
+      },
+      "Init_Win_bytes_backward": {
+        "min": -1.0,
+        "max": 65535.0
+      },
+      "act_data_pkt_fwd": {
+        "min": 0.0,
+        "max": 1931.0
+      },
+      "min_seg_size_forward": {
+        "min": 0.0,
+        "max": 52.0
+      },
+      "Active_Mean": {
+        "min": 0.0,
+        "max": 100000000.0
+      },
+      "Active_Std": {
+        "min": 0.0,
+        "max": 39500000.0
+      },
+      "Active_Max": {
+        "min": 0.0,
+        "max": 100000000.0
+      },
+      "Active_Min": {
+        "min": 0.0,
+        "max": 100000000.0
+      },
+      "Idle_Mean": {
+        "min": 0.0,
+        "max": 120000000.0
+      },
+      "Idle_Std": {
+        "min": 0.0,
+        "max": 65300000.0
+      },
+      "Idle_Max": {
+        "min": 0.0,
+        "max": 120000000.0
+      },
+      "Idle_Min": {
+        "min": 0.0,
+        "max": 120000000.0
+      },
+      "label_binary": {
+        "min": 0.0,
+        "max": 1.0
+      }
+    },
+    "schema_version": "1.0"
+  },
+  "results": [
+    {
+      "source": "NSL-KDD",
+      "target": "CIC-IDS-2017",
+      "cv_f1_mean": 0.9253919015358384,
+      "cv_f1_std": 0.0025437673567995285,
+      "target_accuracy": 0.46076,
+      "target_precision": 0.47052992069214133,
+      "target_recall": 0.62652,
+      "target_f1": 0.5374348064781773,
+      "incremental_training": false,
+      "best_threshold": 0.3,
+      "threshold_tuned_f1": 0.5374348064781773
+    },
+    {
+      "source": "CIC-IDS-2017",
+      "target": "NSL-KDD",
+      "cv_f1_mean": -1.0,
+      "cv_f1_std": -1.0,
+      "target_accuracy": 0.49966,
+      "target_precision": 0.445859872611465,
+      "target_recall": 0.0028,
+      "target_f1": 0.00556505147672616,
+      "incremental_training": true,
+      "best_threshold": 0.6,
+      "threshold_tuned_f1": 0.00556505147672616
+    }
+  ]
+}
