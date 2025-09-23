@@ -1,0 +1,6 @@
+RESULTS CONSOLIDATION MAPPING
+========================================
+
+All results have been centralized to data/results/
+
+Consolidated files:
