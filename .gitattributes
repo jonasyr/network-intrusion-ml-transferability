@@ -1,0 +1,2 @@
+data/raw/cic_ids_2017/full_dataset/*.csv filter=lfs diff=lfs merge=lfs -text
+data/raw/cic-ids-2017/full_dataset/*.csv filter=lfs diff=lfs merge=lfs -text

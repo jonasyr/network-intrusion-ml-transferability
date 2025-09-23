@@ -55,13 +55,14 @@ def main():
     
     # Define experiment sequence
     experiments = [
-        ("experiments/01_baseline_models.py", "Baseline Models Training"),
-        ("experiments/02_advanced_models.py", "Advanced Models Training"),
-        ("experiments/03_cross_validation.py", "Cross-Validation Analysis"),
-        ("experiments/04_cross_dataset_nsl_to_cic.py", "NSL-KDD → CIC-IDS-2017 Transfer"),
-        ("experiments/05_cross_dataset_cic_to_nsl.py", "CIC-IDS-2017 → NSL-KDD Transfer"),
-        ("experiments/06_bidirectional_analysis.py", "Bidirectional Analysis"),
-        ("experiments/07_generate_paper_figures.py", "Generate Publication Figures")
+        ("experiments/01_data_exploration.py", "Dataset Exploration"),
+        ("experiments/02_baseline_training.py", "Baseline Models Training"),
+        ("experiments/03_advanced_training.py", "Advanced Models Training"),
+        ("experiments/04_cross_validation.py", "Cross-Validation Analysis"),
+        ("experiments/05_cross_dataset_evaluation.py", "Cross-Dataset Evaluation Pipeline"),
+        ("experiments/06_harmonized_evaluation.py", "Harmonized Feature Evaluation"),
+        ("experiments/07_generate_results_summary.py", "Aggregate Experiment Summaries"),
+        ("experiments/08_generate_paper_figures.py", "Generate Publication Figures"),
     ]
     
     total_start_time = time.time()
