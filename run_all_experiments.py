@@ -116,6 +116,38 @@ def main():
     print("=" * 80)
     print(f"⏰ Pipeline started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
+    # Import memory utilities to check configuration
+    try:
+        import sys
+        from pathlib import Path
+        PROJECT_ROOT = Path(__file__).parent
+        sys.path.append(str(PROJECT_ROOT / "src"))
+        from utils.memory_utils import get_memory_adaptive_config, get_system_memory_gb
+        
+        # Show memory configuration and scientific accuracy warnings
+        print(f"\n🔬 SCIENTIFIC ACCURACY CHECK")
+        print("=" * 50)
+        
+        system_memory = get_system_memory_gb()
+        config = get_memory_adaptive_config()
+        
+        if config["use_full_dataset"]:
+            print("✅ FULL DATASET MODE: All experiments will use complete datasets")
+            print("✅ Results will be scientifically accurate for publication")
+        else:
+            print("⚠️  REDUCED DATASET MODE: Some experiments will use sampled data")
+            print("⚠️  Results may not be suitable for publication without full dataset")
+            print("\n💡 To ensure scientific accuracy:")
+            print("   1. Run on a system with >16GB RAM, OR")
+            print("   2. Set environment variable: export SCIENTIFIC_MODE=1")
+            
+            response = input("\n🤔 Continue anyway? [y/N]: ").lower().strip()
+            if response not in ('y', 'yes'):
+                print("🛑 Pipeline cancelled. Please ensure sufficient memory for full dataset.")
+                return False
+    except ImportError:
+        print("⚠️ Could not check memory configuration. Proceeding...")
+    
     # Define complete experiment sequence (ALL experiments)
     experiments = [
         ("experiments/01_data_exploration.py", "Dataset Exploration & Analysis"),
@@ -137,7 +169,14 @@ def main():
     
     print(f"\n📋 EXPERIMENT OVERVIEW:")
     print(f"   Total experiments to run: {len(experiments)}")
-    print(f"   Estimated duration: 2-4 hours (depending on dataset size)")
+    print(f"   Estimated duration: 2-6 hours (depending on dataset size)")
+    try:
+        if config["use_full_dataset"]:
+            print(f"   📊 Dataset mode: FULL (scientifically accurate)")
+        else:
+            print(f"   📊 Dataset mode: OPTIMIZED (may reduce accuracy)")
+    except:
+        print(f"   📊 Dataset mode: Unknown")
     
     for i, (script_path, description) in enumerate(experiments, 1):
         if Path(script_path).exists():
@@ -186,6 +225,22 @@ def main():
         for desc, duration, success in experiment_durations:
             status = "✅" if success else "❌"
             print(f"{status} {desc:<45} {format_duration(duration):>10}")
+    
+    # Final scientific accuracy summary
+    try:
+        if config["use_full_dataset"]:
+            scientific_status = "✅ SCIENTIFICALLY ACCURATE"
+            accuracy_note = "All experiments used complete datasets - results are publication-ready"
+        else:
+            scientific_status = "⚠️  POTENTIALLY INACCURATE"
+            accuracy_note = "Some experiments used reduced datasets - verify results before publication"
+        
+        print(f"\n🔬 SCIENTIFIC ACCURACY STATUS:")
+        print(f"{'='*80}")
+        print(f"{scientific_status}")
+        print(f"📄 {accuracy_note}")
+    except:
+        print(f"\n🔬 SCIENTIFIC ACCURACY: Unable to determine dataset completeness")
     
     if failed == 0:
         print("\n🎉 ALL EXPERIMENTS COMPLETED SUCCESSFULLY!")

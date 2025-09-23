@@ -2,6 +2,7 @@
 """Memory utilities for adaptive dataset processing based on available system memory."""
 
 import gc
+import os
 import psutil
 from typing import Tuple, Dict, Any
 import numpy as np
@@ -17,7 +18,7 @@ def get_available_memory_gb() -> float:
     return psutil.virtual_memory().available / (1024**3)
 
 
-def should_use_full_dataset(min_memory_gb: float = 20.0) -> bool:
+def should_use_full_dataset(min_memory_gb: float = 16.0) -> bool:
     """
     Determine if we should use the full dataset based on available memory.
     
@@ -32,13 +33,15 @@ def should_use_full_dataset(min_memory_gb: float = 20.0) -> bool:
     
     print(f"💾 System memory: {total_memory:.1f}GB total, {available_memory:.1f}GB available")
     
-    # Use full dataset if we have enough total memory and reasonable available memory
-    use_full = total_memory >= min_memory_gb and available_memory >= (min_memory_gb * 0.6)
+    # CRITICAL: Use full dataset for systems with >16GB for scientific accuracy
+    # Only use reduced dataset if memory is severely constrained
+    use_full = total_memory >= min_memory_gb and available_memory >= (min_memory_gb * 0.5)
     
     if use_full:
-        print(f"✅ Using FULL dataset (sufficient memory: {total_memory:.1f}GB)")
+        print(f"✅ Using FULL dataset for scientific accuracy (memory: {total_memory:.1f}GB)")
     else:
-        print(f"⚠️ Using OPTIMIZED dataset (limited memory: {total_memory:.1f}GB)")
+        print(f"⚠️ Using OPTIMIZED dataset due to memory constraints (memory: {total_memory:.1f}GB)")
+        print(f"   💡 For scientifically accurate results, ensure >16GB RAM and run on full dataset")
     
     return use_full
 
@@ -84,33 +87,94 @@ def optimize_memory_usage() -> None:
     
     
 def get_memory_adaptive_config() -> Dict[str, Any]:
-    """Get memory-adaptive configuration for training."""
+    """
+    Get memory-adaptive configuration for training.
+    CRITICAL: Systems with >16GB RAM MUST use full dataset for scientific accuracy.
+    
+    Environment variables:
+    - FORCE_FULL_DATASET=1: Force full dataset usage regardless of memory
+    - SCIENTIFIC_MODE=1: Alias for FORCE_FULL_DATASET=1
+    """
     total_memory = get_system_memory_gb()
     
-    if total_memory >= 24:  # High-memory system
-        return {
+    # Check environment variable overrides for scientific accuracy
+    force_full = (
+        os.getenv("FORCE_FULL_DATASET", "").lower() in ("1", "true", "yes") or
+        os.getenv("SCIENTIFIC_MODE", "").lower() in ("1", "true", "yes")
+    )
+    
+    if force_full:
+        print("🔬 SCIENTIFIC MODE ENABLED: Forcing full dataset usage")
+        print("   ⚠️  This will use maximum memory but ensures scientific accuracy")
+        use_full = True
+        config_type = "FORCED FULL DATASET (Scientific Mode)"
+        
+        # Use aggressive settings for scientific accuracy
+        config = {
             "use_full_dataset": True,
-            "batch_size": 10000,
+            "batch_size": 20000 if total_memory >= 32 else 15000,
             "max_sample_size": None,
             "n_jobs": -1,
-            "enable_early_stopping": False
+            "enable_early_stopping": False,
+            "target_memory_gb": min(total_memory * 0.8, 16.0)  # Use up to 80% of available memory
         }
-    elif total_memory >= 16:  # Medium-memory system  
-        return {
-            "use_full_dataset": False,
-            "batch_size": 5000,
-            "max_sample_size": 500000,  # 500k samples
-            "n_jobs": -1,
-            "enable_early_stopping": True
-        }
-    else:  # Low-memory system
-        return {
+    elif total_memory >= 16:  # Any system with 16GB+ should use full dataset
+        use_full = True
+        config_type = "FULL DATASET (Scientific Accuracy Mode)"
+        
+        if total_memory >= 32:  # High-memory system
+            config = {
+                "use_full_dataset": True,
+                "batch_size": 15000,
+                "max_sample_size": None,
+                "n_jobs": -1,
+                "enable_early_stopping": False,
+                "target_memory_gb": 12.0
+            }
+        elif total_memory >= 24:  # High-memory system
+            config = {
+                "use_full_dataset": True,
+                "batch_size": 10000,
+                "max_sample_size": None,
+                "n_jobs": -1,
+                "enable_early_stopping": False,
+                "target_memory_gb": 10.0
+            }
+        else:  # 16-24GB system - still use full dataset but with optimizations
+            config = {
+                "use_full_dataset": True,
+                "batch_size": 8000,
+                "max_sample_size": None,  # No sampling limit
+                "n_jobs": -1,
+                "enable_early_stopping": False,
+                "target_memory_gb": 8.0
+            }
+    else:  # Low-memory system (<16GB) - only then use reduced dataset
+        use_full = False
+        config_type = "MEMORY OPTIMIZED (Limited RAM)"
+        config = {
             "use_full_dataset": False,
             "batch_size": 2000,
-            "max_sample_size": 200000,  # 200k samples
+            "max_sample_size": 200000,  # 200k samples maximum
             "n_jobs": 2,
-            "enable_early_stopping": True
+            "enable_early_stopping": True,
+            "target_memory_gb": 4.0
         }
+        
+        print("⚠️  WARNING: Using reduced dataset due to limited memory (<16GB)")
+        print("   📊 Results may not be scientifically accurate for publication")
+        print("   💡 To force full dataset: export SCIENTIFIC_MODE=1")
+        
+    print(f"🎯 Memory configuration: {config_type}")
+    print(f"   💾 System RAM: {total_memory:.1f}GB")
+    print(f"   📊 Use full dataset: {config['use_full_dataset']}")
+    print(f"   ⚡ Batch size: {config['batch_size']:,}")
+    if config['max_sample_size']:
+        print(f"   🔢 Max samples: {config['max_sample_size']:,}")
+    else:
+        print(f"   🔢 Max samples: No limit (full dataset)")
+        
+    return config
 
 
 class MemoryMonitor:
