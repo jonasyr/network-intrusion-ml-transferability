@@ -22,6 +22,7 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.utils.class_weight import compute_class_weight
 
 from src.utils import (
     get_memory_adaptive_config,
@@ -79,6 +80,28 @@ NUMERIC_FEATURES = [
 CATEGORICAL_FEATURES = ["protocol", "connection_state"]
 
 
+def compute_adaptive_class_weights(y: np.ndarray) -> Dict[int, float]:
+    """Compute adaptive class weights based on actual class distribution.
+    
+    Args:
+        y: Target labels
+        
+    Returns:
+        Dictionary mapping class labels to their weights
+    """
+    unique_classes = np.unique(y)
+    if len(unique_classes) < 2:
+        # Only one class present, return equal weights
+        return {int(unique_classes[0]): 1.0}
+    
+    # Use sklearn's compute_class_weight for balanced weights
+    class_weights = compute_class_weight('balanced', classes=unique_classes, y=y)
+    weight_dict = {int(cls): float(weight) for cls, weight in zip(unique_classes, class_weights)}
+    
+    print(f"Computed adaptive class weights: {weight_dict}")
+    return weight_dict
+
+
 def train_on_full_cic_dataset() -> Pipeline:
     """Train incrementally on the full CIC-IDS-2017 dataset with class balancing."""
     
@@ -110,7 +133,7 @@ def train_on_full_cic_dataset() -> Pipeline:
     for file_path in sorted(csv_files):
         print(f"  - {file_path.name}")
     
-    # Use class_weight='balanced' and more aggressive learning for minority class
+    # Use class_weight='balanced' for adaptive class balancing
     pipeline = Pipeline(steps=[
         ("preprocess", ColumnTransformer(
             transformers=[
@@ -131,7 +154,7 @@ def train_on_full_cic_dataset() -> Pipeline:
             random_state=RANDOM_STATE,
             learning_rate="adaptive",
             eta0=0.1,  # Higher learning rate
-            class_weight={0: 1.0, 1: 4.0},  # Give more weight to malicious class
+            class_weight='balanced',  # Adaptive weights based on class distribution
             average=True  # Use averaged weights for better stability
         ))
     ])
@@ -176,6 +199,12 @@ def train_on_full_cic_dataset() -> Pipeline:
                         # Only train on chunks with both classes
                         if len(np.unique(y_chunk)) >= 2:
                             if not is_fitted:
+                                # Compute adaptive class weights for initial fit
+                                class_weights = compute_adaptive_class_weights(y_chunk)
+                                
+                                # Update pipeline with computed weights
+                                pipeline.named_steps['clf'].set_params(class_weight=class_weights)
+                                
                                 # Fit the pipeline on the first valid chunk
                                 print(f"    Initial fit on chunk {chunk_num} ({len(X_chunk):,} samples)")
                                 print(f"    Class distribution: {benign_count} benign, {malicious_count} malicious")
@@ -189,14 +218,34 @@ def train_on_full_cic_dataset() -> Pipeline:
                                 print(f"    Initial training: Acc={test_acc:.3f}, F1={test_f1:.3f}")
                                 
                             else:
-                                # Partial fit for subsequent chunks
+                                # For partial fit, we use sample_weight to handle class imbalance
+                                # since SGDClassifier doesn't support changing class_weight in partial_fit
+                                
+                                # Compute sample weights based on cumulative class distribution
+                                cumulative_total = total_benign_seen + total_malicious_seen
+                                if cumulative_total > 0:
+                                    benign_ratio = total_benign_seen / cumulative_total
+                                    malicious_ratio = total_malicious_seen / cumulative_total
+                                    
+                                    # Inverse frequency weighting
+                                    sample_weights = np.where(y_chunk == 0, 
+                                                            1.0 / (benign_ratio + 1e-8),  # Weight for benign
+                                                            1.0 / (malicious_ratio + 1e-8))  # Weight for malicious
+                                    
+                                    # Normalize weights
+                                    sample_weights = sample_weights / np.mean(sample_weights)
+                                else:
+                                    sample_weights = np.ones(len(y_chunk))
+                                
                                 if chunk_num % 5 == 0:  # Print less frequently
                                     print(f"    Partial fit on chunk {chunk_num} ({len(X_chunk):,} samples)")
                                     print(f"    Class distribution: {benign_count} benign, {malicious_count} malicious")
+                                    print(f"    Sample weight range: [{np.min(sample_weights):.3f}, {np.max(sample_weights):.3f}]")
                                 
                                 # For SGDClassifier, we need to use partial_fit on the classifier
                                 X_transformed = pipeline[:-1].transform(X_chunk)
-                                pipeline.named_steps['clf'].partial_fit(X_transformed, y_chunk)
+                                pipeline.named_steps['clf'].partial_fit(X_transformed, y_chunk, 
+                                                                       sample_weight=sample_weights)
                                 
                                 # Periodic validation
                                 if chunk_num % 20 == 0:
@@ -250,6 +299,12 @@ def train_on_full_cic_dataset() -> Pipeline:
                             
                             if len(np.unique(y_batch)) >= 2:
                                 if not is_fitted:
+                                    # Compute adaptive class weights for initial fit
+                                    class_weights = compute_adaptive_class_weights(y_batch)
+                                    
+                                    # Update pipeline with computed weights
+                                    pipeline.named_steps['clf'].set_params(class_weight=class_weights)
+                                    
                                     print(f"    Initial fit on batch {i//BATCH_SIZE + 1} ({len(X_batch):,} samples)")
                                     print(f"    Class distribution: {benign_count} benign, {malicious_count} malicious")
                                     pipeline.fit(X_batch, y_batch)
@@ -262,8 +317,25 @@ def train_on_full_cic_dataset() -> Pipeline:
                                     print(f"    Initial training: Acc={test_acc:.3f}, F1={test_f1:.3f}")
                                     
                                 else:
+                                    # Use sample weights for partial fit based on cumulative distribution
+                                    cumulative_total = total_benign_seen + total_malicious_seen
+                                    if cumulative_total > 0:
+                                        benign_ratio = total_benign_seen / cumulative_total
+                                        malicious_ratio = total_malicious_seen / cumulative_total
+                                        
+                                        # Inverse frequency weighting
+                                        sample_weights = np.where(y_batch == 0, 
+                                                                1.0 / (benign_ratio + 1e-8),
+                                                                1.0 / (malicious_ratio + 1e-8))
+                                        
+                                        # Normalize weights
+                                        sample_weights = sample_weights / np.mean(sample_weights)
+                                    else:
+                                        sample_weights = np.ones(len(y_batch))
+                                    
                                     X_transformed = pipeline[:-1].transform(X_batch)
-                                    pipeline.named_steps['clf'].partial_fit(X_transformed, y_batch)
+                                    pipeline.named_steps['clf'].partial_fit(X_transformed, y_batch,
+                                                                           sample_weight=sample_weights)
                                 
                                 total_samples_processed += len(X_batch)
                             else:
@@ -394,7 +466,8 @@ def _build_pipeline() -> Pipeline:
         max_iter=1000,
         random_state=RANDOM_STATE,
         learning_rate="adaptive",
-        eta0=0.01
+        eta0=0.01,
+        class_weight='balanced'  # Use balanced class weights
     )
 
     return Pipeline(steps=[("preprocess", preprocessor), ("clf", classifier)])
@@ -427,7 +500,12 @@ def _build_regular_pipeline() -> Pipeline:
         remainder="drop",
     )
 
-    classifier = LogisticRegression(max_iter=500, solver="lbfgs", random_state=RANDOM_STATE)
+    classifier = LogisticRegression(
+        max_iter=500, 
+        solver="lbfgs", 
+        random_state=RANDOM_STATE,
+        class_weight='balanced'  # Use balanced class weights
+    )
 
     return Pipeline(steps=[("preprocess", preprocessor), ("clf", classifier)])
 
