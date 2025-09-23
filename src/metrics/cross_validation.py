@@ -1,6 +1,6 @@
 # src/metrics/cross_validation.py
 """
-Cross-validation and statistical validation framework
+Cross-validation and statistical validation framework with memory adaptation
 For rigorous model comparison and academic publication
 """
 
@@ -328,29 +328,42 @@ def run_full_cross_validation():
         sys.path.append(str(project_root))
 
     from src.preprocessing import NSLKDDAnalyzer, NSLKDDPreprocessor
+    from src.utils import get_memory_adaptive_config, MemoryMonitor
     
-    # Load data
-    print("📁 Loading data...")
-    analyzer = NSLKDDAnalyzer()
-    train_data = analyzer.load_data("KDDTrain+.txt")
+    # Get memory configuration
+    config = get_memory_adaptive_config()
     
-    if train_data is None:
-        print("❌ Failed to load training data")
-        return
+    # Load data with memory monitoring
+    with MemoryMonitor("Data Loading"):
+        print("📁 Loading NSL-KDD data...")
+        analyzer = NSLKDDAnalyzer()
+        train_data = analyzer.load_data("KDDTrain+.txt")
+        
+        if train_data is None:
+            print("❌ Failed to load training data")
+            return
     
-    # Preprocess data
-    print("🔄 Preprocessing data...")
-    preprocessor = NSLKDDPreprocessor(balance_method='smote')
-    X_train, X_val, y_train, y_val = preprocessor.fit_transform(train_data)
-    
-    # Combine training and validation for cross-validation
-    X = np.vstack([X_train, X_val])
-    y = np.hstack([y_train, y_val])
-    
-    print(f"✅ Data prepared: {X.shape}")
+    # Preprocess data with memory monitoring
+    with MemoryMonitor("Data Preprocessing"):
+        print("🔄 Preprocessing data...")
+        balance_method = 'smote' if config["use_full_dataset"] else 'undersample'
+        print(f"   Using balance method: {balance_method}")
+        
+        preprocessor = NSLKDDPreprocessor(balance_method=balance_method)
+        X_train, X_val, y_train, y_val = preprocessor.fit_transform(train_data)
+        
+        # Combine training and validation for cross-validation
+        X = np.vstack([X_train, X_val])
+        y = np.hstack([y_train, y_val])
+        
+        print(f"✅ Data prepared: {X.shape}")
+        print(f"📊 Memory mode: {'Full dataset' if config['use_full_dataset'] else 'Optimized'}")
     
     # Initialize cross-validation framework
-    cv_framework = CrossValidationFramework(n_folds=5)
+    # Reduce folds if memory constrained
+    n_folds = 5 if config["use_full_dataset"] else 3
+    print(f"🔄 Using {n_folds}-fold cross-validation")
+    cv_framework = CrossValidationFramework(n_folds=n_folds)
     
     # Load all trained models
     print("📂 Loading trained models...")

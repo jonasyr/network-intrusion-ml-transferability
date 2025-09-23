@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Harmonized feature evaluation across NSL-KDD and CIC-IDS-2017."""
+"""Harmonized feature evaluation across NSL-KDD and CIC-IDS-2017 with memory adaptation."""
 
 from __future__ import annotations
 
@@ -23,6 +23,12 @@ from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
+from src.utils import (
+    get_memory_adaptive_config,
+    MemoryMonitor,
+    optimize_memory_usage,
+)
+
 from src.preprocessing.harmonization import (
     COMMON_COLUMNS,
     SCHEMA_VERSION,
@@ -41,8 +47,20 @@ CIC_DATASET_DIR = PROJECT_ROOT / "data/raw/cic-ids-2017/full_dataset"
 RESULTS_PATH = PROJECT_ROOT / "data/results/harmonized_cross_validation.json"
 
 RANDOM_STATE = 42
-MAX_SAMPLES = 50000  # For target dataset evaluation only
-BATCH_SIZE = 10000   # For incremental learning
+
+# Memory-adaptive constants - will be set based on available memory
+def get_memory_adaptive_constants():
+    config = get_memory_adaptive_config()
+    if config["use_full_dataset"]:
+        return {
+            "MAX_SAMPLES": 100000,  # For target dataset evaluation
+            "BATCH_SIZE": 20000,    # For incremental learning
+        }
+    else:
+        return {
+            "MAX_SAMPLES": 25000,   # For target dataset evaluation
+            "BATCH_SIZE": 5000,     # For incremental learning
+        }
 
 NUMERIC_FEATURES = [
     "duration_ms",
@@ -64,10 +82,15 @@ CATEGORICAL_FEATURES = ["protocol", "connection_state"]
 def train_on_full_cic_dataset() -> Pipeline:
     """Train incrementally on the full CIC-IDS-2017 dataset with class balancing."""
     
-    if not CIC_DATASET_DIR.exists():
-        # Fallback to sample file
+    # Get memory-adaptive configuration
+    config = get_memory_adaptive_config()
+    constants = get_memory_adaptive_constants()
+    BATCH_SIZE = constants["BATCH_SIZE"]
+    
+    if not config["use_full_dataset"] or not CIC_DATASET_DIR.exists():
+        # Use sample dataset for memory optimization or if full dataset not available
         if CIC_SAMPLE_PATH.exists():
-            print(f"Full dataset not found, training on sample: {CIC_SAMPLE_PATH.name}")
+            print(f"Using sample dataset for training: {CIC_SAMPLE_PATH.name}")
             _, cic_common, _ = harmonize_cic(CIC_SAMPLE_PATH)
             X, y = _prepare_features(cic_common)
             pipeline = _build_regular_pipeline()
@@ -75,6 +98,8 @@ def train_on_full_cic_dataset() -> Pipeline:
             return pipeline
         else:
             raise FileNotFoundError("No CIC-IDS-2017 data files found")
+    
+    print("🚀 Training on FULL CIC-IDS-2017 dataset...")
     
     # Get all CSV files
     csv_files = list(CIC_DATASET_DIR.glob("*.csv"))
@@ -660,21 +685,45 @@ def evaluate_transfer_with_full_training(
 
 
 def main() -> None:
-    print("🚀 Harmonized cross-dataset validation with FULL DATASET training")
+    # Get memory-adaptive configuration
+    config = get_memory_adaptive_config()
+    use_full = config["use_full_dataset"]
+    
+    title = "🚀 Harmonized cross-dataset validation"
+    if use_full:
+        title += " with FULL DATASET training"
+    else:
+        title += " with MEMORY OPTIMIZED training"
+    
+    print(title)
     print("Schema version:", SCHEMA_VERSION)
+    print(f"💾 Memory mode: {'Full dataset' if use_full else 'Optimized'}")
 
-    # Load NSL-KDD dataset
-    nsl_union, nsl_common, nsl_summary = harmonize_nsl(NSL_PATH)
-    print(f"Loaded NSL-KDD rows: {len(nsl_common):,}")
+    with MemoryMonitor("NSL-KDD Loading"):
+        # Load NSL-KDD dataset
+        nsl_union, nsl_common, nsl_summary = harmonize_nsl(NSL_PATH)
+        print(f"Loaded NSL-KDD rows: {len(nsl_common):,}")
     
-    # For evaluation, we need a representative CIC sample (not for training)
-    print(f"\nLoading CIC-IDS-2017 sample for evaluation...")
-    cic_sample_path = CIC_DATASET_DIR / "Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv"
-    if not cic_sample_path.exists():
-        cic_sample_path = CIC_SAMPLE_PATH
+    with MemoryMonitor("CIC-IDS-2017 Loading"):
+        # For evaluation, we need a representative CIC sample (not for training)
+        print(f"\nLoading CIC-IDS-2017 sample for evaluation...")
+        if use_full:
+            cic_sample_path = CIC_DATASET_DIR / "Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv"
+            if not cic_sample_path.exists():
+                cic_sample_path = CIC_SAMPLE_PATH
+        else:
+            cic_sample_path = CIC_SAMPLE_PATH
+            print("   Using sample dataset for memory optimization")
+        
+        _, cic_common_sample, cic_summary = harmonize_cic(cic_sample_path)
+        print(f"Loaded CIC-IDS sample rows: {len(cic_common_sample):,}")
+
+    # Get memory-adaptive constants
+    constants = get_memory_adaptive_constants()
+    MAX_SAMPLES = constants["MAX_SAMPLES"]
+    BATCH_SIZE = constants["BATCH_SIZE"]
     
-    _, cic_common_sample, cic_summary = harmonize_cic(cic_sample_path)
-    print(f"Loaded CIC-IDS sample rows: {len(cic_common_sample):,}")
+    print(f"📊 Using MAX_SAMPLES: {MAX_SAMPLES:,}, BATCH_SIZE: {BATCH_SIZE:,}")
 
     # Create balanced samples for evaluation
     def create_balanced_sample(df: pd.DataFrame, max_samples: int = MAX_SAMPLES) -> pd.DataFrame:
@@ -722,17 +771,19 @@ def main() -> None:
     ))
 
     # Save results
-    RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    payload = {
-        "schema_version": SCHEMA_VERSION,
-        "max_samples": MAX_SAMPLES,
-        "batch_size": BATCH_SIZE,
-        "training_method": "incremental_full_dataset",
-        "nsl_summary": nsl_summary,
-        "cic_summary": cic_summary,
-        "results": results,
-    }
-    RESULTS_PATH.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    with MemoryMonitor("Results Saving"):
+        RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "schema_version": SCHEMA_VERSION,
+            "max_samples": MAX_SAMPLES,
+            "batch_size": BATCH_SIZE,
+            "memory_mode": "full_dataset" if use_full else "optimized",
+            "training_method": "incremental_full_dataset" if use_full else "sample_based",
+            "nsl_summary": nsl_summary,
+            "cic_summary": cic_summary,
+            "results": results,
+        }
+        RESULTS_PATH.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     print(f"\nResults saved to {RESULTS_PATH.relative_to(PROJECT_ROOT)}")
 
 

@@ -1,0 +1,11 @@
+Experiment,Metric,Value
+Baseline Models,Best Accuracy,random_forest (acc=0.9992)
+Baseline Models,Best F1,random_forest (F1=0.9992)
+Advanced Models,Best Accuracy,lightgbm (acc=0.9994)
+Advanced Models,Best ROC-AUC,lightgbm (AUC=1.0000)
+Cross-Validation,Best F1,lightgbm (F1=0.9990 ± 0.0001)
+Cross-Dataset,Best Transfer (NSL→CIC),"XGBoost (ratio=0.618, Δ=38.21%)"
+Cross-Dataset,Best Transfer (CIC→NSL),"Random Forest (ratio=1.000, Δ=0.00%)"
+Cross-Dataset,Mean Transfer Ratio,0.807
+Harmonized Evaluation,NSL-KDD→CIC-IDS-2017 Target F1,0.6668 (CV F1=0.9321)
+Harmonized Evaluation,CIC-IDS-2017→NSL-KDD Target F1,0.1872 (CV F1=-1.0000)

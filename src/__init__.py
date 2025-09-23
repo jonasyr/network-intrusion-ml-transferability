@@ -5,5 +5,6 @@ __all__ = [
     "metrics",
     "models",
     "preprocessing",
+    "utils",
     "visualization",
 ]

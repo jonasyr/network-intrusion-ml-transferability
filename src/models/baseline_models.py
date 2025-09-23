@@ -39,33 +39,41 @@ class BaselineModels:
         self.results: List[Dict] = []
         
     def _initialize_models(self) -> Dict[str, Any]:
-        """Initialize all baseline models"""
+        """Initialize all baseline models with memory-efficient settings"""
         return {
             'random_forest': RandomForestClassifier(
-                n_estimators=100,
-                max_depth=20,
+                n_estimators=200,  # Increased for better performance
+                max_depth=25,      # Slightly increased depth
+                min_samples_split=10,  # Prevent overfitting on large datasets
+                min_samples_leaf=5,    # Prevent overfitting on large datasets
                 random_state=self.random_state,
                 n_jobs=-1
             ),
             'logistic_regression': LogisticRegression(
                 random_state=self.random_state,
-                max_iter=1000,
-                solver='liblinear'
+                max_iter=2000,     # Increased for convergence on large datasets
+                solver='saga',     # Better for large datasets than liblinear
+                penalty='l2',      # L2 regularization for better generalization
+                C=1.0
             ),
             'decision_tree': DecisionTreeClassifier(
-                max_depth=20,
+                max_depth=25,      # Slightly increased depth
+                min_samples_split=10,  # Prevent overfitting
+                min_samples_leaf=5,    # Prevent overfitting
                 random_state=self.random_state
             ),
             'naive_bayes': GaussianNB(),
             'knn': KNeighborsClassifier(
                 n_neighbors=5,
-                n_jobs=-1
+                n_jobs=-1,
+                algorithm='auto'   # Let sklearn choose best algorithm
             ),
             'svm_linear': SVC(
                 kernel='linear',
                 random_state=self.random_state,
                 probability=True,
-                max_iter=1000
+                max_iter=2000,     # Increased for large datasets
+                C=1.0
             )
         }
     

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Training entry point for advanced models on NSL-KDD and CIC-IDS-2017."""
+"""Training entry point for advanced models on NSL-KDD and CIC-IDS-2017 with memory adaptation."""
 
 from __future__ import annotations
 
@@ -12,6 +12,13 @@ from sklearn.model_selection import train_test_split
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.append(str(PROJECT_ROOT))
+
+from src.utils import (
+    get_memory_adaptive_config,
+    MemoryMonitor,
+    optimize_memory_usage,
+    get_optimal_sample_size,
+)
 
 
 def _print_separator(title: str) -> None:
@@ -109,9 +116,20 @@ def train_nsl_kdd_advanced() -> bool:
 
 
 def train_cic_advanced() -> bool:
-    """Train the advanced model suite on the CIC-IDS-2017 dataset."""
+    """Train the advanced model suite on the CIC-IDS-2017 dataset with memory adaptation."""
 
-    _print_separator("🚀 CIC-IDS-2017 Advanced Training")
+    # Get memory-adaptive configuration
+    config = get_memory_adaptive_config()
+    use_full = config["use_full_dataset"]
+    max_sample_size = config["max_sample_size"]
+    
+    title = "🚀 CIC-IDS-2017 Advanced Training"
+    if use_full:
+        title += " (Full Dataset)"
+    else:
+        title += " (Memory Optimized)"
+    
+    _print_separator(title)
 
     try:
         from src.preprocessing import CICIDSPreprocessor
@@ -123,46 +141,106 @@ def train_cic_advanced() -> bool:
     preprocessor = CICIDSPreprocessor()
 
     try:
-        print("📁 Loading full CIC-IDS-2017 dataset...")
-        cic_data = preprocessor.load_data(use_full_dataset=True)
+        with MemoryMonitor("Dataset Loading"):
+            if use_full:
+                print("📁 Loading FULL CIC-IDS-2017 dataset...")
+                cic_data = preprocessor.load_data(use_full_dataset=True)
+            else:
+                print("📁 Loading CIC-IDS-2017 sample dataset...")
+                cic_data = preprocessor.load_data(use_full_dataset=False)
+                
         if cic_data is None:
             print("❌ CIC-IDS-2017 data could not be loaded.")
             return False
 
-        print("🔄 Preparing CIC-IDS-2017 features and labels...")
-        X_full, y_full = preprocessor.fit_transform(cic_data)
+        with MemoryMonitor("Feature Preparation"):
+            print("🔄 Preparing CIC-IDS-2017 features and labels...")
+            X_full, y_full = preprocessor.fit_transform(cic_data)
+            
+            # Free up memory from raw data
+            del cic_data
+            optimize_memory_usage()
+
+        # Adaptive sampling based on memory configuration
+        if use_full:
+            print("💪 Using FULL dataset for training")
+            X_sample, y_sample = X_full, y_full
+        else:
+            # Calculate optimal sample size for advanced models (more memory intensive)
+            optimal_size = get_optimal_sample_size(
+                len(X_full), 
+                X_full.shape[1], 
+                target_memory_gb=config.get("target_memory_gb", 8.0)  # Higher for advanced models
+            )
+            
+            if max_sample_size:
+                optimal_size = min(optimal_size, max_sample_size)
+            
+            sample_ratio = optimal_size / len(X_full)
+            
+            # Handle edge case where sample ratio is 1.0 (use full dataset)
+            if sample_ratio >= 1.0:
+                print("💪 Using FULL dataset (optimal size equals dataset size)")
+                X_sample, y_sample = X_full, y_full
+            else:
+                print(f"📊 Using optimized sample: {optimal_size:,} records ({sample_ratio*100:.1f}%)")
+                
+                X_sample, _, y_sample, _ = train_test_split(
+                    X_full, y_full, 
+                    train_size=sample_ratio,
+                    random_state=42,
+                    stratify=y_full
+                )
 
         # Create train/validation/test splits (60/20/20)
-        X_train, X_temp, y_train, y_temp = train_test_split(
-            X_full,
-            y_full,
-            test_size=0.4,
-            random_state=42,
-            stratify=y_full,
-        )
-        X_val, X_test, y_val, y_test = train_test_split(
-            X_temp,
-            y_temp,
-            test_size=0.5,
-            random_state=42,
-            stratify=y_temp,
-        )
+        with MemoryMonitor("Dataset Splitting"):
+            X_train, X_temp, y_train, y_temp = train_test_split(
+                X_sample, y_sample,
+                test_size=0.4,
+                random_state=42,
+                stratify=y_sample,
+            )
+            X_val, X_test, y_val, y_test = train_test_split(
+                X_temp, y_temp,
+                test_size=0.5,
+                random_state=42,
+                stratify=y_temp,
+            )
+            
+            # Free up memory from intermediate datasets
+            del X_sample, y_sample, X_temp, y_temp
+            if not use_full:
+                del X_full, y_full
+            optimize_memory_usage()
+            
+            print(f"📊 Final dataset sizes:")
+            print(f"   Training: {X_train.shape}")
+            print(f"   Validation: {X_val.shape}")
+            print(f"   Test: {X_test.shape}")
 
-        print("\n🤖 Initialising advanced models for CIC-IDS-2017...")
-        advanced_models = AdvancedModels(random_state=42)
-        available_models = list(advanced_models.models.keys())
-        print(f"✅ Models available: {available_models}")
+        with MemoryMonitor("Model Training"):
+            print("\n🤖 Initialising advanced models for CIC-IDS-2017...")
+            advanced_models = AdvancedModels(random_state=42)
+            available_models = list(advanced_models.models.keys())
+            print(f"✅ Models available: {available_models}")
+            
+            # Get model configurations based on memory
+            if use_full:
+                print("💪 Using full model configurations")
+            else:
+                print("⚡ Using memory-optimized model configurations")
 
-        train_results = advanced_models.train_all(X_train, y_train)
-        failed_models = [name for name, result in train_results.items() if result.status != "success"]
-        if failed_models:
-            print(f"⚠️ Models failed to train: {failed_models}")
+            train_results = advanced_models.train_all(X_train, y_train)
+            failed_models = [name for name, result in train_results.items() if result.status != "success"]
+            if failed_models:
+                print(f"⚠️ Models failed to train: {failed_models}")
 
-        print("\n📊 Validation performance on CIC-IDS-2017")
-        val_results = advanced_models.evaluate_all(X_val, y_val, dataset="validation")
-        if val_results.empty:
-            print("❌ No validation results available for CIC-IDS-2017 advanced models.")
-            return False
+        with MemoryMonitor("Model Evaluation"):
+            print("\n📊 Validation performance on CIC-IDS-2017")
+            val_results = advanced_models.evaluate_all(X_val, y_val, dataset="validation")
+            if val_results.empty:
+                print("❌ No validation results available for CIC-IDS-2017 advanced models.")
+                return False
 
         summary_cols = [
             "model_name",
