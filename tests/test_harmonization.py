@@ -30,8 +30,13 @@ def _make_nsl_sample() -> pd.DataFrame:
             "protocol_type": ["tcp", "udp"],
             "service": ["http", "domain"],
             "flag": ["SF", "REJ"],
-            "src_bytes": [100, 50],
-            "dst_bytes": [25, 10],
+            "src_bytes": [1200, 50],
+            "dst_bytes": [600, 10],
+            "count": [12.0, 30.0],
+            "srv_count": [6.0, 15.0],
+            "serror_rate": [0.1, 0.5],
+            "urgent": [0.0, 4.0],
+            "land": [0.0, 1.0],
         }
     )
     df = pd.DataFrame(rows)
@@ -51,9 +56,14 @@ def _make_cic_sample() -> pd.DataFrame:
         "ACK_Flag_Count": [1, 0],
         "FIN_Flag_Count": [0, 0],
         "RST_Flag_Count": [0, 1],
+        "URG_Flag_Count": [0, 1],
         "Flow_Bytes/s": [520.0, np.nan],
+        "Flow_Packets/s": [14.0, 3.0],
+        "Fwd_Packets/s": [10.0, 2.5],
         "Label": ["BENIGN", "DoS Hulk"],
         "Protocol": [6, "17"],
+        "Source_IP": ["10.0.0.1", "192.168.0.1"],
+        "Destination_IP": ["10.0.0.1", "10.0.0.2"],
     }
     df = pd.DataFrame(data)
     for column in CIC_CANONICAL_COLUMNS:
@@ -73,10 +83,16 @@ def test_to_common_from_nsl() -> None:
     common = to_common_from_nsl(df)
     assert list(common.columns) == COMMON_COLUMNS
     assert common.loc[0, "duration_ms"] == pytest.approx(1000.0)
-    assert common.loc[1, "tcp_flag_rst"] == 1
+    assert common.loc[0, "fwd_packets"] == 2
+    assert common.loc[0, "bwd_packets"] == 1
+    assert common.loc[1, "connection_state"] == 2
+    assert common.loc[1, "land"] == 1
+    assert common.loc[1, "urgent_count"] == pytest.approx(4.0)
+    assert common.loc[0, "connection_rate"] == pytest.approx(12.0 / 1.001, rel=1e-3)
+    assert common.loc[1, "service_rate"] == pytest.approx(15.0 / 2.501, rel=1e-3)
+    assert common.loc[1, "error_rate"] == pytest.approx(0.5)
     assert common.loc[0, "label_binary"] == 0
     assert common.loc[1, "label_binary"] == 1
-    assert common["fwd_pkts"].isna().all()
     validate_common(common)
 
 
@@ -86,7 +102,12 @@ def test_to_common_from_cic() -> None:
     assert list(common.columns) == COMMON_COLUMNS
     assert common.loc[0, "protocol"] == "TCP"
     assert common.loc[1, "protocol"] == "UDP"
-    assert common.loc[0, "total_pkts"] == 14
+    assert common.loc[0, "fwd_packets"] == 10
+    assert common.loc[1, "connection_state"] == 2
+    assert common.loc[0, "land"] == 1
+    assert common.loc[1, "error_rate"] == pytest.approx(1 / 6)
+    assert common.loc[0, "connection_rate"] == pytest.approx(14.0)
+    assert common.loc[0, "service_rate"] == pytest.approx(10.0)
     assert common.loc[1, "flow_bytes_per_s"] > 0
     assert set(common["label_binary"]) == {0, 1}
 

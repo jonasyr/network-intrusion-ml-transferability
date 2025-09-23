@@ -23,17 +23,34 @@ COMMON_COLUMNS: List[str] = [
     "protocol",
     "fwd_bytes",
     "bwd_bytes",
-    "fwd_pkts",
-    "bwd_pkts",
-    "total_pkts",
-    "tcp_flag_syn",
-    "tcp_flag_ack",
-    "tcp_flag_fin",
-    "tcp_flag_rst",
+    "fwd_packets",
+    "bwd_packets",
+    "connection_state",
+    "urgent_count",
+    "connection_rate",
+    "service_rate",
+    "error_rate",
+    "land",
     "flow_bytes_per_s",
     "label_binary",
     "label_multiclass",
 ]
+
+AVERAGE_TCP_PACKET_SIZE = 576.0
+
+# Connection state identifiers harmonized between datasets.
+NSL_CONNECTION_STATE_MAP: Dict[str, int] = {
+    "SF": 0,
+    "S0": 1,
+    "REJ": 2,
+    "RSTO": 2,
+    "RSTR": 2,
+    "SH": 4,
+    "S1": 5,
+    "S2": 5,
+    "S3": 5,
+    "OTH": 6,
+}
 
 NSL_CANONICAL_COLUMNS: List[str] = [
     "duration",
@@ -227,13 +244,14 @@ class CommonSchema(BaseModel):
     protocol: str
     fwd_bytes: int = Field(..., ge=0)
     bwd_bytes: int = Field(..., ge=0)
-    fwd_pkts: Optional[int] = Field(default=None, ge=0)
-    bwd_pkts: Optional[int] = Field(default=None, ge=0)
-    total_pkts: Optional[int] = Field(default=None, ge=0)
-    tcp_flag_syn: int = Field(..., ge=0)
-    tcp_flag_ack: int = Field(..., ge=0)
-    tcp_flag_fin: int = Field(..., ge=0)
-    tcp_flag_rst: int = Field(..., ge=0)
+    fwd_packets: int = Field(..., ge=0)
+    bwd_packets: int = Field(..., ge=0)
+    connection_state: int = Field(..., ge=0)
+    urgent_count: float = Field(..., ge=0)
+    connection_rate: float = Field(..., ge=0)
+    service_rate: float = Field(..., ge=0)
+    error_rate: float = Field(..., ge=0)
+    land: int = Field(..., ge=0)
     flow_bytes_per_s: float = Field(..., ge=0)
     label_binary: int = Field(..., ge=0, le=1)
     label_multiclass: str
@@ -434,6 +452,16 @@ def map_protocols(series: pd.Series) -> pd.Series:
     return series.apply(_map)
 
 
+def derive_packet_counts_from_bytes(
+    byte_series: pd.Series, average_size: float = AVERAGE_TCP_PACKET_SIZE
+) -> pd.Series:
+    """Approximate packet counts from byte counters using a TCP MSS estimate."""
+
+    numeric = pd.to_numeric(byte_series, errors="coerce").fillna(0.0)
+    counts = (numeric / max(average_size, 1.0)).round().clip(lower=0)
+    return counts.astype(int)
+
+
 def derive_throughput(bytes_total: pd.Series, duration_ms: pd.Series) -> pd.Series:
     """Compute bytes per second with zero-division protection."""
 
@@ -456,6 +484,16 @@ def nsl_flag_to_tcp_counts(flag: str) -> Dict[str, int]:
     return dict(mapping)
 
 
+def map_nsl_flags_to_state(flags: pd.Series) -> pd.Series:
+    """Map NSL-KDD flag symbols to harmonized connection state identifiers."""
+
+    def _map(flag: Any) -> int:
+        normalized = str(flag).strip().upper()
+        return NSL_CONNECTION_STATE_MAP.get(normalized, 6)
+
+    return flags.apply(_map).astype(int)
+
+
 def ensure_cic_tcp_flag_cols(df: pd.DataFrame) -> pd.DataFrame:
     """Ensure TCP flag counter columns exist for CIC-IDS-2017 data."""
 
@@ -465,6 +503,33 @@ def ensure_cic_tcp_flag_cols(df: pd.DataFrame) -> pd.DataFrame:
             result[column] = 0
         result[column] = pd.to_numeric(result[column], errors="coerce").fillna(0).astype(int)
     return result
+
+
+def derive_cic_connection_state(df: pd.DataFrame) -> pd.Series:
+    """Derive harmonized connection state identifiers from CIC TCP flags."""
+
+    syn = pd.to_numeric(df.get("SYN_Flag_Count", 0), errors="coerce").fillna(0).astype(int)
+    ack = pd.to_numeric(df.get("ACK_Flag_Count", 0), errors="coerce").fillna(0).astype(int)
+    fin = pd.to_numeric(df.get("FIN_Flag_Count", 0), errors="coerce").fillna(0).astype(int)
+    rst = pd.to_numeric(df.get("RST_Flag_Count", 0), errors="coerce").fillna(0).astype(int)
+
+    state = pd.Series(0, index=df.index, dtype=int)
+    state.loc[(syn > 0) & (ack == 0) & (rst == 0)] = 1
+    state.loc[rst > 0] = 2
+    state.loc[fin > 0] = 4
+    state.loc[(syn == 0) & (ack == 0) & (fin == 0) & (rst == 0)] = 6
+    return state
+
+
+def derive_land_flag(df: pd.DataFrame) -> pd.Series:
+    """Determine whether flows originate and terminate at the same endpoint."""
+
+    if "Source_IP" in df.columns and "Destination_IP" in df.columns:
+        source = df["Source_IP"].astype(str).str.strip()
+        destination = df["Destination_IP"].astype(str).str.strip()
+        match = (source != "") & (source == destination)
+        return match.astype(int)
+    return pd.Series([0] * len(df), index=df.index, dtype=int)
 
 
 def _prepare_cic_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -532,24 +597,35 @@ def to_common_from_nsl(df: pd.DataFrame) -> pd.DataFrame:
     """Transform NSL-KDD dataframe to the common subset schema."""
 
     base = df.copy()
-    duration_ms = pd.to_numeric(base["duration"], errors="coerce").fillna(0) * 1000.0
-    protocol = base["protocol_type"].astype(str)
-    fwd_bytes = pd.to_numeric(base["src_bytes"], errors="coerce").fillna(0).astype(int)
-    bwd_bytes = pd.to_numeric(base["dst_bytes"], errors="coerce").fillna(0).astype(int)
+    duration_sec = pd.to_numeric(base["duration"], errors="coerce").fillna(0.0)
+    duration_ms = duration_sec * 1000.0
+    protocol = map_protocols(base["protocol_type"])
 
-    total_bytes = fwd_bytes.astype(float) + bwd_bytes.astype(float)
+    fwd_bytes_series = pd.to_numeric(base["src_bytes"], errors="coerce").fillna(0.0)
+    bwd_bytes_series = pd.to_numeric(base["dst_bytes"], errors="coerce").fillna(0.0)
+    fwd_bytes = fwd_bytes_series.astype(int)
+    bwd_bytes = bwd_bytes_series.astype(int)
+
+    fwd_packets = derive_packet_counts_from_bytes(fwd_bytes_series)
+    bwd_packets = derive_packet_counts_from_bytes(bwd_bytes_series)
+
+    total_bytes = fwd_bytes_series + bwd_bytes_series
     flow_bytes_per_s = derive_throughput(total_bytes, duration_ms)
 
-    syn_counts: List[int] = []
-    ack_counts: List[int] = []
-    fin_counts: List[int] = []
-    rst_counts: List[int] = []
-    for flag in base["flag"]:
-        mapping = nsl_flag_to_tcp_counts(flag)
-        syn_counts.append(mapping["syn"])
-        ack_counts.append(mapping["ack"])
-        fin_counts.append(mapping["fin"])
-        rst_counts.append(mapping["rst"])
+    connection_state = map_nsl_flags_to_state(base["flag"])
+    urgent_count = pd.to_numeric(base["urgent"], errors="coerce").fillna(0.0)
+
+    duration_safe = duration_sec + 1e-3
+    count_series = pd.to_numeric(base["count"], errors="coerce").fillna(0.0)
+    srv_count_series = pd.to_numeric(base["srv_count"], errors="coerce").fillna(0.0)
+    connection_rate = (count_series / duration_safe).replace([np.inf, -np.inf], 0.0)
+    service_rate = (srv_count_series / duration_safe).replace([np.inf, -np.inf], 0.0)
+
+    error_rate = pd.to_numeric(base["serror_rate"], errors="coerce").fillna(0.0)
+    land = pd.to_numeric(base["land"], errors="coerce").fillna(0).astype(int)
+
+    label_multiclass = normalize_labels(base["label_kdd"])
+    label_binary = (label_multiclass != "normal").astype(np.int8)
 
     common = pd.DataFrame(
         {
@@ -557,16 +633,17 @@ def to_common_from_nsl(df: pd.DataFrame) -> pd.DataFrame:
             "protocol": protocol.astype(str),
             "fwd_bytes": fwd_bytes.astype(int),
             "bwd_bytes": bwd_bytes.astype(int),
-            "fwd_pkts": pd.Series(pd.NA, index=base.index, dtype="Int64"),
-            "bwd_pkts": pd.Series(pd.NA, index=base.index, dtype="Int64"),
-            "total_pkts": pd.Series(pd.NA, index=base.index, dtype="Int64"),
-            "tcp_flag_syn": pd.Series(syn_counts, index=base.index, dtype=int),
-            "tcp_flag_ack": pd.Series(ack_counts, index=base.index, dtype=int),
-            "tcp_flag_fin": pd.Series(fin_counts, index=base.index, dtype=int),
-            "tcp_flag_rst": pd.Series(rst_counts, index=base.index, dtype=int),
+            "fwd_packets": fwd_packets.astype(int),
+            "bwd_packets": bwd_packets.astype(int),
+            "connection_state": connection_state.astype(int),
+            "urgent_count": urgent_count.astype(float),
+            "connection_rate": connection_rate.astype(float),
+            "service_rate": service_rate.astype(float),
+            "error_rate": error_rate.astype(float),
+            "land": land.astype(int),
             "flow_bytes_per_s": flow_bytes_per_s.astype(float),
-            "label_binary": (normalize_labels(base["label_kdd"]) != "normal").astype(np.int8),
-            "label_multiclass": normalize_labels(base["label_kdd"]),
+            "label_binary": label_binary,
+            "label_multiclass": label_multiclass,
         }
     )
 
@@ -604,18 +681,19 @@ def to_common_from_cic(df: pd.DataFrame) -> pd.DataFrame:
         base, ("Total_Backward_Bytes", "Total_Length_of_Bwd_Packets")
     )
 
-    fwd_bytes = fwd_series.fillna(0).astype(int)
-    bwd_bytes = bwd_series.fillna(0).astype(int)
+    fwd_bytes_series = fwd_series.fillna(0.0)
+    bwd_bytes_series = bwd_series.fillna(0.0)
 
-    total_pkts = (
-        pd.to_numeric(base["Total_Fwd_Packets"], errors="coerce").fillna(0).astype(int)
-        + pd.to_numeric(base["Total_Backward_Packets"], errors="coerce").fillna(0).astype(int)
-    )
+    fwd_bytes = fwd_bytes_series.astype(int)
+    bwd_bytes = bwd_bytes_series.astype(int)
+
+    fwd_packets = pd.to_numeric(base["Total_Fwd_Packets"], errors="coerce").fillna(0).astype(int)
+    bwd_packets = pd.to_numeric(base["Total_Backward_Packets"], errors="coerce").fillna(0).astype(int)
 
     flow_bytes = base.get("Flow_Bytes/s", np.nan)
     flow_bytes = pd.to_numeric(flow_bytes, errors="coerce")
     derived_flow_bytes = derive_throughput(
-        fwd_bytes.astype(float) + bwd_bytes.astype(float), duration_ms
+        fwd_bytes_series.astype(float) + bwd_bytes_series.astype(float), duration_ms
     )
     flow_bytes_per_s = flow_bytes.fillna(derived_flow_bytes)
 
@@ -623,6 +701,18 @@ def to_common_from_cic(df: pd.DataFrame) -> pd.DataFrame:
         ["UNKNOWN"] * len(base), index=base.index
     )
     protocol = map_protocols(protocol_column)
+
+    connection_state = derive_cic_connection_state(base)
+    urgent_count = pd.to_numeric(base.get("URG_Flag_Count", 0), errors="coerce").fillna(0.0)
+    connection_rate = pd.to_numeric(base.get("Flow_Packets/s", 0), errors="coerce").fillna(0.0)
+    service_rate = pd.to_numeric(base.get("Fwd_Packets/s", 0), errors="coerce").fillna(0.0)
+
+    total_packets = (fwd_packets + bwd_packets).astype(float)
+    rst_counts = pd.to_numeric(base["RST_Flag_Count"], errors="coerce").fillna(0.0)
+    total_packets_safe = total_packets.replace(0, np.nan)
+    error_rate = (rst_counts / total_packets_safe).fillna(0.0)
+
+    land = derive_land_flag(base)
 
     label_series = base["Label"] if "Label" in base.columns else pd.Series(
         ["unknown"] * len(base), index=base.index
@@ -636,13 +726,14 @@ def to_common_from_cic(df: pd.DataFrame) -> pd.DataFrame:
             "protocol": protocol.astype(str),
             "fwd_bytes": fwd_bytes.astype(int),
             "bwd_bytes": bwd_bytes.astype(int),
-            "fwd_pkts": pd.to_numeric(base["Total_Fwd_Packets"], errors="coerce").astype("Int64"),
-            "bwd_pkts": pd.to_numeric(base["Total_Backward_Packets"], errors="coerce").astype("Int64"),
-            "total_pkts": total_pkts.astype(int),
-            "tcp_flag_syn": pd.to_numeric(base["SYN_Flag_Count"], errors="coerce").fillna(0).astype(int),
-            "tcp_flag_ack": pd.to_numeric(base["ACK_Flag_Count"], errors="coerce").fillna(0).astype(int),
-            "tcp_flag_fin": pd.to_numeric(base["FIN_Flag_Count"], errors="coerce").fillna(0).astype(int),
-            "tcp_flag_rst": pd.to_numeric(base["RST_Flag_Count"], errors="coerce").fillna(0).astype(int),
+            "fwd_packets": fwd_packets.astype(int),
+            "bwd_packets": bwd_packets.astype(int),
+            "connection_state": connection_state.astype(int),
+            "urgent_count": urgent_count.astype(float),
+            "connection_rate": connection_rate.astype(float),
+            "service_rate": service_rate.astype(float),
+            "error_rate": error_rate.astype(float),
+            "land": land.astype(int),
             "flow_bytes_per_s": flow_bytes_per_s.astype(float),
             "label_binary": label_binary,
             "label_multiclass": normalized_labels,

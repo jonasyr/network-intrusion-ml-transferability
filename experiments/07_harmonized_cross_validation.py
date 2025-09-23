@@ -49,17 +49,17 @@ NUMERIC_FEATURES = [
     "duration_ms",
     "fwd_bytes",
     "bwd_bytes",
-    "fwd_pkts",
-    "bwd_pkts",
-    "total_pkts",
-    "tcp_flag_syn",
-    "tcp_flag_ack",
-    "tcp_flag_fin",
-    "tcp_flag_rst",
+    "fwd_packets",
+    "bwd_packets",
+    "urgent_count",
+    "connection_rate",
+    "service_rate",
+    "error_rate",
+    "land",
     "flow_bytes_per_s",
 ]
 
-CATEGORICAL_FEATURES = ["protocol"]
+CATEGORICAL_FEATURES = ["protocol", "connection_state"]
 
 
 def train_on_full_cic_dataset() -> Pipeline:

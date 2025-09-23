@@ -1051,28 +1051,28 @@
     {
       "source": "NSL-KDD",
       "target": "CIC-IDS-2017",
-      "cv_f1_mean": 0.9253919015358384,
-      "cv_f1_std": 0.0025437673567995285,
-      "target_accuracy": 0.46076,
-      "target_precision": 0.47052992069214133,
-      "target_recall": 0.62652,
-      "target_f1": 0.5374348064781773,
+      "cv_f1_mean": 0.9314569218548222,
+      "cv_f1_std": 0.0019978711876426406,
+      "target_accuracy": 0.47346,
+      "target_precision": 0.4810693600388028,
+      "target_recall": 0.67444,
+      "target_f1": 0.56157471398358,
       "incremental_training": false,
-      "best_threshold": 0.3,
-      "threshold_tuned_f1": 0.5374348064781773
+      "best_threshold": 0.4,
+      "threshold_tuned_f1": 0.56157471398358
     },
     {
       "source": "CIC-IDS-2017",
       "target": "NSL-KDD",
       "cv_f1_mean": -1.0,
       "cv_f1_std": -1.0,
-      "target_accuracy": 0.49966,
-      "target_precision": 0.445859872611465,
-      "target_recall": 0.0028,
-      "target_f1": 0.00556505147672616,
+      "target_accuracy": 0.22534,
+      "target_precision": 0.18411004278419285,
+      "target_recall": 0.16008,
+      "target_f1": 0.1712561781885872,
       "incremental_training": true,
-      "best_threshold": 0.6,
-      "threshold_tuned_f1": 0.00556505147672616
+      "best_threshold": 0.3,
+      "threshold_tuned_f1": 0.1712561781885872
     }
   ]
 }
