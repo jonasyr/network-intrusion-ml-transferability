@@ -61,7 +61,7 @@ def run_experiment_safely(script_path, max_retries=2):
             # Run with live output - same as running experiments individually
             result = subprocess.run([
                 sys.executable, script_path
-            ], timeout=7200)  # 2 hour timeout, output goes directly to terminal
+            ])  # NO TIMEOUT - let it run as long as it needs!
             
             if result.returncode == 0:
                 print(f"✅ {script_path} completed successfully")
@@ -70,8 +70,9 @@ def run_experiment_safely(script_path, max_retries=2):
                 print(f"❌ {script_path} failed with code {result.returncode}")
                 print("📋 Check the output above for error details")
                 
-        except subprocess.TimeoutExpired:
-            print(f"⏰ {script_path} timed out after 2 hours")
+        except KeyboardInterrupt:
+            print(f"🛑 {script_path} interrupted by user - stopping pipeline")
+            return False
         except Exception as e:
             print(f"💥 {script_path} crashed: {e}")
             

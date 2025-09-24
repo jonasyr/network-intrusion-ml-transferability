@@ -64,9 +64,11 @@ class BaselineModels:
             ),
             'naive_bayes': GaussianNB(),
             'knn': KNeighborsClassifier(
-                n_neighbors=5,
-                n_jobs=-1,
-                algorithm='auto'   # Let sklearn choose best algorithm
+                n_neighbors=3,     # Reduced for speed
+                n_jobs=-1,         # Use all cores
+                algorithm='kd_tree',  # Fast for high-dimensional data
+                leaf_size=50,      # Larger leaf size for speed
+                metric='euclidean'  # Fast metric
             ),
             'svm_linear': SVC(
                 kernel='linear',
