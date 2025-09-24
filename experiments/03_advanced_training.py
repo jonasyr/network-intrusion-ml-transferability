@@ -116,18 +116,13 @@ def train_nsl_kdd_advanced() -> bool:
 
 
 def train_cic_advanced() -> bool:
-    """Train the advanced model suite on the CIC-IDS-2017 dataset with memory adaptation."""
+    """Train the advanced model suite on the CIC-IDS-2017 dataset with FULL DATASET for scientific accuracy."""
 
-    # Get memory-adaptive configuration
-    config = get_memory_adaptive_config()
-    use_full = config["use_full_dataset"]
-    max_sample_size = config["max_sample_size"]
+    # FORCE FULL DATASET FOR SCIENTIFIC PAPER - Override memory configuration
+    print("🔬 SCIENTIFIC MODE: Forcing full dataset usage for publication accuracy")
+    use_full = True
     
-    title = "🚀 CIC-IDS-2017 Advanced Training"
-    if use_full:
-        title += " (Full Dataset)"
-    else:
-        title += " (Memory Optimized)"
+    title = "🚀 CIC-IDS-2017 Advanced Training (FULL DATASET - Scientific Mode)"
     
     _print_separator(title)
 
@@ -161,36 +156,9 @@ def train_cic_advanced() -> bool:
             del cic_data
             optimize_memory_usage()
 
-        # Adaptive sampling based on memory configuration
-        if use_full:
-            print("💪 Using FULL dataset for training")
-            X_sample, y_sample = X_full, y_full
-        else:
-            # Calculate optimal sample size for advanced models (more memory intensive)
-            optimal_size = get_optimal_sample_size(
-                len(X_full), 
-                X_full.shape[1], 
-                target_memory_gb=config.get("target_memory_gb", 8.0)  # Higher for advanced models
-            )
-            
-            if max_sample_size:
-                optimal_size = min(optimal_size, max_sample_size)
-            
-            sample_ratio = optimal_size / len(X_full)
-            
-            # Handle edge case where sample ratio is 1.0 (use full dataset)
-            if sample_ratio >= 1.0:
-                print("💪 Using FULL dataset (optimal size equals dataset size)")
-                X_sample, y_sample = X_full, y_full
-            else:
-                print(f"📊 Using optimized sample: {optimal_size:,} records ({sample_ratio*100:.1f}%)")
-                
-                X_sample, _, y_sample, _ = train_test_split(
-                    X_full, y_full, 
-                    train_size=sample_ratio,
-                    random_state=42,
-                    stratify=y_full
-                )
+        # SCIENTIFIC MODE: Always use FULL dataset
+        print("💪 Using FULL dataset for scientific accuracy")
+        X_sample, y_sample = X_full, y_full
 
         # Create train/validation/test splits (60/20/20)
         with MemoryMonitor("Dataset Splitting"):
@@ -224,11 +192,8 @@ def train_cic_advanced() -> bool:
             available_models = list(advanced_models.models.keys())
             print(f"✅ Models available: {available_models}")
             
-            # Get model configurations based on memory
-            if use_full:
-                print("💪 Using full model configurations")
-            else:
-                print("⚡ Using memory-optimized model configurations")
+            # SCIENTIFIC MODE: Using full model configurations
+            print("💪 Using full model configurations for scientific accuracy")
 
             train_results = advanced_models.train_all(X_train, y_train)
             failed_models = [name for name, result in train_results.items() if result.status != "success"]

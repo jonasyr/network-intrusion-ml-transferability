@@ -106,17 +106,19 @@ def get_memory_adaptive_config() -> Dict[str, Any]:
     if force_full:
         print("🔬 SCIENTIFIC MODE ENABLED: Forcing full dataset usage")
         print("   ⚠️  This will use maximum memory but ensures scientific accuracy")
+        print("   🎯 ALL MODELS will be trained including SVM and KNN")
         use_full = True
         config_type = "FORCED FULL DATASET (Scientific Mode)"
         
-        # Use aggressive settings for scientific accuracy
+        # Use aggressive settings for scientific accuracy - no memory limits
         config = {
             "use_full_dataset": True,
-            "batch_size": 20000 if total_memory >= 32 else 15000,
-            "max_sample_size": None,
+            "batch_size": 30000 if total_memory >= 32 else (20000 if total_memory >= 16 else 15000),
+            "max_sample_size": None,  # No sampling limits
             "n_jobs": -1,
             "enable_early_stopping": False,
-            "target_memory_gb": min(total_memory * 0.8, 16.0)  # Use up to 80% of available memory
+            "target_memory_gb": total_memory * 0.9,  # Use up to 90% of available memory
+            "force_all_models": True  # Force training of all models including memory-intensive ones
         }
     elif total_memory >= 16:  # Any system with 16GB+ should use full dataset
         use_full = True

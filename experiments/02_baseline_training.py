@@ -54,9 +54,10 @@ def train_nsl_kdd_baseline() -> bool:
         X_train, X_val, y_train, y_val = preprocessor.fit_transform(train_data)
         X_test, y_test = preprocessor.transform(test_data)
 
-        print("\n🤖 Training baseline models on NSL-KDD...")
+        print("\n🤖 Training ALL baseline models on NSL-KDD...")
+        print("   🔬 SCIENTIFIC MODE: Training ALL models including SVM and KNN")
         baseline = BaselineModels()
-        exclude_models = ["svm_linear"] if len(X_train) > 5_000 else []
+        exclude_models = []  # NO MODEL EXCLUSIONS for scientific paper
         baseline.train_all(X_train, y_train, exclude_models=exclude_models)
 
         print("\n📊 Validation performance on NSL-KDD...")
@@ -90,18 +91,13 @@ def train_nsl_kdd_baseline() -> bool:
 
 
 def train_cic_baseline() -> bool:
-    """Run the baseline pipeline on the CIC-IDS-2017 dataset with adaptive memory management."""
+    """Run the baseline pipeline on the CIC-IDS-2017 dataset with FULL DATASET for scientific accuracy."""
 
-    # Get memory-adaptive configuration
-    config = get_memory_adaptive_config()
-    use_full = config["use_full_dataset"]
-    max_sample_size = config["max_sample_size"]
+    # FORCE FULL DATASET FOR SCIENTIFIC PAPER - Override memory configuration
+    print("🔬 SCIENTIFIC MODE: Forcing full dataset usage for publication accuracy")
+    use_full = True
     
-    title = "🚀 CIC-IDS-2017 Baseline Training"
-    if use_full:
-        title += " (Full Dataset)"
-    else:
-        title += " (Memory Optimized)"
+    title = "🚀 CIC-IDS-2017 Baseline Training (FULL DATASET - Scientific Mode)"
     
     _print_separator(title)
 
@@ -135,36 +131,9 @@ def train_cic_baseline() -> bool:
             del cic_data
             optimize_memory_usage()
 
-        # Adaptive sampling based on memory configuration
-        if use_full:
-            print("💪 Using FULL dataset for training")
-            X_sample, y_sample = X_full, y_full
-        else:
-            # Calculate optimal sample size
-            optimal_size = get_optimal_sample_size(
-                len(X_full), 
-                X_full.shape[1], 
-                target_memory_gb=config.get("target_memory_gb", 6.0)
-            )
-            
-            if max_sample_size:
-                optimal_size = min(optimal_size, max_sample_size)
-            
-            sample_ratio = optimal_size / len(X_full)
-            
-            # Handle edge case where sample ratio is 1.0 (use full dataset)
-            if sample_ratio >= 1.0:
-                print("💪 Using FULL dataset (optimal size equals dataset size)")
-                X_sample, y_sample = X_full, y_full
-            else:
-                print(f"📊 Using optimized sample: {optimal_size:,} records ({sample_ratio*100:.1f}%)")
-                
-                X_sample, _, y_sample, _ = train_test_split(
-                    X_full, y_full, 
-                    train_size=sample_ratio,
-                    random_state=42,
-                    stratify=y_full
-                )
+        # SCIENTIFIC MODE: Always use FULL dataset
+        print("💪 Using FULL dataset for scientific accuracy")
+        X_sample, y_sample = X_full, y_full
         
         # Split into train/val/test (60/20/20)
         with MemoryMonitor("Dataset Splitting"):
@@ -193,14 +162,12 @@ def train_cic_baseline() -> bool:
             print(f"   Test: {X_test.shape}")
 
         with MemoryMonitor("Model Training"):
-            print("\n🤖 Training baseline models on CIC-IDS-2017...")
+            print("\n🤖 Training ALL baseline models on CIC-IDS-2017...")
+            print("   🔬 SCIENTIFIC MODE: Training ALL models including SVM and KNN")
             baseline = BaselineModels()
             
-            # Adaptive model exclusion based on memory
+            # NO MODEL EXCLUSIONS for scientific paper
             exclude_models = []
-            if not use_full or len(X_train) > 100000:
-                exclude_models.extend(["svm_linear", "knn"])
-                print("   ⚠️ Excluding memory-intensive models (SVM, KNN)")
             
             baseline.train_all(X_train, y_train, exclude_models=exclude_models)
 
