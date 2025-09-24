@@ -99,6 +99,7 @@ def enhance_scientific_value():
     
     # Initialize enhanced evaluator
     evaluator = EnhancedEvaluator()
+    evaluator.set_current_dataset("NSL-KDD")  # Set dataset context for filename generation
     
     # Load test data for analysis
     print("\n📊 Loading test data...")

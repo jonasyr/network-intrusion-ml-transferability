@@ -288,23 +288,30 @@ class CrossValidationFramework:
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
         
+        # Determine dataset suffix from output path or context
+        dataset_suffix = ""
+        if "nsl" in str(output_path).lower():
+            dataset_suffix = "_nsl"
+        elif "cic" in str(output_path).lower():
+            dataset_suffix = "_cic"
+        
         # Save detailed results
         detailed_results = pd.DataFrame([result for result in self.results.values()])
-        detailed_results.to_csv(output_path / 'cv_detailed_results.csv', index=False)
+        detailed_results.to_csv(output_path / f'cv_detailed_results{dataset_suffix}.csv', index=False)
         
         # Save summary table
         summary_df = self.create_cv_summary_table(list(self.results.values()))
-        summary_df.to_csv(output_path / 'cv_summary_table.csv', index=False)
+        summary_df.to_csv(output_path / f'cv_summary_table{dataset_suffix}.csv', index=False)
         
         # Save LaTeX table
         latex_table = self.generate_latex_table(summary_df)
-        with open(output_path / 'cv_summary_table.tex', 'w') as f:
+        with open(output_path / f'cv_summary_table{dataset_suffix}.tex', 'w') as f:
             f.write(latex_table)
         
         # Save statistical comparison
         if len(self.results) > 1:
             comparison_df = self.compare_models_statistical(list(self.results.values()))
-            comparison_df.to_csv(output_path / 'statistical_comparison.csv', index=False)
+            comparison_df.to_csv(output_path / f'statistical_comparison{dataset_suffix}.csv', index=False)
         
         print(f"📊 Cross-validation results saved to {output_path}")
 

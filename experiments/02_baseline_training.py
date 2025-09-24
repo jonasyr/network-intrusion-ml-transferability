@@ -92,11 +92,8 @@ def train_nsl_kdd_baseline() -> bool:
         preprocessor.save(str(models_dir / "nsl_preprocessor.pkl"))
         
         # Also save main baseline results for summary generation
-        main_results_dir = PROJECT_ROOT / "data" / "results"
-        main_results_dir.mkdir(exist_ok=True)
-        val_results['dataset'] = 'NSL-KDD'
-        val_results.to_csv(main_results_dir / "baseline_results.csv", index=False)
-        print(f"💾 Saved main results to {main_results_dir / 'baseline_results.csv'}")
+        # Results are now saved with dataset-specific naming via save_models() method
+        # No need for additional generic baseline_results.csv file
 
         print("✅ NSL-KDD baseline training complete!")
         return True

@@ -48,10 +48,17 @@ class EnhancedEvaluator:
             'tables': self.output_dir / 'tables'
         }
         
+        # Track current dataset for filename generation
+        self.current_dataset = None
+        
         for subdir in self.subdirs.values():
             subdir.mkdir(parents=True, exist_ok=True)
             
         print(f"✅ Enhanced evaluator initialized with output: {self.output_dir}")
+    
+    def set_current_dataset(self, dataset_name: str):
+        """Set the current dataset for filename generation"""
+        self.current_dataset = dataset_name.lower()
     
     def generate_confusion_matrix(self, 
                                 y_true: np.ndarray, 
@@ -270,7 +277,8 @@ class EnhancedEvaluator:
         plt.tight_layout()
         
         # Save figure
-        filename = f"{model_name.lower().replace(' ', '_')}_feature_importance.png"
+        dataset_suffix = f"_{self.current_dataset}" if self.current_dataset else ""
+        filename = f"{model_name.lower().replace(' ', '_')}{dataset_suffix}_feature_importance.png"
         save_path = self.subdirs['feature_importance'] / filename
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         plt.close()
@@ -280,7 +288,7 @@ class EnhancedEvaluator:
             'feature': [feature_names[i] for i in indices],
             'importance': importance[indices]
         })
-        csv_path = self.subdirs['feature_importance'] / f"{model_name.lower().replace(' ', '_')}_feature_importance.csv"
+        csv_path = self.subdirs['feature_importance'] / f"{model_name.lower().replace(' ', '_')}{dataset_suffix}_feature_importance.csv"
         importance_df.to_csv(csv_path, index=False)
         
         print(f"🎯 Feature importance saved: {save_path}")
@@ -396,7 +404,8 @@ class EnhancedEvaluator:
         plt.tight_layout()
         
         # Save figure
-        filename = f"{model_name.lower().replace(' ', '_')}_learning_curve.png"
+        dataset_suffix = f"_{self.current_dataset}" if self.current_dataset else ""
+        filename = f"{model_name.lower().replace(' ', '_')}{dataset_suffix}_learning_curve.png"
         save_path = self.subdirs['learning_curves'] / filename
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         plt.close()

@@ -63,6 +63,29 @@ class PaperFigureGenerator:
             'Neural Networks': ['mlp']
         }
     
+    def _has_nsl_data(self) -> bool:
+        """Check if NSL-KDD data/results are available"""
+        nsl_paths = [
+            "data/results/nsl_baseline_results.csv",
+            "data/results/nsl_advanced_results.csv",
+            "data/results/nsl/baseline_results.csv",
+            "data/results/baseline_results.csv"  # Legacy that might be NSL
+        ]
+        return any(Path(path).exists() for path in nsl_paths)
+    
+    def _has_cic_data(self) -> bool:
+        """Check if CIC-IDS-2017 data/results are available"""
+        cic_paths = [
+            "data/results/cic_baseline_results.csv", 
+            "data/results/cic_advanced_results.csv",
+            "data/results/cic/baseline_results.csv"
+        ]
+        return any(Path(path).exists() for path in cic_paths)
+    
+    def _has_both_datasets(self) -> bool:
+        """Check if both datasets are available"""
+        return self._has_nsl_data() and self._has_cic_data()
+    
     def load_all_results(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
         Load baseline and advanced model results
@@ -227,8 +250,9 @@ class PaperFigureGenerator:
         
         # Save figure
         if save_path is None:
-            save_path = self.output_dir / "model_performance_comparison.png"
-        
+            dataset_prefix = "nsl_cic" if self._has_both_datasets() else ("nsl" if self._has_nsl_data() else "cic")
+            save_path = self.output_dir / f"{dataset_prefix}_model_performance_comparison.png"
+            
         plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
         print(f"📊 Model comparison figure saved to {save_path}")
         
@@ -344,7 +368,7 @@ class PaperFigureGenerator:
         
         # Save figure
         if save_path is None:
-            save_path = self.output_dir / "attack_distribution_analysis.png"
+            save_path = self.output_dir / "nsl_attack_distribution_analysis.png"
         
         plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
         print(f"📊 Attack distribution analysis saved to {save_path}")
@@ -545,7 +569,8 @@ class PaperFigureGenerator:
         
         # Save to CSV and LaTeX
         if save_path is None:
-            save_path = self.output_dir / "performance_summary_table"
+            dataset_prefix = "nsl_cic" if self._has_both_datasets() else ("nsl" if self._has_nsl_data() else "cic")
+            save_path = self.output_dir / f"{dataset_prefix}_performance_summary_table"
         
         summary_table.to_csv(f"{save_path}.csv", index=False)
         
