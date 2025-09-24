@@ -21,6 +21,7 @@ def enable_scientific_mode():
     # Set environment variable
     os.environ["SCIENTIFIC_MODE"] = "1"
     os.environ["FORCE_FULL_DATASET"] = "1"
+    os.environ["MEMORY_SAFE_MODE"] = "1"  # Disable memory-intensive operations
     
     print("\n🎯 Environment configured:")
     print(f"   SCIENTIFIC_MODE = {os.environ.get('SCIENTIFIC_MODE', 'Not set')}")

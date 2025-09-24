@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 import traceback
 import gc
@@ -55,9 +56,17 @@ def train_nsl_kdd_baseline() -> bool:
         X_test, y_test = preprocessor.transform(test_data)
 
         print("\n🤖 Training ALL baseline models on NSL-KDD...")
-        print("   🔬 SCIENTIFIC MODE: Training ALL models including SVM and KNN")
+        
+        # Check memory safe mode
+        memory_safe = os.getenv("MEMORY_SAFE_MODE", "").lower() in ("1", "true", "yes")
+        if memory_safe:
+            print("   ⚡ MEMORY SAFE MODE: Excluding SVM to prevent segfaults")
+            exclude_models = ['svm_linear']  # Exclude memory-intensive SVM
+        else:
+            print("   🔬 SCIENTIFIC MODE: Training ALL models including SVM and KNN")
+            exclude_models = []  # NO MODEL EXCLUSIONS for scientific paper
+            
         baseline = BaselineModels()
-        exclude_models = []  # NO MODEL EXCLUSIONS for scientific paper
         baseline.train_all(X_train, y_train, exclude_models=exclude_models)
 
         print("\n📊 Validation performance on NSL-KDD...")
@@ -81,6 +90,13 @@ def train_nsl_kdd_baseline() -> bool:
         results_dir = PROJECT_ROOT / "data" / "results" / "nsl"
         baseline.save_models(str(models_dir), results_dir=str(results_dir), dataset_suffix="_nsl")
         preprocessor.save(str(models_dir / "nsl_preprocessor.pkl"))
+        
+        # Also save main baseline results for summary generation
+        main_results_dir = PROJECT_ROOT / "data" / "results"
+        main_results_dir.mkdir(exist_ok=True)
+        val_results['dataset'] = 'NSL-KDD'
+        val_results.to_csv(main_results_dir / "baseline_results.csv", index=False)
+        print(f"💾 Saved main results to {main_results_dir / 'baseline_results.csv'}")
 
         print("✅ NSL-KDD baseline training complete!")
         return True
@@ -163,11 +179,17 @@ def train_cic_baseline() -> bool:
 
         with MemoryMonitor("Model Training"):
             print("\n🤖 Training ALL baseline models on CIC-IDS-2017...")
-            print("   🔬 SCIENTIFIC MODE: Training ALL models including SVM and KNN")
-            baseline = BaselineModels()
             
-            # NO MODEL EXCLUSIONS for scientific paper
-            exclude_models = []
+            # Check memory safe mode
+            memory_safe = os.getenv("MEMORY_SAFE_MODE", "").lower() in ("1", "true", "yes")
+            if memory_safe:
+                print("   ⚡ MEMORY SAFE MODE: Excluding SVM to prevent segfaults")
+                exclude_models = ['svm_linear']  # Exclude memory-intensive SVM
+            else:
+                print("   🔬 SCIENTIFIC MODE: Training ALL models including SVM and KNN")
+                exclude_models = []  # NO MODEL EXCLUSIONS for scientific paper
+                
+            baseline = BaselineModels()
             
             baseline.train_all(X_train, y_train, exclude_models=exclude_models)
 

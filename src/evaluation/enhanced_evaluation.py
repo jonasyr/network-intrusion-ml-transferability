@@ -310,10 +310,11 @@ class EnhancedEvaluator:
         if train_sizes is None:
             train_sizes = np.linspace(0.1, 1.0, 10)
         
-        # Generate learning curve
+        # Generate learning curve with limited parallelization to prevent memory issues
+        n_jobs = 1 if 'xgboost' in model_name.lower() else 2  # XGBoost has threading issues
         train_sizes_abs, train_scores, val_scores = sklearn_learning_curve(
             model, X, y, cv=cv, train_sizes=train_sizes,
-            scoring='f1', n_jobs=-1, random_state=42
+            scoring='f1', n_jobs=n_jobs, random_state=42
         )
         
         # Calculate mean and std
@@ -430,8 +431,12 @@ class EnhancedEvaluator:
         
         # 4. Learning Curve (if training data available)
         if X_train is not None and y_train is not None:
-            lc_path = self.generate_learning_curve(model, X_train, y_train, model_name)
-            results['learning_curve'] = lc_path
+            try:
+                lc_path = self.generate_learning_curve(model, X_train, y_train, model_name)
+                results['learning_curve'] = lc_path
+            except Exception as e:
+                print(f"⚠️ Learning curve generation failed for {model_name}: {e}")
+                results['learning_curve'] = None
         
         return results
     

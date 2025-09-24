@@ -190,9 +190,10 @@ class CrossValidationFramework:
         
         df = pd.DataFrame(summary_data)
         
-        # Sort by accuracy mean
-        df['_accuracy_mean'] = [float(acc.split(' ± ')[0]) for acc in df['Accuracy']]
-        df = df.sort_values('_accuracy_mean', ascending=False).drop('_accuracy_mean', axis=1)
+        # Sort by accuracy mean if we have results
+        if not df.empty and 'Accuracy' in df.columns:
+            df['_accuracy_mean'] = [float(acc.split(' ± ')[0]) for acc in df['Accuracy']]
+            df = df.sort_values('_accuracy_mean', ascending=False).drop('_accuracy_mean', axis=1)
         
         return df
     
@@ -369,19 +370,19 @@ def run_full_cross_validation():
     print("📂 Loading trained models...")
     model_paths = {
         # Baseline models
-        'random_forest': 'data/models/baseline/random_forest.joblib',
-        'logistic_regression': 'data/models/baseline/logistic_regression.joblib',
-        'decision_tree': 'data/models/baseline/decision_tree.joblib',
-        'naive_bayes': 'data/models/baseline/naive_bayes.joblib',
-        'knn': 'data/models/baseline/knn.joblib',
+        'random_forest': 'data/models/baseline/random_forest_nsl.joblib',
+        'logistic_regression': 'data/models/baseline/logistic_regression_nsl.joblib',
+        'decision_tree': 'data/models/baseline/decision_tree_nsl.joblib',
+        'naive_bayes': 'data/models/baseline/naive_bayes_nsl.joblib',
+        'knn': 'data/models/baseline/knn_nsl.joblib',
         
         # Advanced models
-        'xgboost': 'data/models/advanced/xgboost.joblib',
-        'lightgbm': 'data/models/advanced/lightgbm.joblib',
-        'gradient_boosting': 'data/models/advanced/gradient_boosting.joblib',
-        'extra_trees': 'data/models/advanced/extra_trees.joblib',
-        'mlp': 'data/models/advanced/mlp.joblib',
-        'voting_classifier': 'data/models/advanced/voting_classifier.joblib'
+        'xgboost': 'data/models/advanced/xgboost_nsl.joblib',
+        'lightgbm': 'data/models/advanced/lightgbm_nsl.joblib',
+        'gradient_boosting': 'data/models/advanced/gradient_boosting_nsl.joblib',
+        'extra_trees': 'data/models/advanced/extra_trees_nsl.joblib',
+        'mlp': 'data/models/advanced/mlp_nsl.joblib',
+        'voting_classifier': 'data/models/advanced/voting_classifier_nsl.joblib'
     }
     
     # Perform cross-validation for each model
