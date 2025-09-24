@@ -71,17 +71,32 @@ class PaperFigureGenerator:
             Tuple of (baseline_results, advanced_results) DataFrames
         """
         try:
-            baseline_results = pd.read_csv("data/results/baseline_results.csv")
-            # Try multiple locations for advanced results
-            try:
-                advanced_results = pd.read_csv("data/models/advanced/advanced_results.csv")
-            except FileNotFoundError:
+            # Try to load baseline results from multiple locations
+            baseline_results = None
+            for baseline_path in ["data/results/baseline_results.csv", "data/results/nsl/baseline_results.csv"]:
                 try:
-                    advanced_results = pd.read_csv("data/results/advanced_results.csv")
+                    baseline_results = pd.read_csv(baseline_path)
+                    break
                 except FileNotFoundError:
-                    # If no advanced results, create empty DataFrame
-                    print("⚠️ Advanced results not found, using baseline results only")
-                    advanced_results = pd.DataFrame()
+                    continue
+            
+            if baseline_results is None:
+                print("⚠️ No baseline results found, creating empty DataFrame")
+                baseline_results = pd.DataFrame()
+            
+            # Try multiple locations for advanced results
+            advanced_results = None
+            for advanced_path in ["data/results/advanced_results.csv", "data/results/nsl/advanced_results.csv", 
+                                 "data/models/advanced/advanced_results.csv"]:
+                try:
+                    advanced_results = pd.read_csv(advanced_path)
+                    break
+                except FileNotFoundError:
+                    continue
+            
+            if advanced_results is None:
+                print("⚠️ No advanced results found, creating empty DataFrame")
+                advanced_results = pd.DataFrame()
             
             # Add model category
             def categorize_model(model_name):

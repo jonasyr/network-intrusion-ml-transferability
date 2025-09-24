@@ -19,26 +19,48 @@ def main():
     print("🚀 COMPREHENSIVE CROSS-VALIDATION ANALYSIS")
     print("=" * 60)
     
+    overall_success = True
+    
     try:
-        # Import the cross-validation module
-        from src.metrics import run_full_cross_validation
+        # Import the cross-validation modules
+        from src.metrics.cross_validation import run_full_cross_validation, run_cic_cross_validation
         
-        # Run the analysis
-        cv_framework, results = run_full_cross_validation()
+        # Run NSL-KDD cross-validation
+        print("\n🔬 NSL-KDD Cross-Validation")
+        print("-" * 40)
+        cv_framework, nsl_results = run_full_cross_validation()
         
-        if results:
-            print(f"\n🎯 CROSS-VALIDATION COMPLETE!")
-            print(f"✅ Analyzed {len(results)} models")
-            print(f"📊 Results saved to data/results/cross_validation/")
-            print(f"📈 Visualizations saved to data/results/")
+        if nsl_results:
+            print(f"\n🎯 NSL-KDD CROSS-VALIDATION COMPLETE!")
+            print(f"✅ Analyzed {len(nsl_results)} NSL-KDD models")
             
-            # Show top 3 models
-            print(f"\n🏆 TOP 3 MODELS BY ACCURACY:")
-            sorted_results = sorted(results, key=lambda x: x['accuracy_mean'], reverse=True)
+            # Show top 3 NSL models
+            print(f"\n🏆 TOP 3 NSL-KDD MODELS BY ACCURACY:")
+            sorted_results = sorted(nsl_results, key=lambda x: x['accuracy_mean'], reverse=True)
             for i, result in enumerate(sorted_results[:3], 1):
                 print(f"  {i}. {result['model_name']}: {result['accuracy_mean']:.4f} ± {result['accuracy_std']:.4f}")
+        else:
+            print("\n❌ No NSL-KDD cross-validation results generated")
+            overall_success = False
         
-        return True
+        # Run CIC-IDS-2017 cross-validation
+        print("\n� CIC-IDS-2017 Cross-Validation")
+        print("-" * 40)
+        cic_cv_framework, cic_results = run_cic_cross_validation()
+        
+        if cic_results:
+            print(f"\n🎯 CIC-IDS-2017 CROSS-VALIDATION COMPLETE!")
+            print(f"✅ Analyzed {len(cic_results)} CIC-IDS-2017 models")
+            
+            # Show top 3 CIC models
+            print(f"\n🏆 TOP 3 CIC-IDS-2017 MODELS BY ACCURACY:")
+            sorted_cic_results = sorted(cic_results, key=lambda x: x['accuracy_mean'], reverse=True)
+            for i, result in enumerate(sorted_cic_results[:3], 1):
+                print(f"  {i}. {result['model_name']}: {result['accuracy_mean']:.4f} ± {result['accuracy_std']:.4f}")
+        else:
+            print("\n⚠️ CIC-IDS-2017 cross-validation skipped (models not found)")
+        
+        return overall_success
         
     except Exception as e:
         print(f"❌ Cross-validation failed: {e}")

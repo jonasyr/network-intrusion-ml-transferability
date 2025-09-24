@@ -309,9 +309,81 @@ class CrossValidationFramework:
         print(f"📊 Cross-validation results saved to {output_path}")
 
 
+def run_cic_cross_validation():
+    """
+    Run cross-validation specifically for CIC-IDS-2017 models
+    """
+    print("🚀 CIC-IDS-2017 Cross-Validation Analysis")
+    print("=" * 60)
+    
+    from src.utils import memory_utils
+    config = memory_utils.get_memory_config()
+    
+    # Load CIC data (same preprocessing as training)
+    from src.preprocessing import CICIDSPreprocessor
+    from pathlib import Path
+    
+    print("🔍 Loading CIC-IDS-2017 dataset...")
+    preprocessor = CICIDSPreprocessor()
+    
+    # Load sample for cross-validation (use sample for speed)
+    cic_sample_path = Path("data/raw/cic-ids-2017/cic_ids_sample_backup.csv")
+    if cic_sample_path.exists():
+        # Load sample
+        X, y = preprocessor.load_sample_data(str(cic_sample_path))
+        print(f"✅ Loaded CIC sample: {X.shape}")
+    else:
+        print("❌ CIC sample not found, skipping CIC cross-validation")
+        return None, []
+    
+    # Initialize cross-validation framework
+    cv_framework = CrossValidationFramework(n_folds=3)  # Use 3 folds for efficiency
+    
+    # Load CIC models
+    model_paths = {}
+    
+    # Baseline CIC models
+    for model in ['random_forest', 'logistic_regression', 'decision_tree', 'naive_bayes', 'knn', 'svm_linear']:
+        model_path = Path(f'data/models/cic_baseline/{model}_cic.joblib')
+        if model_path.exists():
+            model_paths[f"{model}_cic"] = str(model_path)
+    
+    # Advanced CIC models  
+    for model in ['xgboost', 'lightgbm', 'gradient_boosting', 'extra_trees', 'mlp', 'voting_classifier']:
+        model_path = Path(f'data/models/cic_advanced/{model}_cic.joblib')
+        if model_path.exists():
+            model_paths[f"{model}_cic"] = str(model_path)
+    
+    print(f"📊 Found {len(model_paths)} CIC models: {list(model_paths.keys())}")
+    
+    if len(model_paths) == 0:
+        print("❌ No CIC models found for cross-validation!")
+        return None, []
+    
+    # Perform cross-validation
+    cv_results = []
+    for idx, (model_name, model_path) in enumerate(model_paths.items(), 1):
+        print(f"\n📊 [{idx}/{len(model_paths)}] Processing {model_name}...")
+        try:
+            import joblib
+            model = joblib.load(model_path)
+            result = cv_framework.evaluate_model_cv(model, X, y, model_name)
+            cv_results.append(result)
+            print(f"   ✅ {model_name} complete!")
+        except Exception as e:
+            print(f"   ❌ Error with {model_name}: {e}")
+    
+    # Save CIC cross-validation results
+    if cv_results:
+        cv_framework.save_results('data/results/cross_validation/cic')
+        print(f"💾 CIC cross-validation results saved")
+    
+    return cv_framework, cv_results
+
+
 def run_full_cross_validation():
     """
-    Run complete cross-validation pipeline on all models
+    Run complete cross-validation pipeline on all models (NSL-KDD only)
     """
     print("🚀 Running Complete Cross-Validation Pipeline")
     print("=" * 60)
@@ -368,22 +440,26 @@ def run_full_cross_validation():
     
     # Load all trained models
     print("📂 Loading trained models...")
-    model_paths = {
-        # Baseline models
-        'random_forest': 'data/models/baseline/random_forest_nsl.joblib',
-        'logistic_regression': 'data/models/baseline/logistic_regression_nsl.joblib',
-        'decision_tree': 'data/models/baseline/decision_tree_nsl.joblib',
-        'naive_bayes': 'data/models/baseline/naive_bayes_nsl.joblib',
-        'knn': 'data/models/baseline/knn_nsl.joblib',
-        
-        # Advanced models
-        'xgboost': 'data/models/advanced/xgboost_nsl.joblib',
-        'lightgbm': 'data/models/advanced/lightgbm_nsl.joblib',
-        'gradient_boosting': 'data/models/advanced/gradient_boosting_nsl.joblib',
-        'extra_trees': 'data/models/advanced/extra_trees_nsl.joblib',
-        'mlp': 'data/models/advanced/mlp_nsl.joblib',
-        'voting_classifier': 'data/models/advanced/voting_classifier_nsl.joblib'
-    }
+    
+    # Check for existing model files and build paths dynamically
+    from pathlib import Path
+    model_paths = {}
+    
+    # Baseline models
+    baseline_models = ['random_forest', 'logistic_regression', 'decision_tree', 'naive_bayes', 'knn', 'svm_linear']
+    for model in baseline_models:
+        model_path = Path(f'data/models/baseline/{model}_nsl.joblib')
+        if model_path.exists():
+            model_paths[model] = str(model_path)
+    
+    # Advanced models  
+    advanced_models = ['xgboost', 'lightgbm', 'gradient_boosting', 'extra_trees', 'mlp', 'voting_classifier']
+    for model in advanced_models:
+        model_path = Path(f'data/models/advanced/{model}_nsl.joblib')
+        if model_path.exists():
+            model_paths[model] = str(model_path)
+    
+    print(f"📊 Found {len(model_paths)} trained models: {list(model_paths.keys())}")
     
     # Perform cross-validation for each model
     cv_results = []
@@ -408,6 +484,14 @@ def run_full_cross_validation():
     
     print(f"\n✅ Cross-validation completed for {len(cv_results)} models!")
     
+    # Check if we have any results before proceeding
+    if len(cv_results) == 0:
+        print("\n❌ No models found for cross-validation!")
+        print("🔧 Please ensure models are trained first by running:")
+        print("   python experiments/02_baseline_training.py")  
+        print("   python experiments/03_advanced_training.py")
+        return None, []
+    
     # Statistical comparison
     if len(cv_results) > 1:
         print("\n📊 Statistical comparison...")
@@ -415,9 +499,17 @@ def run_full_cross_validation():
         print(f"✅ Found {len(comparison_df)} pairwise comparisons")
     
     # Create summary table
-    summary_table = cv_framework.create_cv_summary_table(cv_results)
-    print("\n📋 Cross-Validation Summary:")
-    print(summary_table.to_string(index=False))
+    try:
+        summary_table = cv_framework.create_cv_summary_table(cv_results)
+        print("\n📋 Cross-Validation Summary:")
+        print(summary_table.to_string(index=False))
+    except Exception as e:
+        print(f"\n❌ Error creating summary table: {e}")
+        # Create a basic summary as fallback
+        print("\n📋 Basic Cross-Validation Results:")
+        for result in cv_results:
+            print(f"   {result['model_name']}: Accuracy={result['accuracy_mean']:.4f}±{result['accuracy_std']:.4f}")
+        return cv_framework, cv_results
     
     # Create visualizations
     print("\n📊 Creating visualizations...")

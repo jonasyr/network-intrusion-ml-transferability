@@ -380,9 +380,20 @@ class AdvancedModels:
 
         if self.results:
             results_df = pd.DataFrame(self.results)
-            results_file_path = results_path / results_filename
-            results_df.to_csv(results_file_path, index=False)
-            print(f"💾 Saved evaluation results to {results_file_path}")
+            
+            # Always save to data/results for consistency
+            results_output_dir = Path("data/results")
+            results_output_dir.mkdir(parents=True, exist_ok=True)
+            
+            main_results_file = results_output_dir / "advanced_results.csv"
+            results_df.to_csv(main_results_file, index=False)
+            print(f"💾 Saved evaluation results to {main_results_file}")
+            
+            # Also save to the specified location if different
+            if results_path != results_output_dir:
+                alt_results_file = results_path / results_filename
+                results_df.to_csv(alt_results_file, index=False)
+                print(f"💾 Also saved evaluation results to {alt_results_file}")
 
     # ------------------------------------------------------------------
     # Convenience API

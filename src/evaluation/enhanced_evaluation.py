@@ -312,10 +312,45 @@ class EnhancedEvaluator:
         
         # Generate learning curve with limited parallelization to prevent memory issues
         n_jobs = 1 if 'xgboost' in model_name.lower() else 2  # XGBoost has threading issues
-        train_sizes_abs, train_scores, val_scores = sklearn_learning_curve(
-            model, X, y, cv=cv, train_sizes=train_sizes,
-            scoring='f1', n_jobs=n_jobs, random_state=42
-        )
+        
+        try:
+            # For XGBoost, use even smaller training sizes to prevent segfault
+            if 'xgboost' in model_name.lower():
+                train_sizes = np.linspace(0.3, 1.0, 5)  # Fewer, larger sizes for XGBoost
+                cv = 2  # Reduce CV folds for XGBoost
+                # Force single threading for XGBoost to prevent segfaults
+                import os
+                old_nthreads = os.environ.get('OMP_NUM_THREADS')
+                os.environ['OMP_NUM_THREADS'] = '1'
+                
+            train_sizes_abs, train_scores, val_scores = sklearn_learning_curve(
+                model, X, y, cv=cv, train_sizes=train_sizes,
+                scoring='f1', n_jobs=n_jobs, random_state=42
+            )
+            
+            # Restore threading if we changed it
+            if 'xgboost' in model_name.lower():
+                if old_nthreads is not None:
+                    os.environ['OMP_NUM_THREADS'] = old_nthreads
+                else:
+                    os.environ.pop('OMP_NUM_THREADS', None)
+        except Exception as e:
+            print(f"⚠️ Learning curve generation failed for {model_name}: {e}")
+            # Return a placeholder path to prevent downstream errors
+            plt.figure(figsize=(10, 6))
+            plt.text(0.5, 0.5, f'Learning curve unavailable\nfor {model_name}\n\nError: {str(e)}', 
+                    ha='center', va='center', transform=plt.gca().transAxes,
+                    fontsize=12, bbox=dict(boxstyle="round,pad=0.3", facecolor="lightgray"))
+            plt.title(f'{model_name} Learning Curve (Error)')
+            plt.xlabel('Training Set Size')
+            plt.ylabel('F1 Score')
+            
+            # Save error plot
+            output_path = self.output_dir / "learning_curves" / f"{model_name}_learning_curve_error.png"
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+            plt.close()
+            return str(output_path)
         
         # Calculate mean and std
         train_mean = np.mean(train_scores, axis=1)
@@ -379,7 +414,7 @@ class EnhancedEvaluator:
                                    dataset_name: str = "test",
                                    feature_names: List[str] = None) -> Dict[str, str]:
         """
-        Perform comprehensive analysis of a model
+        Perform comprehensive analysis of a model with crash prevention
         
         Args:
             model: Trained model
@@ -394,6 +429,13 @@ class EnhancedEvaluator:
         Returns:
             Dictionary with paths to generated plots
         """
+        
+        # Setup safe execution environment
+        try:
+            from src.utils.system_limits import system_manager
+            system_manager.setup_safe_environment()
+        except ImportError:
+            print("⚠️ System limits module not available, proceeding without safety limits")
         print(f"\n🔍 Comprehensive analysis for {model_name}")
         print("=" * 50)
         
