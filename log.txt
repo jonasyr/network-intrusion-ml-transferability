@@ -1,0 +1,1253 @@
+❯ for file in experiments/*.py; do python "$file" || true; done && \
+git add data/results && git commit -m "Results" && git push && \
+git add . && git reset data/models && git commit -m "Other changes (except models)" && git push && \
+git add data/models && git commit -m "Model changes" && git push && sudo shutdown now
+🧭 DATA EXPLORATION
+============================================================
+✓ Successfully loaded data from KDDTrain+.txt
+  Shape: (125973, 44)
+  Features: 43 (41 features + 2 labels)
+
+============================================================
+BASIC DATASET INFORMATION
+============================================================
+Dataset Shape: (125973, 44)
+Total Records: 125,973
+Total Features: 42 (excluding labels)
+Memory Usage: 69.54 MB
+
+✓ No missing values found
+
+Data Types:
+  int64: 24 columns
+  float64: 15 columns
+  object: 5 columns
+
+============================================================
+CLASS DISTRIBUTION ANALYSIS
+============================================================
+Attack Types Distribution:
+Total unique attack types: 23
+
+Top 10 Most Frequent Attack Types:
+   1. normal            67,343 (53.46%)
+   2. neptune           41,214 (32.72%)
+   3. satan              3,633 ( 2.88%)
+   4. ipsweep            3,599 ( 2.86%)
+   5. portsweep          2,931 ( 2.33%)
+   6. smurf              2,646 ( 2.10%)
+   7. nmap               1,493 ( 1.19%)
+   8. back                 956 ( 0.76%)
+   9. teardrop             892 ( 0.71%)
+  10. warezclient          890 ( 0.71%)
+
+Attack Categories Distribution:
+  Normal     67,343 (53.46%)
+  DoS        45,927 (36.46%)
+  Probe      11,656 ( 9.25%)
+  R2L           995 ( 0.79%)
+  U2R            52 ( 0.04%)
+
+Difficulty Level Distribution:
+  Range: 0 - 21
+  Most common: Level 21 (62,557 records)
+📁 Loading CIC-IDS-2017 data from data/raw/cic-ids-2017/cic_ids_sample_backup.csv...
+✅ Loaded CIC-IDS-2017 data: (10000, 78)
+📊 Features: 77
+🏷️ Labels: 8 unique
+
+📊 CIC-IDS-2017 Sample Overview
+   Flow_Duration  Total_Fwd_Packets  Total_Backward_Packets  ...  Idle_Max  Idle_Min          Label
+0      46.926809                  4                       5  ...  1.183604 -0.381191    SSH-Patator
+1     301.012143                  6                       5  ... -1.068115  1.735238         BENIGN
+2     131.674569                  3                       7  ...  1.491681  0.205107         BENIGN
+3      91.294255                  1                       4  ... -0.443446  1.276727  DoS GoldenEye
+4      16.962487                  2                       9  ...  0.287475  0.623428         BENIGN
+
+[5 rows x 78 columns]
+Label
+BENIGN           5004
+DoS Hulk          752
+FTP-Patator       717
+DDoS              716
+PortScan          715
+DoS slowloris     711
+SSH-Patator       694
+DoS GoldenEye     691
+Name: count, dtype: int64
+
+🎯 Data exploration complete!
+🚀 Baseline Training Pipeline
+============================================================
+
+🚀 NSL-KDD Baseline Training
+===========================
+✓ Successfully loaded data from KDDTrain+.txt
+  Shape: (125973, 44)
+  Features: 43 (41 features + 2 labels)
+✓ Successfully loaded data from KDDTest+.txt
+  Shape: (22544, 44)
+  Features: 43 (41 features + 2 labels)
+🔄 Preprocessing NSL-KDD data (undersampling for balance)...
+🔄 Fitting and transforming training data...
+✓ Labels - Type: int32, Unique values: [0 1]
+✓ Label distribution: [53874 46904]
+✓ Applied undersampling: 100778 → 93808 samples
+✓ Training set: (93808, 44)
+✓ Validation set: (25195, 44)
+✓ Features: 44
+🔄 Transforming test data...
+⚠️ Unknown attack types found: ['xterm']
+✓ Test set: (22544, 44)
+
+🤖 Training ALL baseline models on NSL-KDD...
+   🔬 SCIENTIFIC MODE: Training ALL models including SVM and KNN
+🚀 Training 6 baseline models...
+Training data shape: (93808, 44)
+Class distribution: [46904 46904]
+🤖 Training random_forest...
+✅ random_forest: 2.89s
+🤖 Training logistic_regression...
+✅ logistic_regression: 111.70s
+🤖 Training decision_tree...
+✅ decision_tree: 0.54s
+🤖 Training naive_bayes...
+✅ naive_bayes: 0.04s
+🤖 Training knn...
+✅ knn: 0.00s
+🤖 Training svm_linear...
+✅ svm_linear: 59.58s
+
+📊 Training Summary:
+✅ Successful: 6/6
+🤖 Models ready: random_forest, logistic_regression, decision_tree, naive_bayes, knn, svm_linear
+
+📊 Validation performance on NSL-KDD...
+📊 Evaluating 6 models...
+Test data shape: (25195, 44)
+🔍 Evaluating random_forest...
+✅ random_forest: F1=0.999, Acc=0.999
+🔍 Evaluating logistic_regression...
+✅ logistic_regression: F1=0.953, Acc=0.953
+🔍 Evaluating decision_tree...
+✅ decision_tree: F1=0.997, Acc=0.997
+🔍 Evaluating naive_bayes...
+✅ naive_bayes: F1=0.886, Acc=0.886
+🔍 Evaluating knn...
+✅ knn: F1=0.996, Acc=0.996
+🔍 Evaluating svm_linear...
+✅ svm_linear: F1=0.280, Acc=0.291
+
+🏆 Model Ranking (by F1 Score):
+1. random_forest        F1: 0.999 | Acc: 0.999 | Prec: 0.999 | Rec: 0.999
+2. decision_tree        F1: 0.997 | Acc: 0.997 | Prec: 0.997 | Rec: 0.997
+3. knn                  F1: 0.996 | Acc: 0.996 | Prec: 0.996 | Rec: 0.996
+4. logistic_regression  F1: 0.953 | Acc: 0.953 | Prec: 0.953 | Rec: 0.953
+5. naive_bayes          F1: 0.886 | Acc: 0.886 | Prec: 0.886 | Rec: 0.886
+6. svm_linear           F1: 0.280 | Acc: 0.291 | Prec: 0.285 | Rec: 0.291
+
+🏆 NSL-KDD validation leaderboard:
+            model_name  accuracy  f1_score  precision  recall
+0        random_forest     0.999     0.999      0.999   0.999
+2        decision_tree     0.997     0.997      0.997   0.997
+4                  knn     0.996     0.996      0.996   0.996
+1  logistic_regression     0.953     0.953      0.953   0.953
+3          naive_bayes     0.886     0.886      0.886   0.886
+5           svm_linear     0.291     0.280      0.285   0.291
+
+🎯 Evaluating best NSL-KDD model (random_forest) on the official test set...
+   Accuracy  : 0.772
+   F1_Score  : 0.769
+   Precision : 0.834
+   Recall    : 0.772
+
+💾 Persisting NSL-KDD baseline artefacts...
+💾 Saved random_forest to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/baseline/random_forest_nsl.joblib
+💾 Saved logistic_regression to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/baseline/logistic_regression_nsl.joblib
+💾 Saved decision_tree to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/baseline/decision_tree_nsl.joblib
+💾 Saved naive_bayes to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/baseline/naive_bayes_nsl.joblib
+💾 Saved knn to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/baseline/knn_nsl.joblib
+💾 Saved svm_linear to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/baseline/svm_linear_nsl.joblib
+💾 Saved results to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/results/nsl
+✓ Preprocessor saved to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/baseline/nsl_preprocessor.pkl
+✅ NSL-KDD baseline training complete!
+🔬 SCIENTIFIC MODE: Forcing full dataset usage for publication accuracy
+
+🚀 CIC-IDS-2017 Baseline Training (FULL DATASET - Scientific Mode)
+=================================================================
+🔍 Starting Dataset Loading (Available: 19.9GB)
+📁 Loading FULL CIC-IDS-2017 dataset...
+📁 Loading full CIC-IDS-2017 dataset from 8 files...
+   Loading Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv... (1/8)
+     ✅ 225,745 rows added (total: 225,745)
+   Loading Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv... (2/8)
+     ✅ 286,467 rows added (total: 512,212)
+   Loading Friday-WorkingHours-Morning.pcap_ISCX.csv... (3/8)
+     ✅ 191,033 rows added (total: 703,245)
+   Loading Monday-WorkingHours.pcap_ISCX.csv... (4/8)
+     ✅ 529,918 rows added (total: 1,233,163)
+   Loading Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv... (5/8)
+     ✅ 288,602 rows added (total: 1,521,765)
+   Loading Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv... (6/8)
+     ✅ 170,366 rows added (total: 1,692,131)
+   Loading Tuesday-WorkingHours.pcap_ISCX.csv... (7/8)
+     ✅ 445,909 rows added (total: 2,138,040)
+   Loading Wednesday-workingHours.pcap_ISCX.csv... (8/8)
+     ✅ 692,703 rows added (total: 2,830,743)
+✅ Full dataset loaded: (2830743, 79)
+🧹 Removed 308381 duplicate rows
+✅ Dataset Loading complete (Used: 2.1GB, Remaining: 17.8GB)
+🔍 Starting Feature Preparation (Available: 17.8GB)
+🔄 Preparing CIC-IDS-2017 features and labels...
+✅ Fitted scaler on 78 features
+⚠️ Found 2143 unknown attack types, marking as attacks
+✅ Prepared features: (2522362, 78)
+✅ Label distribution: Normal=2096484, Attack=425878
+✅ Feature Preparation complete (Used: -0.0GB, Remaining: 17.8GB)
+💪 Using FULL dataset for scientific accuracy
+🔍 Starting Dataset Splitting (Available: 17.8GB)
+📊 Final dataset sizes:
+   Training: (1513417, 78)
+   Validation: (504472, 78)
+   Test: (504473, 78)
+✅ Dataset Splitting complete (Used: 1.1GB, Remaining: 16.6GB)
+🔍 Starting Model Training (Available: 16.6GB)
+
+🤖 Training ALL baseline models on CIC-IDS-2017...
+   🔬 SCIENTIFIC MODE: Training ALL models including SVM and KNN
+🚀 Training 6 baseline models...
+Training data shape: (1513417, 78)
+Class distribution: [1257890  255527]
+🤖 Training random_forest...
+✅ random_forest: 203.01s
+🤖 Training logistic_regression...
+✅ logistic_regression: 3346.67s
+🤖 Training decision_tree...
+✅ decision_tree: 82.02s
+🤖 Training naive_bayes...
+✅ naive_bayes: 1.03s
+🤖 Training knn...
+✅ knn: 0.08s
+🤖 Training svm_linear...
+✅ svm_linear: 3128.17s
+
+📊 Training Summary:
+✅ Successful: 6/6
+🤖 Models ready: random_forest, logistic_regression, decision_tree, naive_bayes, knn, svm_linear
+✅ Model Training complete (Used: 0.7GB, Remaining: 15.9GB)
+
+📊 Validation performance on CIC-IDS-2017...
+📊 Evaluating 6 models...
+Test data shape: (504472, 78)
+🔍 Evaluating random_forest...
+✅ random_forest: F1=0.999, Acc=0.999
+🔍 Evaluating logistic_regression...
+✅ logistic_regression: F1=0.946, Acc=0.946
+🔍 Evaluating decision_tree...
+✅ decision_tree: F1=0.999, Acc=0.999
+🔍 Evaluating naive_bayes...
+✅ naive_bayes: F1=0.395, Acc=0.379
+🔍 Evaluating knn...
+✅ knn: F1=0.995, Acc=0.995
+🔍 Evaluating svm_linear...
+✅ svm_linear: F1=0.099, Acc=0.193
+
+🏆 Model Ranking (by F1 Score):
+1. decision_tree        F1: 0.999 | Acc: 0.999 | Prec: 0.999 | Rec: 0.999
+2. random_forest        F1: 0.999 | Acc: 0.999 | Prec: 0.999 | Rec: 0.999
+3. knn                  F1: 0.995 | Acc: 0.995 | Prec: 0.995 | Rec: 0.995
+4. logistic_regression  F1: 0.946 | Acc: 0.946 | Prec: 0.945 | Rec: 0.946
+5. naive_bayes          F1: 0.395 | Acc: 0.379 | Prec: 0.863 | Rec: 0.379
+6. svm_linear           F1: 0.099 | Acc: 0.193 | Prec: 0.819 | Rec: 0.193
+
+🏆 CIC-IDS-2017 validation leaderboard:
+            model_name  accuracy  f1_score  precision  recall
+2        decision_tree     0.999     0.999      0.999   0.999
+0        random_forest     0.999     0.999      0.999   0.999
+4                  knn     0.995     0.995      0.995   0.995
+1  logistic_regression     0.946     0.946      0.945   0.946
+3          naive_bayes     0.379     0.395      0.863   0.379
+5           svm_linear     0.193     0.099      0.819   0.193
+
+🎯 Evaluating best CIC baseline model (decision_tree) on the hold-out test split...
+   Accuracy  : 0.999
+   F1_Score  : 0.999
+   Precision : 0.999
+   Recall    : 0.999
+
+💾 Persisting CIC-IDS-2017 baseline artefacts...
+💾 Saved random_forest to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/cic_baseline/random_forest_cic.joblib
+💾 Saved logistic_regression to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/cic_baseline/logistic_regression_cic.joblib
+💾 Saved decision_tree to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/cic_baseline/decision_tree_cic.joblib
+💾 Saved naive_bayes to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/cic_baseline/naive_bayes_cic.joblib
+💾 Saved knn to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/cic_baseline/knn_cic.joblib
+💾 Saved svm_linear to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/cic_baseline/svm_linear_cic.joblib
+💾 Saved results to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/results/cic
+✅ CIC-IDS-2017 baseline training complete!
+
+============================================================
+✅ Baseline training completed for both NSL-KDD and CIC-IDS-2017!
+🚀 Advanced Model Training Pipeline
+============================================================
+
+🚀 NSL-KDD Advanced Training
+===========================
+✓ Successfully loaded data from KDDTrain+.txt
+  Shape: (125973, 44)
+  Features: 43 (41 features + 2 labels)
+✓ Successfully loaded data from KDDTest+.txt
+  Shape: (22544, 44)
+  Features: 43 (41 features + 2 labels)
+🔄 Preprocessing NSL-KDD data (SMOTE for balance)...
+🔄 Fitting and transforming training data...
+✓ Labels - Type: int32, Unique values: [0 1]
+✓ Label distribution: [53874 46904]
+✓ Applied SMOTE: 100778 → 107748 samples
+✓ Training set: (107748, 44)
+✓ Validation set: (25195, 44)
+✓ Features: 44
+🔄 Transforming test data...
+⚠️ Unknown attack types found: ['xterm']
+✓ Test set: (22544, 44)
+
+🤖 Initialising advanced models for NSL-KDD...
+✅ Models available: ['xgboost', 'lightgbm', 'gradient_boosting', 'extra_trees', 'mlp', 'voting_classifier']
+🚀 Training 6 advanced models
+🤖 Training advanced model: xgboost
+✅ xgboost trained in 1.96s
+🤖 Training advanced model: lightgbm
+[LightGBM] [Info] Number of positive: 53874, number of negative: 53874
+[LightGBM] [Info] Auto-choosing row-wise multi-threading, the overhead of testing was 0.003302 seconds.
+You can set `force_row_wise=true` to remove the overhead.
+And if memory is not enough, you can set `force_col_wise=true`.
+[LightGBM] [Info] Total Bins 4750
+[LightGBM] [Info] Number of data points in the train set: 107748, number of used features: 41
+[LightGBM] [Info] [binary:BoostFromScore]: pavg=0.500000 -> initscore=0.000000
+✅ lightgbm trained in 1.29s
+🤖 Training advanced model: gradient_boosting
+✅ gradient_boosting trained in 62.46s
+🤖 Training advanced model: extra_trees
+✅ extra_trees trained in 8.18s
+🤖 Training advanced model: mlp
+✅ mlp trained in 16.98s
+🤖 Training advanced model: voting_classifier
+✅ voting_classifier trained in 72.35s
+
+📊 Validation performance on NSL-KDD
+📊 Evaluating 6 advanced models
+�� Evaluating xgboost
+   F1=0.999 | Acc=0.999 | Prec=0.999 | Rec=0.999
+�� Evaluating lightgbm
+   F1=0.999 | Acc=0.999 | Prec=0.999 | Rec=0.999
+�� Evaluating gradient_boosting
+   F1=0.999 | Acc=0.999 | Prec=0.999 | Rec=0.999
+�� Evaluating extra_trees
+   F1=0.999 | Acc=0.999 | Prec=0.999 | Rec=0.999
+�� Evaluating mlp
+   F1=0.996 | Acc=0.996 | Prec=0.996 | Rec=0.996
+�� Evaluating voting_classifier
+   F1=0.999 | Acc=0.999 | Prec=0.999 | Rec=0.999
+          model_name     dataset  accuracy  f1_score  precision  recall  roc_auc
+0           lightgbm  validation    0.9994    0.9994     0.9994  0.9994   1.0000
+1            xgboost  validation    0.9993    0.9993     0.9993  0.9993   1.0000
+2  voting_classifier  validation    0.9990    0.9990     0.9990  0.9990   1.0000
+3        extra_trees  validation    0.9989    0.9989     0.9989  0.9989   0.9999
+4  gradient_boosting  validation    0.9987    0.9987     0.9987  0.9987   0.9999
+5                mlp  validation    0.9965    0.9965     0.9965  0.9965   0.9998
+
+🏆 Best validation model on NSL-KDD: lightgbm
+
+🧪 Testing best NSL-KDD model on hold-out set
+   Accuracy  : 0.7897
+   F1_Score  : 0.7879
+   Precision : 0.8430
+   Recall    : 0.7897
+   Roc_Auc   : 0.9711
+
+💾 Persisting NSL-KDD advanced artefacts...
+💾 Saved xgboost to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/advanced/xgboost_nsl.joblib
+💾 Saved lightgbm to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/advanced/lightgbm_nsl.joblib
+💾 Saved gradient_boosting to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/advanced/gradient_boosting_nsl.joblib
+💾 Saved extra_trees to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/advanced/extra_trees_nsl.joblib
+💾 Saved mlp to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/advanced/mlp_nsl.joblib
+💾 Saved voting_classifier to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/advanced/voting_classifier_nsl.joblib
+💾 Saved evaluation results to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/results/nsl/advanced_results.csv
+✅ NSL-KDD advanced training pipeline complete!
+🔬 SCIENTIFIC MODE: Forcing full dataset usage for publication accuracy
+
+🚀 CIC-IDS-2017 Advanced Training (FULL DATASET - Scientific Mode)
+=================================================================
+🔍 Starting Dataset Loading (Available: 18.8GB)
+📁 Loading FULL CIC-IDS-2017 dataset...
+📁 Loading full CIC-IDS-2017 dataset from 8 files...
+   Loading Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv... (1/8)
+     ✅ 225,745 rows added (total: 225,745)
+   Loading Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv... (2/8)
+     ✅ 286,467 rows added (total: 512,212)
+   Loading Friday-WorkingHours-Morning.pcap_ISCX.csv... (3/8)
+     ✅ 191,033 rows added (total: 703,245)
+   Loading Monday-WorkingHours.pcap_ISCX.csv... (4/8)
+     ✅ 529,918 rows added (total: 1,233,163)
+   Loading Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv... (5/8)
+     ✅ 288,602 rows added (total: 1,521,765)
+   Loading Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv... (6/8)
+     ✅ 170,366 rows added (total: 1,692,131)
+   Loading Tuesday-WorkingHours.pcap_ISCX.csv... (7/8)
+     ✅ 445,909 rows added (total: 2,138,040)
+   Loading Wednesday-workingHours.pcap_ISCX.csv... (8/8)
+     ✅ 692,703 rows added (total: 2,830,743)
+✅ Full dataset loaded: (2830743, 79)
+🧹 Removed 308381 duplicate rows
+✅ Dataset Loading complete (Used: 2.2GB, Remaining: 16.6GB)
+🔍 Starting Feature Preparation (Available: 16.6GB)
+🔄 Preparing CIC-IDS-2017 features and labels...
+✅ Fitted scaler on 78 features
+⚠️ Found 2143 unknown attack types, marking as attacks
+✅ Prepared features: (2522362, 78)
+✅ Label distribution: Normal=2096484, Attack=425878
+✅ Feature Preparation complete (Used: -0.4GB, Remaining: 17.0GB)
+💪 Using FULL dataset for scientific accuracy
+🔍 Starting Dataset Splitting (Available: 17.0GB)
+📊 Final dataset sizes:
+   Training: (1513417, 78)
+   Validation: (504472, 78)
+   Test: (504473, 78)
+✅ Dataset Splitting complete (Used: 1.5GB, Remaining: 15.5GB)
+🔍 Starting Model Training (Available: 15.5GB)
+
+🤖 Initialising advanced models for CIC-IDS-2017...
+✅ Models available: ['xgboost', 'lightgbm', 'gradient_boosting', 'extra_trees', 'mlp', 'voting_classifier']
+💪 Using full model configurations for scientific accuracy
+🚀 Training 6 advanced models
+🤖 Training advanced model: xgboost
+✅ xgboost trained in 27.34s
+🤖 Training advanced model: lightgbm
+[LightGBM] [Info] Number of positive: 255527, number of negative: 1257890
+[LightGBM] [Info] Auto-choosing col-wise multi-threading, the overhead of testing was 0.207685 seconds.
+You can set `force_col_wise=true` to remove the overhead.
+[LightGBM] [Info] Total Bins 14607
+[LightGBM] [Info] Number of data points in the train set: 1513417, number of used features: 70
+[LightGBM] [Info] [binary:BoostFromScore]: pavg=0.500000 -> initscore=0.000000
+[LightGBM] [Info] Start training from score 0.000000
+✅ lightgbm trained in 30.16s
+🤖 Training advanced model: gradient_boosting
+✅ gradient_boosting trained in 4247.67s
+🤖 Training advanced model: extra_trees
+✅ extra_trees trained in 313.01s
+🤖 Training advanced model: mlp
+✅ mlp trained in 345.41s
+🤖 Training advanced model: voting_classifier
+✅ voting_classifier trained in 4486.22s
+✅ Model Training complete (Used: 2.5GB, Remaining: 13.0GB)
+🔍 Starting Model Evaluation (Available: 13.0GB)
+
+📊 Validation performance on CIC-IDS-2017
+📊 Evaluating 6 advanced models
+�� Evaluating xgboost
+   F1=0.999 | Acc=0.999 | Prec=0.999 | Rec=0.999
+�� Evaluating lightgbm
+   F1=0.999 | Acc=0.999 | Prec=0.999 | Rec=0.999
+�� Evaluating gradient_boosting
+   F1=0.998 | Acc=0.998 | Prec=0.998 | Rec=0.998
+�� Evaluating extra_trees
+   F1=0.998 | Acc=0.998 | Prec=0.998 | Rec=0.998
+�� Evaluating mlp
+   F1=0.997 | Acc=0.997 | Prec=0.997 | Rec=0.997
+�� Evaluating voting_classifier
+   F1=0.999 | Acc=0.999 | Prec=0.999 | Rec=0.999
+✅ Model Evaluation complete (Used: 0.1GB, Remaining: 12.9GB)
+          model_name     dataset  accuracy  f1_score  precision  recall  roc_auc
+0            xgboost  validation    0.9991    0.9991     0.9991  0.9991   1.0000
+1           lightgbm  validation    0.9990    0.9990     0.9990  0.9990   1.0000
+2  voting_classifier  validation    0.9986    0.9986     0.9986  0.9986   1.0000
+3  gradient_boosting  validation    0.9985    0.9985     0.9985  0.9985   0.9999
+4        extra_trees  validation    0.9983    0.9983     0.9983  0.9983   0.9991
+5                mlp  validation    0.9970    0.9970     0.9970  0.9970   0.9999
+
+🏆 Best validation model on CIC-IDS-2017: xgboost
+
+🧪 Testing best CIC model on hold-out split
+   Accuracy  : 0.9992
+   F1_Score  : 0.9992
+   Precision : 0.9992
+   Recall    : 0.9992
+   Roc_Auc   : 1.0000
+
+💾 Persisting CIC-IDS-2017 advanced artefacts...
+💾 Saved xgboost to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/cic_advanced/xgboost_cic.joblib
+💾 Saved lightgbm to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/cic_advanced/lightgbm_cic.joblib
+💾 Saved gradient_boosting to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/cic_advanced/gradient_boosting_cic.joblib
+💾 Saved extra_trees to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/cic_advanced/extra_trees_cic.joblib
+💾 Saved mlp to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/cic_advanced/mlp_cic.joblib
+💾 Saved voting_classifier to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/models/cic_advanced/voting_classifier_cic.joblib
+💾 Saved evaluation results to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/results/cic/cic_advanced_results.csv
+✅ CIC-IDS-2017 advanced training pipeline complete!
+
+============================================================
+✅ Advanced training completed for both NSL-KDD and CIC-IDS-2017!
+🚀 COMPREHENSIVE CROSS-VALIDATION ANALYSIS
+============================================================
+🚀 Running Complete Cross-Validation Pipeline
+============================================================
+🎯 Memory configuration: FULL DATASET (Scientific Accuracy Mode)
+   💾 System RAM: 31.2GB
+   📊 Use full dataset: True
+   ⚡ Batch size: 10,000
+   🔢 Max samples: No limit (full dataset)
+🔍 Starting Data Loading (Available: 19.7GB)
+📁 Loading NSL-KDD data...
+✓ Successfully loaded data from KDDTrain+.txt
+  Shape: (125973, 44)
+  Features: 43 (41 features + 2 labels)
+✅ Data Loading complete (Used: 0.2GB, Remaining: 19.6GB)
+🔍 Starting Data Preprocessing (Available: 19.6GB)
+🔄 Preprocessing data...
+   Using balance method: smote
+🔄 Fitting and transforming training data...
+✓ Labels - Type: int32, Unique values: [0 1]
+✓ Label distribution: [53874 46904]
+✓ Applied SMOTE: 100778 → 107748 samples
+✓ Training set: (107748, 44)
+✓ Validation set: (25195, 44)
+✓ Features: 44
+✅ Data prepared: (132943, 44)
+📊 Memory mode: Full dataset
+✅ Data Preprocessing complete (Used: 0.1GB, Remaining: 19.5GB)
+🔄 Using 5-fold cross-validation
+📂 Loading trained models...
+
+🔄 Starting cross-validation for 11 models...
+⏳ Estimated time: 10-15 minutes total
+
+📊 [1/11] Processing random_forest...
+   ⚠️ Model file not found: data/models/baseline/random_forest.joblib
+
+📊 [2/11] Processing logistic_regression...
+   ⚠️ Model file not found: data/models/baseline/logistic_regression.joblib
+
+📊 [3/11] Processing decision_tree...
+   ⚠️ Model file not found: data/models/baseline/decision_tree.joblib
+
+📊 [4/11] Processing naive_bayes...
+   ⚠️ Model file not found: data/models/baseline/naive_bayes.joblib
+
+📊 [5/11] Processing knn...
+   ⚠️ Model file not found: data/models/baseline/knn.joblib
+
+📊 [6/11] Processing xgboost...
+   ⚠️ Model file not found: data/models/advanced/xgboost.joblib
+
+📊 [7/11] Processing lightgbm...
+   ⚠️ Model file not found: data/models/advanced/lightgbm.joblib
+
+📊 [8/11] Processing gradient_boosting...
+   ⚠️ Model file not found: data/models/advanced/gradient_boosting.joblib
+
+📊 [9/11] Processing extra_trees...
+   ⚠️ Model file not found: data/models/advanced/extra_trees.joblib
+
+📊 [10/11] Processing mlp...
+   ⚠️ Model file not found: data/models/advanced/mlp.joblib
+
+📊 [11/11] Processing voting_classifier...
+   ⚠️ Model file not found: data/models/advanced/voting_classifier.joblib
+
+✅ Cross-validation completed for 0 models!
+❌ Cross-validation failed: 'Accuracy'
+Traceback (most recent call last):
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/experiments/04_cross_validation.py", line 27, in main
+    cv_framework, results = run_full_cross_validation()
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/src/metrics/cross_validation.py", line 417, in run_full_cross_validation
+    summary_table = cv_framework.create_cv_summary_table(cv_results)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/src/metrics/cross_validation.py", line 194, in create_cv_summary_table
+    df['_accuracy_mean'] = [float(acc.split(' ± ')[0]) for acc in df['Accuracy']]
+                                                                  ~~^^^^^^^^^^^^
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/pandas/core/frame.py", line 4107, in __getitem__
+    indexer = self.columns.get_loc(key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/pandas/core/indexes/range.py", line 417, in get_loc
+    raise KeyError(key)
+KeyError: 'Accuracy'
+🚀 CROSS-DATASET EVALUATION (NSL-KDD → CIC-IDS-2017)
+================================================================================
+
+📁 Loading datasets…
+✓ Successfully loaded data from KDDTrain+.txt
+  Shape: (125973, 44)
+  Features: 43 (41 features + 2 labels)
+✓ Successfully loaded data from KDDTest+.txt
+  Shape: (22544, 44)
+  Features: 43 (41 features + 2 labels)
+📁 Loading CIC-IDS-2017 data from data/raw/cic-ids-2017/cic_ids_sample_backup.csv...
+✅ Loaded CIC-IDS-2017 data: (10000, 78)
+📊 Features: 77
+🏷️ Labels: 8 unique
+
+🔄 Preprocessing datasets…
+🔄 Fitting and transforming training data...
+✓ Labels - Type: int32, Unique values: [0 1]
+✓ Label distribution: [53874 46904]
+✓ Applied SMOTE: 100778 → 107748 samples
+✓ Training set: (107748, 44)
+✓ Validation set: (25195, 44)
+✓ Features: 44
+🔄 Transforming test data...
+⚠️ Unknown attack types found: ['xterm']
+✓ Test set: (22544, 44)
+✅ Fitted scaler on 80 features
+✅ Prepared features: (10000, 80)
+✅ Label distribution: Normal=5004, Attack=4996
+
+📐 Aligning feature spaces…
+   • Example mapping: duration ↔ Flow_Duration (duration)
+   • Domain divergence (Wasserstein distance): 0.6200
+   • PCA alignment to 6 dimensions (explained variance: 1.00)
+
+🤖 Training Random Forest on aligned NSL-KDD features…
+   ✓ Training completed in 3.97s
+   📊 Evaluating on NSL-KDD hold-out split…
+   🔄 Evaluating on CIC-IDS-2017 dataset…
+      Source accuracy: 80.50%
+      Target accuracy: 49.45%
+      Generalization gap: 0.3105
+      Relative drop: 38.58%
+      Transfer ratio: 0.6142
+
+🤖 Training XGBoost on aligned NSL-KDD features…
+   ✓ Training completed in 0.41s
+   📊 Evaluating on NSL-KDD hold-out split…
+   🔄 Evaluating on CIC-IDS-2017 dataset…
+      Source accuracy: 80.73%
+      Target accuracy: 49.88%
+      Generalization gap: 0.3085
+      Relative drop: 38.21%
+      Transfer ratio: 0.6179
+
+🤖 Training LightGBM on aligned NSL-KDD features…
+[LightGBM] [Info] Number of positive: 65600, number of negative: 67343
+[LightGBM] [Info] Auto-choosing row-wise multi-threading, the overhead of testing was 0.000527 seconds.
+You can set `force_row_wise=true` to remove the overhead.
+And if memory is not enough, you can set `force_col_wise=true`.
+[LightGBM] [Info] Total Bins 1530
+[LightGBM] [Info] Number of data points in the train set: 132943, number of used features: 6
+[LightGBM] [Info] [binary:BoostFromScore]: pavg=0.493445 -> initscore=-0.026223
+[LightGBM] [Info] Start training from score -0.026223
+
+   ✓ Training completed in 0.49s
+   📊 Evaluating on NSL-KDD hold-out split…
+   🔄 Evaluating on CIC-IDS-2017 dataset…
+      Source accuracy: 81.41%
+      Target accuracy: 49.57%
+      Generalization gap: 0.3184
+      Relative drop: 39.11%
+      Transfer ratio: 0.6089
+
+📊 CROSS-DATASET RESULTS (NSL-KDD → CIC-IDS-2017)
+        Model  Source_Accuracy  Source_Precision  Source_Recall  Source_F1  Target_Accuracy  Target_Precision  Target_Recall  Target_F1  Generalization_Gap  Relative_Drop_%  Transfer_Ratio  Domain_Divergence  Training_Time_s  Aligned_Features
+Random Forest           0.8050            0.9555         0.6896     0.8011           0.4945            0.4903         0.2986     0.3712              0.3105            38.58          0.6142               0.62             3.97                 6
+      XGBoost           0.8073            0.9575         0.6922     0.8035           0.4988            0.4893         0.0735     0.1277              0.3085            38.21          0.6179               0.62             0.41                 6
+     LightGBM           0.8141            0.9585         0.7040     0.8118           0.4957            0.4940         0.3843     0.4323              0.3184            39.11          0.6089               0.62             0.49                 6
+
+💾 Results saved to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/results/cross_dataset_evaluation_fixed.csv
+
+🔄 CROSS-DATASET EVALUATION (CIC-IDS-2017 → NSL-KDD)
+================================================================================
+
+📁 Loading datasets…
+📁 Loading CIC-IDS-2017 data from data/raw/cic-ids-2017/cic_ids_sample_backup.csv...
+✅ Loaded CIC-IDS-2017 data: (10000, 78)
+📊 Features: 77
+🏷️ Labels: 8 unique
+✓ Successfully loaded data from KDDTrain+.txt
+  Shape: (125973, 44)
+  Features: 43 (41 features + 2 labels)
+✓ Successfully loaded data from KDDTest+.txt
+  Shape: (22544, 44)
+  Features: 43 (41 features + 2 labels)
+
+🔄 Preprocessing datasets…
+✅ Fitted scaler on 80 features
+✅ Prepared features: (10000, 80)
+✅ Label distribution: Normal=5004, Attack=4996
+🔄 Fitting and transforming training data...
+✓ Labels - Type: int32, Unique values: [0 1]
+✓ Label distribution: [53874 46904]
+✓ Applied SMOTE: 100778 → 107748 samples
+✓ Training set: (107748, 44)
+✓ Validation set: (25195, 44)
+✓ Features: 44
+🔄 Transforming test data...
+⚠️ Unknown attack types found: ['xterm']
+✓ Test set: (22544, 44)
+
+📐 Aligning feature spaces…
+   • Example mapping: duration ↔ Flow_Duration (duration)
+   • Domain divergence (Wasserstein distance): 0.6106
+   • PCA alignment to 6 dimensions (explained variance: 1.00)
+
+🤖 Training Random Forest on aligned CIC-IDS-2017 features…
+   ✓ Training completed in 0.77s
+   📊 Evaluating on CIC-IDS-2017 hold-out split…
+   🔄 Evaluating on NSL-KDD dataset…
+      Source accuracy: 50.40%
+      Target accuracy: 52.06%
+      Generalization gap: 0.0000
+      Relative drop: 0.00%
+      Transfer ratio: 1.0000
+
+🤖 Training XGBoost on aligned CIC-IDS-2017 features…
+   ✓ Training completed in 0.16s
+   📊 Evaluating on CIC-IDS-2017 hold-out split…
+   🔄 Evaluating on NSL-KDD dataset…
+      Source accuracy: 50.05%
+      Target accuracy: 53.93%
+      Generalization gap: 0.0000
+      Relative drop: 0.00%
+      Transfer ratio: 1.0000
+
+🤖 Training LightGBM on aligned CIC-IDS-2017 features…
+[LightGBM] [Info] Number of positive: 3997, number of negative: 4003
+[LightGBM] [Info] Auto-choosing col-wise multi-threading, the overhead of testing was 0.000126 seconds.
+You can set `force_col_wise=true` to remove the overhead.
+[LightGBM] [Info] Total Bins 1530
+[LightGBM] [Info] Number of data points in the train set: 8000, number of used features: 6
+[LightGBM] [Info] [binary:BoostFromScore]: pavg=0.499625 -> initscore=-0.001500
+[LightGBM] [Info] Start training from score -0.001500
+[LightGBM] [Warning] No further splits with positive gain, best gain: -inf
+   ✓ Training completed in 0.14s
+   📊 Evaluating on CIC-IDS-2017 hold-out split…
+   🔄 Evaluating on NSL-KDD dataset…
+      Source accuracy: 50.25%
+      Target accuracy: 53.10%
+      Generalization gap: 0.0000
+      Relative drop: 0.00%
+      Transfer ratio: 1.0000
+
+📊 CROSS-DATASET RESULTS (CIC-IDS-2017 → NSL-KDD)
+        Model  Source_Accuracy  Source_Precision  Source_Recall  Source_F1  Target_Accuracy  Target_Precision  Target_Recall  Target_F1  Generalization_Gap  Relative_Drop_%  Transfer_Ratio  Domain_Divergence  Training_Time_s  Aligned_Features
+Random Forest           0.5040            0.5035         0.5075     0.5055           0.5206            0.5480         0.9020     0.6817                 0.0              0.0             1.0             0.6106             0.77                 6
+      XGBoost           0.5005            0.5000         0.5085     0.5042           0.5393            0.5566         0.9376     0.6985                 0.0              0.0             1.0             0.6106             0.16                 6
+     LightGBM           0.5025            0.5019         0.5235     0.5125           0.5310            0.5528         0.9210     0.6909                 0.0              0.0             1.0             0.6106             0.14                 6
+
+💾 Results saved to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/results/reverse_cross_dataset_evaluation_fixed.csv
+
+📊 BIDIRECTIONAL CROSS-DATASET ANALYSIS
+================================================================================
+        Model  NSL_Test_Accuracy  Source_Precision_forward  Source_Recall_forward  NSL_Test_F1  CIC_Test_Accuracy  Target_Precision_forward  Target_Recall_forward  CIC_Test_F1  NSL_to_CIC_Gap  NSL_to_CIC_Relative_Drop  NSL_to_CIC_Transfer_Ratio  Domain_Divergence_forward  Training_Time_s_forward  Aligned_Features_forward  CIC_Validation_Accuracy  Source_Precision_reverse  Source_Recall_reverse  CIC_Validation_F1  NSL_Test_Accuracy_From_CIC  Target_Precision_reverse  Target_Recall_reverse  NSL_Test_F1_From_CIC  CIC_to_NSL_Gap  CIC_to_NSL_Relative_Drop  CIC_to_NSL_Transfer_Ratio  Domain_Divergence_reverse  Training_Time_s_reverse  Aligned_Features_reverse  Avg_Gap  Avg_Relative_Drop  Avg_Transfer_Ratio  Transfer_Asymmetry
+Random Forest             0.8050                    0.9555                 0.6896       0.8011             0.4945                    0.4903                 0.2986       0.3712          0.3105                     38.58                     0.6142                       0.62                     3.97                         6                   0.5040                    0.5035                 0.5075             0.5055                      0.5206                    0.5480                 0.9020                0.6817             0.0                       0.0                        1.0                     0.6106                     0.77                         6   0.1552             19.290              0.8071              0.3858
+      XGBoost             0.8073                    0.9575                 0.6922       0.8035             0.4988                    0.4893                 0.0735       0.1277          0.3085                     38.21                     0.6179                       0.62                     0.41                         6                   0.5005                    0.5000                 0.5085             0.5042                      0.5393                    0.5566                 0.9376                0.6985             0.0                       0.0                        1.0                     0.6106                     0.16                         6   0.1542             19.105              0.8090              0.3821
+     LightGBM             0.8141                    0.9585                 0.7040       0.8118             0.4957                    0.4940                 0.3843       0.4323          0.3184                     39.11                     0.6089                       0.62                     0.49                         6                   0.5025                    0.5019                 0.5235             0.5125                      0.5310                    0.5528                 0.9210                0.6909             0.0                       0.0                        1.0                     0.6106                     0.14                         6   0.1592             19.555              0.8044              0.3911
+
+🔍 Key Insights
+   • Best average transfer: XGBoost (ratio 0.809)
+   • Mean generalization gap: 0.1562 | Mean relative drop: 19.32%
+   • Most symmetric transfer: XGBoost
+
+💾 Combined results saved to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/results/bidirectional_cross_dataset_analysis.csv
+
+🎯 Cross-dataset evaluation pipeline complete!
+🎯 Memory configuration: FULL DATASET (Scientific Accuracy Mode)
+   💾 System RAM: 31.2GB
+   📊 Use full dataset: True
+   ⚡ Batch size: 10,000
+   🔢 Max samples: No limit (full dataset)
+🚀 Harmonized cross-dataset validation with FULL DATASET training
+Schema version: 1.0
+💾 Memory mode: Full dataset
+🔍 Starting NSL-KDD Loading (Available: 19.9GB)
+Loaded NSL-KDD rows: 125,973
+✅ NSL-KDD Loading complete (Used: 0.5GB, Remaining: 19.4GB)
+🔍 Starting CIC-IDS-2017 Loading (Available: 19.4GB)
+
+Loading CIC-IDS-2017 sample for evaluation...
+Loaded CIC-IDS sample rows: 225,745
+✅ CIC-IDS-2017 Loading complete (Used: 0.6GB, Remaining: 18.9GB)
+🎯 Memory configuration: FULL DATASET (Scientific Accuracy Mode)
+   💾 System RAM: 31.2GB
+   📊 Use full dataset: True
+   ⚡ Batch size: 10,000
+   🔢 Max samples: No limit (full dataset)
+📊 Using MAX_SAMPLES: 100,000, BATCH_SIZE: 20,000
+
+Creating balanced evaluation samples...
+Original: 67343 benign, 58630 malicious
+Balanced sample: 100000 total (50000 per class)
+Original: 97718 benign, 128027 malicious
+Balanced sample: 100000 total (50000 per class)
+
+Running cross-dataset evaluation...
+Warning: Replacing 46868 extreme values in column 'flow_bytes_per_s'
+Evaluating on target dataset...
+Testing different classification thresholds:
+  Threshold 0.3: F1=0.569, Acc=0.505, Pred dist={np.int64(0): np.int64(35197), np.int64(1): np.int64(64803)}
+  Threshold 0.4: F1=0.570, Acc=0.507, Pred dist={np.int64(0): np.int64(35322), np.int64(1): np.int64(64678)}
+  Threshold 0.5: F1=0.570, Acc=0.507, Pred dist={np.int64(0): np.int64(35426), np.int64(1): np.int64(64574)}
+  Threshold 0.6: F1=0.571, Acc=0.509, Pred dist={np.int64(0): np.int64(35560), np.int64(1): np.int64(64440)}
+  Threshold 0.7: F1=0.571, Acc=0.510, Pred dist={np.int64(0): np.int64(35683), np.int64(1): np.int64(64317)}
+Best threshold: 0.7 (F1=0.571)
+Target true labels: {np.int8(0): np.int64(50000), np.int8(1): np.int64(50000)}
+Final predicted labels: {np.int64(0): np.int64(35683), np.int64(1): np.int64(64317)}
+Mean probabilities: [0.44502233 0.55497767]
+
+================================================================================
+Training on NSL-KDD → Evaluating on CIC-IDS-2017
+--------------------------------------------------------------------------------
+Cross-validation F1 (source, 3-fold): 0.934 ± 0.001
+Optimized threshold: 0.7
+Transfer performance Acc=0.510 | F1=0.571 | Precision=0.508 | Recall=0.653
+Warning: Replacing 46868 extreme values in column 'flow_bytes_per_s'
+Training incrementally on full CIC-IDS-2017 dataset...
+🎯 Memory configuration: FULL DATASET (Scientific Accuracy Mode)
+   💾 System RAM: 31.2GB
+   📊 Use full dataset: True
+   ⚡ Batch size: 10,000
+   🔢 Max samples: No limit (full dataset)
+🎯 Memory configuration: FULL DATASET (Scientific Accuracy Mode)
+   💾 System RAM: 31.2GB
+   📊 Use full dataset: True
+   ⚡ Batch size: 10,000
+   🔢 Max samples: No limit (full dataset)
+🚀 Training on FULL CIC-IDS-2017 dataset...
+Training incrementally on 8 CIC-IDS-2017 files:
+  - Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv
+  - Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv
+  - Friday-WorkingHours-Morning.pcap_ISCX.csv
+  - Monday-WorkingHours.pcap_ISCX.csv
+  - Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv
+  - Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv
+  - Tuesday-WorkingHours.pcap_ISCX.csv
+  - Wednesday-workingHours.pcap_ISCX.csv
+
+Training on file 1/8: Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv
+  File size: 73.6 MB
+  Loaded 225,745 rows
+Computed adaptive class weights: {0: 0.5295768680824021, 1: 8.952551477170994}
+    Initial fit on batch 1 (20,000 samples)
+    Class distribution: 18883 benign, 1117 malicious
+    Initial training: Acc=0.907, F1=0.545
+    Skipping batch 11 (only 20000 benign, 0 malicious)
+    Skipping batch 12 (only 5745 benign, 0 malicious)
+  Completed Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv. Total samples processed: 200,000
+  Cumulative class distribution: 97,718 benign, 128,027 malicious
+
+Training on file 2/8: Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv
+  File size: 73.3 MB
+  Loaded 286,467 rows
+    Skipping batch 4 (only 20000 benign, 0 malicious)
+    Skipping batch 15 (only 6467 benign, 0 malicious)
+  Completed Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv. Total samples processed: 460,000
+  Cumulative class distribution: 225,255 benign, 286,957 malicious
+
+Training on file 3/8: Friday-WorkingHours-Morning.pcap_ISCX.csv
+  File size: 55.6 MB
+  Loaded 191,033 rows
+    Skipping batch 1 (only 20000 benign, 0 malicious)
+  Completed Friday-WorkingHours-Morning.pcap_ISCX.csv. Total samples processed: 631,033
+  Cumulative class distribution: 414,322 benign, 288,923 malicious
+
+Training on file 4/8: Monday-WorkingHours.pcap_ISCX.csv
+  File size: 168.7 MB
+  Loaded 529,918 rows
+    Skipping batch 1 (only 20000 benign, 0 malicious)
+    Skipping batch 2 (only 20000 benign, 0 malicious)
+    Skipping batch 3 (only 20000 benign, 0 malicious)
+    Skipping batch 4 (only 20000 benign, 0 malicious)
+    Skipping batch 5 (only 20000 benign, 0 malicious)
+    Skipping batch 6 (only 20000 benign, 0 malicious)
+    Skipping batch 7 (only 20000 benign, 0 malicious)
+    Skipping batch 8 (only 20000 benign, 0 malicious)
+    Skipping batch 9 (only 20000 benign, 0 malicious)
+    Skipping batch 10 (only 20000 benign, 0 malicious)
+    Skipping batch 11 (only 20000 benign, 0 malicious)
+    Skipping batch 12 (only 20000 benign, 0 malicious)
+    Skipping batch 13 (only 20000 benign, 0 malicious)
+    Skipping batch 14 (only 20000 benign, 0 malicious)
+    Skipping batch 15 (only 20000 benign, 0 malicious)
+    Skipping batch 16 (only 20000 benign, 0 malicious)
+    Skipping batch 17 (only 20000 benign, 0 malicious)
+    Skipping batch 18 (only 20000 benign, 0 malicious)
+    Skipping batch 19 (only 20000 benign, 0 malicious)
+    Skipping batch 20 (only 20000 benign, 0 malicious)
+    Skipping batch 21 (only 20000 benign, 0 malicious)
+    Skipping batch 22 (only 20000 benign, 0 malicious)
+    Skipping batch 23 (only 20000 benign, 0 malicious)
+    Skipping batch 24 (only 20000 benign, 0 malicious)
+    Skipping batch 25 (only 20000 benign, 0 malicious)
+    Skipping batch 26 (only 20000 benign, 0 malicious)
+    Skipping batch 27 (only 9918 benign, 0 malicious)
+  Completed Monday-WorkingHours.pcap_ISCX.csv. Total samples processed: 631,033
+  Cumulative class distribution: 944,240 benign, 288,923 malicious
+
+Training on file 5/8: Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv
+  File size: 79.3 MB
+  Loaded 288,602 rows
+    Skipping batch 1 (only 20000 benign, 0 malicious)
+    Skipping batch 2 (only 20000 benign, 0 malicious)
+    Skipping batch 3 (only 20000 benign, 0 malicious)
+    Skipping batch 13 (only 20000 benign, 0 malicious)
+    Skipping batch 14 (only 20000 benign, 0 malicious)
+    Skipping batch 15 (only 8602 benign, 0 malicious)
+  Completed Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv. Total samples processed: 811,033
+  Cumulative class distribution: 1,232,806 benign, 288,959 malicious
+
+Training on file 6/8: Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv
+  File size: 49.6 MB
+  Loaded 170,366 rows
+    Skipping batch 6 (only 20000 benign, 0 malicious)
+    Skipping batch 7 (only 20000 benign, 0 malicious)
+    Skipping batch 8 (only 20000 benign, 0 malicious)
+    Skipping batch 9 (only 10366 benign, 0 malicious)
+  Completed Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv. Total samples processed: 911,033
+  Cumulative class distribution: 1,400,992 benign, 291,139 malicious
+
+Training on file 7/8: Tuesday-WorkingHours.pcap_ISCX.csv
+  File size: 128.8 MB
+  Loaded 445,909 rows
+    Skipping batch 5 (only 20000 benign, 0 malicious)
+    Skipping batch 6 (only 20000 benign, 0 malicious)
+    Skipping batch 7 (only 20000 benign, 0 malicious)
+    Skipping batch 8 (only 20000 benign, 0 malicious)
+    Skipping batch 13 (only 20000 benign, 0 malicious)
+  Completed Tuesday-WorkingHours.pcap_ISCX.csv. Total samples processed: 1,256,942
+  Cumulative class distribution: 1,833,066 benign, 304,974 malicious
+
+Training on file 8/8: Wednesday-workingHours.pcap_ISCX.csv
+  File size: 214.7 MB
+  Loaded 692,703 rows
+    Skipping batch 18 (only 20000 benign, 0 malicious)
+    Skipping batch 19 (only 20000 benign, 0 malicious)
+    Skipping batch 20 (only 20000 benign, 0 malicious)
+    Skipping batch 22 (only 20000 benign, 0 malicious)
+    Skipping batch 23 (only 20000 benign, 0 malicious)
+    Skipping batch 24 (only 20000 benign, 0 malicious)
+    Skipping batch 25 (only 20000 benign, 0 malicious)
+  Completed Wednesday-workingHours.pcap_ISCX.csv. Total samples processed: 1,809,645
+  Cumulative class distribution: 2,273,097 benign, 557,646 malicious
+
+Incremental training completed!
+Total samples processed: 1,809,645
+Final class distribution seen: 2,273,097 benign, 557,646 malicious
+Class imbalance ratio: 4.08:1 (benign:malicious)
+Evaluating on target dataset...
+Testing different classification thresholds:
+  Threshold 0.3: F1=0.108, Acc=0.223, Pred dist={np.int64(0): np.int64(62930), np.int64(1): np.int64(37070)}
+  Threshold 0.4: F1=0.073, Acc=0.289, Pred dist={np.int64(0): np.int64(73287), np.int64(1): np.int64(26713)}
+  Threshold 0.5: F1=0.063, Acc=0.389, Pred dist={np.int64(0): np.int64(84729), np.int64(1): np.int64(15271)}
+  Threshold 0.6: F1=0.061, Acc=0.434, Pred dist={np.int64(0): np.int64(89681), np.int64(1): np.int64(10319)}
+  Threshold 0.7: F1=0.049, Acc=0.436, Pred dist={np.int64(0): np.int64(90673), np.int64(1): np.int64(9327)}
+Best threshold: 0.3 (F1=0.108)
+Target true labels: {np.int8(0): np.int64(50000), np.int8(1): np.int64(50000)}
+Final predicted labels: {np.int64(0): np.int64(62930), np.int64(1): np.int64(37070)}
+Mean probabilities: [0.7705612 0.2294388]
+
+================================================================================
+Training on CIC-IDS-2017 → Evaluating on NSL-KDD
+(Using incremental training on full dataset)
+--------------------------------------------------------------------------------
+Cross-validation not applicable for incremental training
+Optimized threshold: 0.3
+Transfer performance Acc=0.223 | F1=0.108 | Precision=0.126 | Recall=0.094
+🔍 Starting Results Saving (Available: 18.8GB)
+✅ Results Saving complete (Used: 0.0GB, Remaining: 18.8GB)
+
+Results saved to data/results/harmonized_cross_validation.json
+⚠️ Missing expected results file: /home/jonas/Documents/Code/ml-network-anomaly-detection/data/results/baseline_results.csv
+⚠️ Missing expected results file: /home/jonas/Documents/Code/ml-network-anomaly-detection/data/results/advanced_results.csv
+⚠️ Missing expected results file: /home/jonas/Documents/Code/ml-network-anomaly-detection/data/results/cross_validation/cv_summary_table.csv
+
+📊 EXPERIMENT SUMMARY
+           Experiment                         Metric                                Value
+        Cross-Dataset        Best Transfer (NSL→CIC)      XGBoost (ratio=0.618, Δ=38.21%)
+        Cross-Dataset        Best Transfer (CIC→NSL) Random Forest (ratio=1.000, Δ=0.00%)
+        Cross-Dataset            Mean Transfer Ratio                                0.807
+Harmonized Evaluation NSL-KDD→CIC-IDS-2017 Target F1                0.5711 (CV F1=0.9344)
+Harmonized Evaluation CIC-IDS-2017→NSL-KDD Target F1               0.1076 (CV F1=-1.0000)
+
+💾 Summary saved to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/results/experiment_summary.csv
+💾 Detailed summary saved to /home/jonas/Documents/Code/ml-network-anomaly-detection/data/results/experiment_summary.json
+🎨 PUBLICATION FIGURE GENERATION
+==================================================
+🎨 Generating Publication-Ready Figures
+==================================================
+📊 Creating model performance comparison...
+❌ Could not load results: [Errno 2] No such file or directory: 'data/results/baseline_results.csv'
+❌ No results data available
+📊 Creating NSL-KDD attack distribution analysis...
+✓ Successfully loaded data from KDDTrain+.txt
+  Shape: (125973, 44)
+  Features: 43 (41 features + 2 labels)
+✓ Successfully loaded data from KDDTest+.txt
+  Shape: (22544, 44)
+  Features: 43 (41 features + 2 labels)
+📊 Attack distribution analysis saved to data/results/paper_figures/attack_distribution_analysis.png
+📊 Creating CIC-IDS-2017 attack distribution analysis...
+📁 Loading full CIC-IDS-2017 dataset from 8 files...
+   Loading Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv... (1/8)
+     ✅ 225,745 rows added (total: 225,745)
+   Loading Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv... (2/8)
+     ✅ 286,467 rows added (total: 512,212)
+   Loading Friday-WorkingHours-Morning.pcap_ISCX.csv... (3/8)
+     ✅ 191,033 rows added (total: 703,245)
+   Loading Monday-WorkingHours.pcap_ISCX.csv... (4/8)
+     ✅ 529,918 rows added (total: 1,233,163)
+   Loading Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv... (5/8)
+     ✅ 288,602 rows added (total: 1,521,765)
+   Loading Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv... (6/8)
+     ✅ 170,366 rows added (total: 1,692,131)
+   Loading Tuesday-WorkingHours.pcap_ISCX.csv... (7/8)
+     ✅ 445,909 rows added (total: 2,138,040)
+   Loading Wednesday-workingHours.pcap_ISCX.csv... (8/8)
+     ✅ 692,703 rows added (total: 2,830,743)
+✅ Full dataset loaded: (2830743, 79)
+🧹 Removed 308381 duplicate rows
+📊 CIC-IDS-2017 attack distribution analysis saved to data/results/paper_figures/cic_attack_distribution_analysis.png
+📊 Creating performance summary table...
+❌ Could not load results: [Errno 2] No such file or directory: 'data/results/baseline_results.csv'
+❌ No results data available
+
+✅ All figures generated successfully!
+📁 Output directory: data/results/paper_figures
+
+🎯 FIGURE GENERATION COMPLETE!
+📁 Check data/results/paper_figures/ for outputs
+📊 Files generated:
+   📄 cic_attack_distribution_analysis.png
+   📄 attack_distribution_analysis.png
+🚀 REPOSITORY ENHANCEMENT PIPELINE
+============================================================
+Fixing redundant results storage and adding scientific value...
+🔧 FIXING REDUNDANT RESULTS STORAGE
+============================================================
+
+📁 Consolidating results from model directories...
+
+  📂 Processing: data/models
+
+  📂 Processing: data/models/baseline
+
+  📂 Processing: data/models/advanced
+
+  📂 Processing: data/models/cic_baseline
+
+  📂 Processing: data/models/cic_advanced
+
+✅ Consolidation complete! Mapping saved to: data/results/consolidation_mapping.txt
+📊 Total files consolidated: 0
+
+🔬 ENHANCING SCIENTIFIC VALUE
+============================================================
+✅ Enhanced evaluator initialized with output: data/results
+
+📊 Loading test data...
+✓ Successfully loaded data from KDDTrain+.txt
+  Shape: (125973, 44)
+  Features: 43 (41 features + 2 labels)
+✓ Successfully loaded data from KDDTest+.txt
+  Shape: (22544, 44)
+  Features: 43 (41 features + 2 labels)
+🔄 Fitting and transforming training data...
+✓ Labels - Type: int32, Unique values: [0 1]
+✓ Label distribution: [53874 46904]
+✓ Applied SMOTE: 100778 → 107748 samples
+✓ Training set: (107748, 44)
+✓ Validation set: (25195, 44)
+✓ Features: 44
+🔄 Transforming test data...
+⚠️ Unknown attack types found: ['xterm']
+✓ Test set: (22544, 44)
+✅ Loaded test data: 22544 samples, 44 features
+✅ Training data: 107748 samples
+
+🤖 Finding trained models...
+  📋 Found: Naive Bayes Nsl
+  📋 Found: Logistic Regression Nsl
+  📋 Found: Random Forest Nsl
+  📋 Found: Svm Linear Nsl
+  📋 Found: Knn Nsl
+  📋 Found: Decision Tree Nsl
+  📋 Found: Xgboost Nsl
+  📋 Found: Lightgbm Nsl
+  📋 Found: Voting Classifier Nsl
+  📋 Found: Gradient Boosting Nsl
+  📋 Found: Mlp Nsl
+  📋 Found: Extra Trees Nsl
+
+📈 Analyzing 12 models (processing one at a time to conserve memory)...
+
+🔍 Loading and analyzing: Naive Bayes Nsl
+  ✅ Loaded model from: data/models/baseline/naive_bayes_nsl.joblib (took 0.006s)
+
+🔍 Comprehensive analysis for Naive Bayes Nsl
+==================================================
+📊 Confusion matrix saved: data/results/confusion_matrices/naive_bayes_nsl_NSL-KDD_confusion_matrix.png
+📈 ROC curve saved: data/results/roc_curves/naive_bayes_nsl_NSL-KDD_roc_curve.png
+📊 Precision-Recall curve saved: data/results/precision_recall_curves/naive_bayes_nsl_NSL-KDD_precision_recall_curve.png
+⚠️ Naive Bayes Nsl does not have feature importance
+📚 Learning curve saved: data/results/learning_curves/naive_bayes_nsl_learning_curve.png
+  ✅ Analysis complete for Naive Bayes Nsl
+  ⏱️ Prediction time: 0.0057s (0.0003ms per sample)
+  🗑️ Memory freed for Naive Bayes Nsl
+
+🔍 Loading and analyzing: Logistic Regression Nsl
+  ✅ Loaded model from: data/models/baseline/logistic_regression_nsl.joblib (took 0.000s)
+
+🔍 Comprehensive analysis for Logistic Regression Nsl
+==================================================
+📊 Confusion matrix saved: data/results/confusion_matrices/logistic_regression_nsl_NSL-KDD_confusion_matrix.png
+📈 ROC curve saved: data/results/roc_curves/logistic_regression_nsl_NSL-KDD_roc_curve.png
+📊 Precision-Recall curve saved: data/results/precision_recall_curves/logistic_regression_nsl_NSL-KDD_precision_recall_curve.png
+⚠️ Logistic Regression Nsl does not have feature importance
+📚 Learning curve saved: data/results/learning_curves/logistic_regression_nsl_learning_curve.png
+  ✅ Analysis complete for Logistic Regression Nsl
+  ⏱️ Prediction time: 0.0011s (0.0000ms per sample)
+  🗑️ Memory freed for Logistic Regression Nsl
+
+🔍 Loading and analyzing: Random Forest Nsl
+  ✅ Loaded model from: data/models/baseline/random_forest_nsl.joblib (took 0.038s)
+
+🔍 Comprehensive analysis for Random Forest Nsl
+==================================================
+📊 Confusion matrix saved: data/results/confusion_matrices/random_forest_nsl_NSL-KDD_confusion_matrix.png
+📈 ROC curve saved: data/results/roc_curves/random_forest_nsl_NSL-KDD_roc_curve.png
+📊 Precision-Recall curve saved: data/results/precision_recall_curves/random_forest_nsl_NSL-KDD_precision_recall_curve.png
+🎯 Feature importance saved: data/results/feature_importance/random_forest_nsl_feature_importance.png
+📚 Learning curve saved: data/results/learning_curves/random_forest_nsl_learning_curve.png
+  ✅ Analysis complete for Random Forest Nsl
+  ⏱️ Prediction time: 0.0462s (0.0020ms per sample)
+  🗑️ Memory freed for Random Forest Nsl
+
+🔍 Loading and analyzing: Svm Linear Nsl
+  ✅ Loaded model from: data/models/baseline/svm_linear_nsl.joblib (took 0.001s)
+
+🔍 Comprehensive analysis for Svm Linear Nsl
+==================================================
+📊 Confusion matrix saved: data/results/confusion_matrices/svm_linear_nsl_NSL-KDD_confusion_matrix.png
+📈 ROC curve saved: data/results/roc_curves/svm_linear_nsl_NSL-KDD_roc_curve.png
+📊 Precision-Recall curve saved: data/results/precision_recall_curves/svm_linear_nsl_NSL-KDD_precision_recall_curve.png
+⚠️ Svm Linear Nsl does not have feature importance
+📚 Learning curve saved: data/results/learning_curves/svm_linear_nsl_learning_curve.png
+  ✅ Analysis complete for Svm Linear Nsl
+  ⏱️ Prediction time: 0.5104s (0.0226ms per sample)
+  🗑️ Memory freed for Svm Linear Nsl
+
+🔍 Loading and analyzing: Knn Nsl
+  ✅ Loaded model from: data/models/baseline/knn_nsl.joblib (took 0.006s)
+
+🔍 Comprehensive analysis for Knn Nsl
+==================================================
+📊 Confusion matrix saved: data/results/confusion_matrices/knn_nsl_NSL-KDD_confusion_matrix.png
+📈 ROC curve saved: data/results/roc_curves/knn_nsl_NSL-KDD_roc_curve.png
+📊 Precision-Recall curve saved: data/results/precision_recall_curves/knn_nsl_NSL-KDD_precision_recall_curve.png
+⚠️ Knn Nsl does not have feature importance
+📚 Learning curve saved: data/results/learning_curves/knn_nsl_learning_curve.png
+  ✅ Analysis complete for Knn Nsl
+  ⏱️ Prediction time: 1.8265s (0.0810ms per sample)
+  🗑️ Memory freed for Knn Nsl
+
+🔍 Loading and analyzing: Decision Tree Nsl
+  ✅ Loaded model from: data/models/baseline/decision_tree_nsl.joblib (took 0.001s)
+
+🔍 Comprehensive analysis for Decision Tree Nsl
+==================================================
+📊 Confusion matrix saved: data/results/confusion_matrices/decision_tree_nsl_NSL-KDD_confusion_matrix.png
+📈 ROC curve saved: data/results/roc_curves/decision_tree_nsl_NSL-KDD_roc_curve.png
+📊 Precision-Recall curve saved: data/results/precision_recall_curves/decision_tree_nsl_NSL-KDD_precision_recall_curve.png
+🎯 Feature importance saved: data/results/feature_importance/decision_tree_nsl_feature_importance.png
+📚 Learning curve saved: data/results/learning_curves/decision_tree_nsl_learning_curve.png
+  ✅ Analysis complete for Decision Tree Nsl
+  ⏱️ Prediction time: 0.0020s (0.0001ms per sample)
+  🗑️ Memory freed for Decision Tree Nsl
+
+🔍 Loading and analyzing: Xgboost Nsl
+  ✅ Loaded model from: data/models/advanced/xgboost_nsl.joblib (took 0.025s)
+
+🔍 Comprehensive analysis for Xgboost Nsl
+==================================================
+📊 Confusion matrix saved: data/results/confusion_matrices/xgboost_nsl_NSL-KDD_confusion_matrix.png
+📈 ROC curve saved: data/results/roc_curves/xgboost_nsl_NSL-KDD_roc_curve.png
+📊 Precision-Recall curve saved: data/results/precision_recall_curves/xgboost_nsl_NSL-KDD_precision_recall_curve.png
+🎯 Feature importance saved: data/results/feature_importance/xgboost_nsl_feature_importance.png
+Fatal Python error: Segmentation fault
+
+Thread 0x00007ded0d304080 (most recent call first):
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/xgboost/core.py", line 1446 in __init__
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/xgboost/core.py", line 524 in __init__
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/xgboost/data.py", line 1648 in __init__
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/xgboost/core.py", line 1653 in _init
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/xgboost/core.py", line 1614 in __init__
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/xgboost/core.py", line 729 in inner_f
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/xgboost/sklearn.py", line 1137 in _create_dmatrix
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/xgboost/sklearn.py", line 628 in _wrap_evaluation_matrices
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/xgboost/sklearn.py", line 1664 in fit
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/xgboost/core.py", line 729 in inner_f
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/sklearn/model_selection/_validation.py", line 859 in _fit_and_score
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/sklearn/utils/parallel.py", line 147 in __call__
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 607 in __call__
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/joblib/externals/loky/process_executor.py", line 291 in __call__
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/joblib/externals/loky/process_executor.py", line 490 in _process_worker
+  File "/usr/lib/python3.12/multiprocessing/process.py", line 108 in run
+  File "/usr/lib/python3.12/multiprocessing/process.py", line 314 in _bootstrap
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/joblib/externals/loky/backend/popen_loky_posix.py", line 180 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+
+Extension modules: psutil._psutil_linux, psutil._psutil_posix, numpy._core._multiarray_umath, numpy.linalg._umath_linalg, sklearn.__check_build._check_build, scipy._lib._ccallback_c, charset_normalizer.md, numpy.random._common, numpy.random.bit_generator, numpy.random._bounded_integers, numpy.random._pcg64, numpy.random._mt19937, numpy.random._generator, numpy.random._philox, numpy.random._sfc64, numpy.random.mtrand, scipy.sparse._sparsetools, _csparsetools, _cyutility, scipy._cyutility, scipy.sparse._csparsetools, scipy.special._ufuncs_cxx, scipy.special._ellip_harm_2, scipy.special._special_ufuncs, scipy.special._gufuncs, scipy.special._ufuncs, scipy.special._specfun, scipy.special._comb, scipy.linalg._fblas, scipy.linalg._flapack, scipy.linalg.cython_lapack, scipy.linalg._cythonized_array_utils, scipy.linalg._solve_toeplitz, scipy.linalg._decomp_lu_cython, scipy.linalg._matfuncs_schur_sqrtm, scipy.linalg._matfuncs_expm, scipy.linalg._linalg_pythran, scipy.linalg.cython_blas, scipy.linalg._decomp_update, scipy.sparse.linalg._dsolve._superlu, scipy.sparse.linalg._eigen.arpack._arpack, scipy.sparse.linalg._propack._spropack, scipy.sparse.linalg._propack._dpropack, scipy.sparse.linalg._propack._cpropack, scipy.sparse.linalg._propack._zpropack, scipy.spatial._ckdtree, scipy._lib.messagestream, scipy.spatial._qhull, scipy.spatial._voronoi, scipy.spatial._hausdorff, scipy.spatial._distance_wrap, scipy.spatial.transform._rotation, scipy.spatial.transform._rigid_transform, scipy.optimize._group_columns, scipy.optimize._trlib._trlib, scipy.optimize._lbfgsb, _moduleTNC, scipy.optimize._moduleTNC, scipy.optimize._slsqplib, scipy.optimize._minpack, scipy.optimize._lsq.givens_elimination, scipy.optimize._zeros, scipy._lib._uarray._uarray, scipy.linalg._decomp_interpolative, scipy.optimize._bglu_dense, scipy.optimize._lsap, scipy.optimize._direct, scipy.integrate._odepack, scipy.integrate._quadpack, scipy.integrate._vode, scipy.integrate._dop, scipy.integrate._lsoda, scipy.interpolate._fitpack, scipy.interpolate._dfitpack, scipy.interpolate._dierckx, scipy.interpolate._ppoly, scipy.interpolate._interpnd, scipy.interpolate._rbfinterp_pythran, scipy.interpolate._rgi_cython, scipy.special.cython_special, scipy.stats._stats, scipy.stats._biasedurn, scipy.stats._stats_pythran, scipy.stats._levy_stable.levyst, scipy.stats._ansari_swilk_statistics, scipy.sparse.csgraph._tools, scipy.sparse.csgraph._shortest_path, scipy.sparse.csgraph._traversal, scipy.sparse.csgraph._min_spanning_tree, scipy.sparse.csgraph._flow, scipy.sparse.csgraph._matching, scipy.sparse.csgraph._reordering, scipy.stats._sobol, scipy.stats._qmc_cy, scipy.stats._rcont.rcont, scipy.stats._qmvnt_cy, scipy.ndimage._nd_image, scipy.ndimage._rank_filter_1d, _ni_label, scipy.ndimage._ni_label, pandas._libs.tslibs.ccalendar, pandas._libs.tslibs.np_datetime, pandas._libs.tslibs.dtypes, pandas._libs.tslibs.base, pandas._libs.tslibs.nattype, pandas._libs.tslibs.timezones, pandas._libs.tslibs.fields, pandas._libs.tslibs.timedeltas, pandas._libs.tslibs.tzconversion, pandas._libs.tslibs.timestamps, pandas._libs.properties, pandas._libs.tslibs.offsets, pandas._libs.tslibs.strptime, pandas._libs.tslibs.parsing, pandas._libs.tslibs.conversion, pandas._libs.tslibs.period, pandas._libs.tslibs.vectorized, pandas._libs.ops_dispatch, pandas._libs.missing, pandas._libs.hashtable, pandas._libs.algos, pandas._libs.interval, pandas._libs.lib, pandas._libs.ops, pandas._libs.hashing, pandas._libs.arrays, pandas._libs.tslib, pandas._libs.sparse, pandas._libs.internals, pandas._libs.indexing, pandas._libs.index, pandas._libs.writers, pandas._libs.join, pandas._libs.window.aggregations, pandas._libs.window.indexers, pandas._libs.reshape, pandas._libs.groupby, pandas._libs.json, pandas._libs.parsers, pandas._libs.testing, sklearn._cyutility, sklearn.utils._isfinite, sklearn.utils.sparsefuncs_fast, sklearn.utils.murmurhash, sklearn.utils._openmp_helpers, sklearn.metrics.cluster._expected_mutual_info_fast, sklearn.preprocessing._csr_polynomial_expansion, sklearn.preprocessing._target_encoder_fast, sklearn.metrics._dist_metrics, sklearn.metrics._pairwise_distances_reduction._datasets_pair, sklearn.utils._cython_blas, sklearn.metrics._pairwise_distances_reduction._base, sklearn.metrics._pairwise_distances_reduction._middle_term_computer, sklearn.utils._heap, sklearn.utils._sorting, sklearn.metrics._pairwise_distances_reduction._argkmin, sklearn.metrics._pairwise_distances_reduction._argkmin_classmode, sklearn.utils._vector_sentinel, sklearn.metrics._pairwise_distances_reduction._radius_neighbors, sklearn.metrics._pairwise_distances_reduction._radius_neighbors_classmode, sklearn.metrics._pairwise_fast, sklearn.utils._random, sklearn.neighbors._partition_nodes, sklearn.neighbors._ball_tree, sklearn.neighbors._kd_tree, sklearn.utils.arrayfuncs, sklearn.utils._seq_dataset, sklearn.linear_model._cd_fast, _loss, sklearn._loss._loss, sklearn.svm._liblinear, sklearn.svm._libsvm, sklearn.svm._libsvm_sparse, sklearn.linear_model._sag_fast, sklearn.utils._weight_vector, sklearn.linear_model._sgd_fast, sklearn.decomposition._online_lda_fast, sklearn.decomposition._cdnmf_fast, sklearn.tree._utils, sklearn.neighbors._quad_tree, sklearn.tree._tree, sklearn.tree._partitioner, sklearn.tree._splitter, sklearn.tree._criterion (total: 184)
+  ❌ Error analyzing Xgboost Nsl: A worker process managed by the executor was unexpectedly terminated. This could be caused by a segmentation fault while calling the function or by an excessive memory usage causing the Operating System to kill the worker.
+
+The exit codes of the workers are {SIGSEGV(-11)}
+Detailed tracebacks of the workers should have been printed to stderr in the executor process if faulthandler was not disabled.
+Traceback (most recent call last):
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/experiments/09_enhance_repository.py", line 187, in enhance_scientific_value
+    analysis_results = evaluator.comprehensive_model_analysis(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/src/evaluation/enhanced_evaluation.py", line 433, in comprehensive_model_analysis
+    lc_path = self.generate_learning_curve(model, X_train, y_train, model_name)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/src/evaluation/enhanced_evaluation.py", line 314, in generate_learning_curve
+    train_sizes_abs, train_scores, val_scores = sklearn_learning_curve(
+                                                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py", line 218, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/sklearn/model_selection/_validation.py", line 2065, in learning_curve
+    results = parallel(
+              ^^^^^^^^^
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/sklearn/utils/parallel.py", line 82, in __call__
+    return super().__call__(iterable_with_config_and_warning_filters)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 2072, in __call__
+    return output if self.return_generator else list(output)
+                                                ^^^^^^^^^^^^
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1682, in _get_outputs
+    yield from self._retrieve()
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1784, in _retrieve
+    self._raise_error_fast()
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 1859, in _raise_error_fast
+    error_job.get_result(self.timeout)
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 758, in get_result
+    return self._return_or_raise()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jonas/Documents/Code/ml-network-anomaly-detection/.venv/lib/python3.12/site-packages/joblib/parallel.py", line 773, in _return_or_raise
+    raise self._result
+joblib.externals.loky.process_executor.TerminatedWorkerError: A worker process managed by the executor was unexpectedly terminated. This could be caused by a segmentation fault while calling the function or by an excessive memory usage causing the Operating System to kill the worker.
+
+The exit codes of the workers are {SIGSEGV(-11)}
+Detailed tracebacks of the workers should have been printed to stderr in the executor process if faulthandler was not disabled.
+
+🔍 Loading and analyzing: Lightgbm Nsl
+  ✅ Loaded model from: data/models/advanced/lightgbm_nsl.joblib (took 0.015s)
+
+🔍 Comprehensive analysis for Lightgbm Nsl
+==================================================
+📊 Confusion matrix saved: data/results/confusion_matrices/lightgbm_nsl_NSL-KDD_confusion_matrix.png
+📈 ROC curve saved: data/results/roc_curves/lightgbm_nsl_NSL-KDD_roc_curve.png
+📊 Precision-Recall curve saved: data/results/precision_recall_curves/lightgbm_nsl_NSL-KDD_precision_recall_curve.png
+🎯 Feature importance saved: data/results/feature_importance/lightgbm_nsl_feature_importance.png
+[LightGBM] [Info] Number of positive: 3268, number of negative: 5351
+[LightGBM] [Info] Number of positive: 7258, number of negative: 9981
+[LightGBM] [Info] Number of positive: 3974, number of negative: 4645
+[LightGBM] [Info] Number of positive: 7982, number of negative: 9257
+[LightGBM] [Info] Number of positive: 11307, number of negative: 14552
+[LightGBM] [Info] Number of positive: 23334, number of negative: 28384
