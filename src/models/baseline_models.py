@@ -308,12 +308,22 @@ class BaselineModels:
             joblib.dump(model, model_path)
             print(f"💾 Saved {model_name} to {model_path}")
         
-        # Save results DataFrame
+        # Save results DataFrame to data/results directory
         if self.results:
             results_df = pd.DataFrame(self.results)
-            results_file_path = results_path / "baseline_results.csv"
+            # Always save to data/results for consistency
+            results_output_dir = Path("data/results")
+            results_output_dir.mkdir(parents=True, exist_ok=True)
+            
+            results_file_path = results_output_dir / "baseline_results.csv"
             results_df.to_csv(results_file_path, index=False)
-            print(f"💾 Saved results to {results_path}")
+            print(f"💾 Saved results to {results_file_path}")
+            
+            # Also save to the specified results_path if different
+            if results_path != results_output_dir:
+                alt_results_path = results_path / "baseline_results.csv"
+                results_df.to_csv(alt_results_path, index=False)
+                print(f"💾 Also saved results to {alt_results_path}")
     
     def load_models(self, input_dir: str):
         """
