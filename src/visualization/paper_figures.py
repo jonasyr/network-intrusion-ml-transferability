@@ -71,31 +71,43 @@ class PaperFigureGenerator:
             Tuple of (baseline_results, advanced_results) DataFrames
         """
         try:
-            # Try to load baseline results from multiple locations
+            # Try to load NSL-KDD baseline results from dataset-specific files
             baseline_results = None
-            for baseline_path in ["data/results/baseline_results.csv", "data/results/nsl/baseline_results.csv"]:
+            nsl_baseline_paths = [
+                "data/results/nsl_baseline_results.csv",
+                "data/results/baseline_results.csv", 
+                "data/results/nsl/baseline_results.csv"
+            ]
+            for baseline_path in nsl_baseline_paths:
                 try:
                     baseline_results = pd.read_csv(baseline_path)
+                    print(f"📊 Loaded baseline results from: {baseline_path}")
                     break
                 except FileNotFoundError:
                     continue
             
             if baseline_results is None:
-                print("⚠️ No baseline results found, creating empty DataFrame")
+                print("⚠️ No NSL baseline results found, creating empty DataFrame")
                 baseline_results = pd.DataFrame()
             
-            # Try multiple locations for advanced results
+            # Try to load NSL-KDD advanced results from dataset-specific files
             advanced_results = None
-            for advanced_path in ["data/results/advanced_results.csv", "data/results/nsl/advanced_results.csv", 
-                                 "data/models/advanced/advanced_results.csv"]:
+            nsl_advanced_paths = [
+                "data/results/nsl_advanced_results.csv",
+                "data/results/advanced_results.csv",
+                "data/results/nsl/advanced_results.csv", 
+                "data/models/advanced/advanced_results.csv"
+            ]
+            for advanced_path in nsl_advanced_paths:
                 try:
                     advanced_results = pd.read_csv(advanced_path)
+                    print(f"📊 Loaded advanced results from: {advanced_path}")
                     break
                 except FileNotFoundError:
                     continue
             
             if advanced_results is None:
-                print("⚠️ No advanced results found, creating empty DataFrame")
+                print("⚠️ No NSL advanced results found, creating empty DataFrame")
                 advanced_results = pd.DataFrame()
             
             # Add model category

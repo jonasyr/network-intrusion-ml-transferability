@@ -308,22 +308,30 @@ class BaselineModels:
             joblib.dump(model, model_path)
             print(f"💾 Saved {model_name} to {model_path}")
         
-        # Save results DataFrame to data/results directory
+        # Save results DataFrame with dataset-specific naming
         if self.results:
             results_df = pd.DataFrame(self.results)
-            # Always save to data/results for consistency
+            
+            # Determine dataset from suffix or results_path
+            dataset_name = "nsl"  # default
+            if "cic" in dataset_suffix.lower():
+                dataset_name = "cic"
+            elif "cic" in str(results_path).lower():
+                dataset_name = "cic"
+            
+            # Always save to data/results with dataset-specific name
             results_output_dir = Path("data/results")
             results_output_dir.mkdir(parents=True, exist_ok=True)
             
-            results_file_path = results_output_dir / "baseline_results.csv"
-            results_df.to_csv(results_file_path, index=False)
-            print(f"💾 Saved results to {results_file_path}")
+            dataset_results_file = results_output_dir / f"{dataset_name}_baseline_results.csv"
+            results_df.to_csv(dataset_results_file, index=False)
+            print(f"💾 Saved {dataset_name.upper()} baseline results to {dataset_results_file}")
             
-            # Also save to the specified results_path if different
+            # Also save to the specified results_path with generic name for compatibility
             if results_path != results_output_dir:
                 alt_results_path = results_path / "baseline_results.csv"
                 results_df.to_csv(alt_results_path, index=False)
-                print(f"💾 Also saved results to {alt_results_path}")
+                print(f"💾 Also saved to {alt_results_path}")
     
     def load_models(self, input_dir: str):
         """

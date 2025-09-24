@@ -381,13 +381,20 @@ class AdvancedModels:
         if self.results:
             results_df = pd.DataFrame(self.results)
             
-            # Always save to data/results for consistency
+            # Determine dataset from suffix or results_path  
+            dataset_name = "nsl"  # default
+            if "cic" in dataset_suffix.lower():
+                dataset_name = "cic"
+            elif "cic" in str(results_path).lower():
+                dataset_name = "cic"
+            
+            # Always save to data/results with dataset-specific name
             results_output_dir = Path("data/results")
             results_output_dir.mkdir(parents=True, exist_ok=True)
             
-            main_results_file = results_output_dir / "advanced_results.csv"
-            results_df.to_csv(main_results_file, index=False)
-            print(f"💾 Saved evaluation results to {main_results_file}")
+            dataset_results_file = results_output_dir / f"{dataset_name}_advanced_results.csv"
+            results_df.to_csv(dataset_results_file, index=False)
+            print(f"💾 Saved {dataset_name.upper()} advanced results to {dataset_results_file}")
             
             # Also save to the specified location if different
             if results_path != results_output_dir:
