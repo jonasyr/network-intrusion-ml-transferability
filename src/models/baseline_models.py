@@ -327,11 +327,7 @@ class BaselineModels:
             results_df.to_csv(dataset_results_file, index=False)
             print(f"💾 Saved {dataset_name.upper()} baseline results to {dataset_results_file}")
             
-            # Also save to the specified results_path with generic name for compatibility
-            if results_path != results_output_dir:
-                alt_results_path = results_path / "baseline_results.csv"
-                results_df.to_csv(alt_results_path, index=False)
-                print(f"💾 Also saved to {alt_results_path}")
+            # NO MORE DUPLICATE SAVES - only dataset-specific naming from now on!
     
     def load_models(self, input_dir: str):
         """

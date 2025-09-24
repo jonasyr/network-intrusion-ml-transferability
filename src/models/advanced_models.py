@@ -396,11 +396,7 @@ class AdvancedModels:
             results_df.to_csv(dataset_results_file, index=False)
             print(f"💾 Saved {dataset_name.upper()} advanced results to {dataset_results_file}")
             
-            # Also save to the specified location if different
-            if results_path != results_output_dir:
-                alt_results_file = results_path / results_filename
-                results_df.to_csv(alt_results_file, index=False)
-                print(f"💾 Also saved evaluation results to {alt_results_file}")
+            # NO MORE DUPLICATE SAVES - only dataset-specific naming from now on!
 
     # ------------------------------------------------------------------
     # Convenience API
