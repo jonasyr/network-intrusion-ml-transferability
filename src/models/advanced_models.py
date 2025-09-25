@@ -257,7 +257,7 @@ class AdvancedModels:
             results[model_name] = self.train_model(model_name, X_train, y_train, verbose=verbose)
             
             # IMMEDIATE SAVE after each successful advanced model to prevent data loss
-            if results[model_name]["status"] == "success":
+            if results[model_name].status == "success":
                 try:
                     import joblib
                     temp_model_path = Path("data/models/temp_advanced") / f"{model_name}_temp.joblib"
