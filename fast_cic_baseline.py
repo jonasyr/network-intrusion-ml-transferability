@@ -80,6 +80,10 @@ def fast_cic_baseline_training():
                 print(f"🔍 Evaluating {model_name}...")
                 metrics = baseline.evaluate_model(model_name, x_test, y_test)
                 eval_results[model_name] = metrics
+                
+                # CRITICAL: Add to baseline.results for save_models() to work
+                baseline.results.append(metrics)
+                
                 print(f"{model_name:20} F1={metrics['f1_score']:.3f} Acc={metrics['accuracy']:.3f}")
         
         # Save everything with dataset-specific naming
