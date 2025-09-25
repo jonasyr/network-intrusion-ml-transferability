@@ -155,6 +155,16 @@ class BaselineModels:
             
             if result['status'] == 'success':
                 print(f"✅ {model_name}: {result['training_time']:.2f}s")
+                
+                # IMMEDIATE SAVE after each successful model to prevent data loss
+                try:
+                    import joblib
+                    temp_model_path = Path("data/models/temp") / f"{model_name}_temp.joblib"
+                    temp_model_path.parent.mkdir(parents=True, exist_ok=True)
+                    joblib.dump(self.trained_models[model_name], temp_model_path)
+                    print(f"💾 Temp saved: {model_name} (crash protection)")
+                except Exception as e:
+                    print(f"⚠️ Temp save failed for {model_name}: {e}")
             else:
                 print(f"❌ {model_name}: Failed")
         
@@ -243,6 +253,16 @@ class BaselineModels:
                 self.results.append(result)
                 
                 print(f"✅ {model_name}: F1={result['f1_score']:.3f}, Acc={result['accuracy']:.3f}")
+                
+                # IMMEDIATE INCREMENTAL SAVE after each evaluation
+                try:
+                    current_results_df = pd.DataFrame(self.results)
+                    temp_results_path = Path("data/results/temp_baseline_results.csv")
+                    temp_results_path.parent.mkdir(parents=True, exist_ok=True)
+                    current_results_df.to_csv(temp_results_path, index=False)
+                    print(f"💾 Incremental save: {len(self.results)} results")
+                except Exception as save_err:
+                    print(f"⚠️ Incremental save failed: {save_err}")
                 
             except Exception as e:
                 print(f"❌ Error evaluating {model_name}: {str(e)}")

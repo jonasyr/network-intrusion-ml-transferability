@@ -255,6 +255,19 @@ class AdvancedModels:
         results: Dict[str, TrainingResult] = {}
         for model_name in to_train:
             results[model_name] = self.train_model(model_name, X_train, y_train, verbose=verbose)
+            
+            # IMMEDIATE SAVE after each successful advanced model to prevent data loss
+            if results[model_name]["status"] == "success":
+                try:
+                    import joblib
+                    temp_model_path = Path("data/models/temp_advanced") / f"{model_name}_temp.joblib"
+                    temp_model_path.parent.mkdir(parents=True, exist_ok=True)
+                    joblib.dump(self.trained_models[model_name], temp_model_path)
+                    if verbose:
+                        print(f"💾 Temp saved: {model_name} (crash protection)")
+                except Exception as e:
+                    if verbose:
+                        print(f"⚠️ Temp save failed for {model_name}: {e}")
 
         return results
 
@@ -343,6 +356,16 @@ class AdvancedModels:
                     f"Acc={metrics['accuracy']:.3f} | Prec={metrics['precision']:.3f} | "
                     f"Rec={metrics['recall']:.3f}"
                 )
+                
+                # IMMEDIATE INCREMENTAL SAVE after each advanced model evaluation
+                try:
+                    current_results_df = pd.DataFrame(self.results)
+                    temp_results_path = Path("data/results/temp_advanced_results.csv")
+                    temp_results_path.parent.mkdir(parents=True, exist_ok=True)
+                    current_results_df.to_csv(temp_results_path, index=False)
+                    print(f"💾 Incremental save: {len(self.results)} advanced results")
+                except Exception as save_err:
+                    print(f"⚠️ Incremental save failed: {save_err}")
 
         results_df = pd.DataFrame(self.results)
         if not results_df.empty and sort_by in results_df.columns:
