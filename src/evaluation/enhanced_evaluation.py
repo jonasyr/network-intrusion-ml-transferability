@@ -39,17 +39,26 @@ class EnhancedEvaluator:
         # Create subdirectories for organized storage
         self.subdirs = {
             'confusion_matrices': self.output_dir / 'confusion_matrices',
-            'roc_curves': self.output_dir / 'roc_curves', 
+            'roc_curves': self.output_dir / 'roc_curves',
+            'precision_recall_curves': self.output_dir / 'precision_recall_curves',
             'feature_importance': self.output_dir / 'feature_importance',
             'learning_curves': self.output_dir / 'learning_curves',
             'model_analysis': self.output_dir / 'model_analysis',
+            'timing_analysis': self.output_dir / 'timing_analysis',
             'tables': self.output_dir / 'tables'
         }
+        
+        # Track current dataset for filename generation
+        self.current_dataset = None
         
         for subdir in self.subdirs.values():
             subdir.mkdir(parents=True, exist_ok=True)
             
         print(f"✅ Enhanced evaluator initialized with output: {self.output_dir}")
+    
+    def set_current_dataset(self, dataset_name: str):
+        """Set the current dataset for filename generation"""
+        self.current_dataset = dataset_name.lower()
     
     def generate_confusion_matrix(self, 
                                 y_true: np.ndarray, 
@@ -158,6 +167,71 @@ class EnhancedEvaluator:
         print(f"📈 ROC curve saved: {save_path}")
         return str(save_path)
     
+    def generate_precision_recall_curve(self,
+                                      y_true: np.ndarray,
+                                      y_proba: np.ndarray,
+                                      model_name: str,
+                                      dataset_name: str = "test") -> str:
+        """
+        Generate and save Precision-Recall curve
+        
+        Args:
+            y_true: True labels
+            y_proba: Predicted probabilities for positive class
+            model_name: Name of the model
+            dataset_name: Name of the dataset
+            
+        Returns:
+            Path to saved Precision-Recall curve
+        """
+        # Calculate Precision-Recall curve
+        precision, recall, thresholds = precision_recall_curve(y_true, y_proba)
+        pr_auc = auc(recall, precision)
+        
+        # Calculate baseline (random classifier performance)
+        baseline = np.sum(y_true) / len(y_true)
+        
+        # Create figure
+        plt.figure(figsize=(8, 6))
+        plt.plot(recall, precision, color='darkorange', lw=2, 
+                label=f'PR curve (AUC = {pr_auc:.4f})')
+        plt.axhline(y=baseline, color='navy', lw=2, linestyle='--', 
+                   label=f'Random classifier (AP = {baseline:.4f})')
+        
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('Recall', fontsize=12)
+        plt.ylabel('Precision', fontsize=12)
+        plt.title(f'Precision-Recall Curve: {model_name}\nDataset: {dataset_name}', 
+                 fontsize=14, fontweight='bold')
+        plt.legend(loc="lower left")
+        plt.grid(True, alpha=0.3)
+        
+        # Add analysis text for imbalanced datasets
+        if baseline < 0.5:
+            analysis = f"Imbalanced dataset (pos: {baseline:.1%})\nPR-AUC more informative than ROC"
+        else:
+            analysis = f"Balanced dataset (pos: {baseline:.1%})\nBoth PR and ROC curves informative"
+        
+        plt.text(0.02, 0.02, analysis,
+                transform=plt.gca().transAxes, verticalalignment='bottom',
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="lightgray"),
+                fontsize=10)
+        
+        plt.tight_layout()
+        
+        # Save figure
+        filename = f"{model_name.lower().replace(' ', '_')}_{dataset_name}_precision_recall_curve.png"
+        # Create precision_recall_curves subdirectory if not exists
+        pr_dir = self.output_dir / 'precision_recall_curves'
+        pr_dir.mkdir(parents=True, exist_ok=True)
+        save_path = pr_dir / filename
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"📊 Precision-Recall curve saved: {save_path}")
+        return str(save_path)
+    
     def generate_feature_importance(self,
                                   model: Any,
                                   feature_names: List[str],
@@ -203,7 +277,8 @@ class EnhancedEvaluator:
         plt.tight_layout()
         
         # Save figure
-        filename = f"{model_name.lower().replace(' ', '_')}_feature_importance.png"
+        dataset_suffix = f"_{self.current_dataset}" if self.current_dataset else ""
+        filename = f"{model_name.lower().replace(' ', '_')}{dataset_suffix}_feature_importance.png"
         save_path = self.subdirs['feature_importance'] / filename
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         plt.close()
@@ -213,7 +288,7 @@ class EnhancedEvaluator:
             'feature': [feature_names[i] for i in indices],
             'importance': importance[indices]
         })
-        csv_path = self.subdirs['feature_importance'] / f"{model_name.lower().replace(' ', '_')}_feature_importance.csv"
+        csv_path = self.subdirs['feature_importance'] / f"{model_name.lower().replace(' ', '_')}{dataset_suffix}_feature_importance.csv"
         importance_df.to_csv(csv_path, index=False)
         
         print(f"🎯 Feature importance saved: {save_path}")
@@ -243,11 +318,47 @@ class EnhancedEvaluator:
         if train_sizes is None:
             train_sizes = np.linspace(0.1, 1.0, 10)
         
-        # Generate learning curve
-        train_sizes_abs, train_scores, val_scores = sklearn_learning_curve(
-            model, X, y, cv=cv, train_sizes=train_sizes,
-            scoring='f1', n_jobs=-1, random_state=42
-        )
+        # Generate learning curve with limited parallelization to prevent memory issues
+        n_jobs = 1 if 'xgboost' in model_name.lower() else 2  # XGBoost has threading issues
+        
+        try:
+            # For XGBoost, use even smaller training sizes to prevent segfault
+            if 'xgboost' in model_name.lower():
+                train_sizes = np.linspace(0.3, 1.0, 5)  # Fewer, larger sizes for XGBoost
+                cv = 2  # Reduce CV folds for XGBoost
+                # Force single threading for XGBoost to prevent segfaults
+                import os
+                old_nthreads = os.environ.get('OMP_NUM_THREADS')
+                os.environ['OMP_NUM_THREADS'] = '1'
+                
+            train_sizes_abs, train_scores, val_scores = sklearn_learning_curve(
+                model, X, y, cv=cv, train_sizes=train_sizes,
+                scoring='f1', n_jobs=n_jobs, random_state=42
+            )
+            
+            # Restore threading if we changed it
+            if 'xgboost' in model_name.lower():
+                if old_nthreads is not None:
+                    os.environ['OMP_NUM_THREADS'] = old_nthreads
+                else:
+                    os.environ.pop('OMP_NUM_THREADS', None)
+        except Exception as e:
+            print(f"⚠️ Learning curve generation failed for {model_name}: {e}")
+            # Return a placeholder path to prevent downstream errors
+            plt.figure(figsize=(10, 6))
+            plt.text(0.5, 0.5, f'Learning curve unavailable\nfor {model_name}\n\nError: {str(e)}', 
+                    ha='center', va='center', transform=plt.gca().transAxes,
+                    fontsize=12, bbox=dict(boxstyle="round,pad=0.3", facecolor="lightgray"))
+            plt.title(f'{model_name} Learning Curve (Error)')
+            plt.xlabel('Training Set Size')
+            plt.ylabel('F1 Score')
+            
+            # Save error plot
+            output_path = self.output_dir / "learning_curves" / f"{model_name}_learning_curve_error.png"
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            plt.savefig(output_path, dpi=300, bbox_inches='tight')
+            plt.close()
+            return str(output_path)
         
         # Calculate mean and std
         train_mean = np.mean(train_scores, axis=1)
@@ -293,7 +404,8 @@ class EnhancedEvaluator:
         plt.tight_layout()
         
         # Save figure
-        filename = f"{model_name.lower().replace(' ', '_')}_learning_curve.png"
+        dataset_suffix = f"_{self.current_dataset}" if self.current_dataset else ""
+        filename = f"{model_name.lower().replace(' ', '_')}{dataset_suffix}_learning_curve.png"
         save_path = self.subdirs['learning_curves'] / filename
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         plt.close()
@@ -311,7 +423,7 @@ class EnhancedEvaluator:
                                    dataset_name: str = "test",
                                    feature_names: List[str] = None) -> Dict[str, str]:
         """
-        Perform comprehensive analysis of a model
+        Perform comprehensive analysis of a model with crash prevention
         
         Args:
             model: Trained model
@@ -326,6 +438,13 @@ class EnhancedEvaluator:
         Returns:
             Dictionary with paths to generated plots
         """
+        
+        # Setup safe execution environment
+        try:
+            from src.utils.system_limits import system_manager
+            system_manager.setup_safe_environment()
+        except ImportError:
+            print("⚠️ System limits module not available, proceeding without safety limits")
         print(f"\n🔍 Comprehensive analysis for {model_name}")
         print("=" * 50)
         
@@ -350,6 +469,10 @@ class EnhancedEvaluator:
         if y_proba is not None:
             roc_path = self.generate_roc_curve(y_test, y_proba, model_name, dataset_name)
             results['roc_curve'] = roc_path
+            
+            # 2b. Precision-Recall Curve (if probabilities available)
+            pr_path = self.generate_precision_recall_curve(y_test, y_proba, model_name, dataset_name)
+            results['precision_recall_curve'] = pr_path
         
         # 3. Feature Importance (if available)
         if feature_names is not None:
@@ -359,8 +482,12 @@ class EnhancedEvaluator:
         
         # 4. Learning Curve (if training data available)
         if X_train is not None and y_train is not None:
-            lc_path = self.generate_learning_curve(model, X_train, y_train, model_name)
-            results['learning_curve'] = lc_path
+            try:
+                lc_path = self.generate_learning_curve(model, X_train, y_train, model_name)
+                results['learning_curve'] = lc_path
+            except Exception as e:
+                print(f"⚠️ Learning curve generation failed for {model_name}: {e}")
+                results['learning_curve'] = None
         
         return results
     
@@ -419,6 +546,161 @@ class EnhancedEvaluator:
         plt.close()
         
         print(f"🏆 Top models comparison saved: {save_path}")
+        return str(save_path)
+    
+    def generate_computational_time_analysis(self,
+                                           model_results: List[Dict],
+                                           save_prefix: str = "computational_analysis") -> str:
+        """
+        Generate comprehensive computational time analysis
+        
+        Args:
+            model_results: List of model results containing timing information
+            save_prefix: Prefix for saved files
+            
+        Returns:
+            Path to saved analysis plot
+        """
+        # Extract timing data
+        timing_data = []
+        for result in model_results:
+            model_name = result.get('model_name', 'Unknown')
+            training_time = result.get('training_time', 0)
+            prediction_time = result.get('prediction_time', 0)
+            
+            # Calculate per-sample prediction time if available
+            n_samples = result.get('n_test_samples', 1)
+            per_sample_time = (prediction_time * 1000) / n_samples  # Convert to milliseconds
+            
+            timing_data.append({
+                'Model': model_name,
+                'Training_Time_s': training_time,
+                'Prediction_Time_s': prediction_time,
+                'Per_Sample_Time_ms': per_sample_time,
+                'Total_Time_s': training_time + prediction_time
+            })
+        
+        timing_df = pd.DataFrame(timing_data)
+        
+        # Create comprehensive timing visualization
+        fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        fig.suptitle('Computational Performance Analysis', fontsize=16, fontweight='bold')
+        
+        # 1. Training Time Comparison
+        axes[0, 0].barh(timing_df['Model'], timing_df['Training_Time_s'], 
+                       color='skyblue', alpha=0.8)
+        axes[0, 0].set_xlabel('Training Time (seconds)', fontsize=12)
+        axes[0, 0].set_title('Training Time Comparison', fontweight='bold')
+        axes[0, 0].grid(True, alpha=0.3)
+        
+        # Add value labels
+        for i, v in enumerate(timing_df['Training_Time_s']):
+            axes[0, 0].text(v + max(timing_df['Training_Time_s']) * 0.01, i, 
+                           f'{v:.2f}s', va='center', fontsize=9)
+        
+        # 2. Prediction Time Comparison
+        axes[0, 1].barh(timing_df['Model'], timing_df['Prediction_Time_s'], 
+                       color='lightcoral', alpha=0.8)
+        axes[0, 1].set_xlabel('Prediction Time (seconds)', fontsize=12)
+        axes[0, 1].set_title('Prediction Time Comparison', fontweight='bold')
+        axes[0, 1].grid(True, alpha=0.3)
+        
+        # Add value labels
+        for i, v in enumerate(timing_df['Prediction_Time_s']):
+            axes[0, 1].text(v + max(timing_df['Prediction_Time_s']) * 0.01, i, 
+                           f'{v:.4f}s', va='center', fontsize=9)
+        
+        # 3. Per-Sample Prediction Time
+        axes[1, 0].barh(timing_df['Model'], timing_df['Per_Sample_Time_ms'], 
+                       color='lightgreen', alpha=0.8)
+        axes[1, 0].set_xlabel('Per-Sample Prediction Time (milliseconds)', fontsize=12)
+        axes[1, 0].set_title('Per-Sample Prediction Time', fontweight='bold')
+        axes[1, 0].grid(True, alpha=0.3)
+        
+        # Add value labels
+        for i, v in enumerate(timing_df['Per_Sample_Time_ms']):
+            axes[1, 0].text(v + max(timing_df['Per_Sample_Time_ms']) * 0.01, i, 
+                           f'{v:.4f}ms', va='center', fontsize=9)
+        
+        # 4. Total Time vs Accuracy Trade-off (if accuracy available)
+        if any('accuracy' in result for result in model_results):
+            accuracy_data = [result.get('accuracy', 0) for result in model_results]
+            scatter = axes[1, 1].scatter(timing_df['Total_Time_s'], accuracy_data,
+                                       c=range(len(timing_df)), cmap='viridis', 
+                                       s=100, alpha=0.7)
+            
+            # Add model name labels
+            for i, (time_val, acc_val, model_name) in enumerate(
+                zip(timing_df['Total_Time_s'], accuracy_data, timing_df['Model'])):
+                axes[1, 1].annotate(model_name, (time_val, acc_val),
+                                  xytext=(5, 5), textcoords='offset points',
+                                  fontsize=8, alpha=0.8)
+            
+            axes[1, 1].set_xlabel('Total Time (seconds)', fontsize=12)
+            axes[1, 1].set_ylabel('Accuracy', fontsize=12)
+            axes[1, 1].set_title('Time vs Accuracy Trade-off', fontweight='bold')
+            axes[1, 1].grid(True, alpha=0.3)
+        else:
+            # Alternative: Training vs Prediction Time scatter
+            axes[1, 1].scatter(timing_df['Training_Time_s'], timing_df['Prediction_Time_s'],
+                             c=range(len(timing_df)), cmap='viridis', s=100, alpha=0.7)
+            
+            for i, (train_time, pred_time, model_name) in enumerate(
+                zip(timing_df['Training_Time_s'], timing_df['Prediction_Time_s'], timing_df['Model'])):
+                axes[1, 1].annotate(model_name, (train_time, pred_time),
+                                  xytext=(5, 5), textcoords='offset points',
+                                  fontsize=8, alpha=0.8)
+            
+            axes[1, 1].set_xlabel('Training Time (seconds)', fontsize=12)
+            axes[1, 1].set_ylabel('Prediction Time (seconds)', fontsize=12)
+            axes[1, 1].set_title('Training vs Prediction Time', fontweight='bold')
+            axes[1, 1].grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        
+        # Save figure
+        # Create timing_analysis subdirectory if not exists
+        timing_dir = self.output_dir / 'timing_analysis'
+        timing_dir.mkdir(parents=True, exist_ok=True)
+        
+        filename = f"{save_prefix}_timing_analysis.png"
+        save_path = timing_dir / filename
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        # Save timing data as CSV
+        csv_path = timing_dir / f"{save_prefix}_timing_data.csv"
+        timing_df.to_csv(csv_path, index=False)
+        
+        # Generate timing summary statistics
+        summary_stats = {
+            'fastest_training': timing_df.loc[timing_df['Training_Time_s'].idxmin(), 'Model'],
+            'fastest_prediction': timing_df.loc[timing_df['Prediction_Time_s'].idxmin(), 'Model'],
+            'slowest_training': timing_df.loc[timing_df['Training_Time_s'].idxmax(), 'Model'],
+            'slowest_prediction': timing_df.loc[timing_df['Prediction_Time_s'].idxmax(), 'Model'],
+            'avg_training_time': timing_df['Training_Time_s'].mean(),
+            'avg_prediction_time': timing_df['Prediction_Time_s'].mean(),
+            'total_training_time': timing_df['Training_Time_s'].sum(),
+            'total_prediction_time': timing_df['Prediction_Time_s'].sum()
+        }
+        
+        # Save summary as JSON
+        import json
+        summary_path = timing_dir / f"{save_prefix}_timing_summary.json"
+        with open(summary_path, 'w') as f:
+            json.dump(summary_stats, f, indent=2)
+        
+        print(f"⏱️ Computational time analysis saved: {save_path}")
+        print(f"📊 Timing data saved: {csv_path}")
+        print(f"📋 Timing summary saved: {summary_path}")
+        
+        # Print key insights
+        print(f"\n🎯 Key Timing Insights:")
+        print(f"   Fastest Training: {summary_stats['fastest_training']}")
+        print(f"   Fastest Prediction: {summary_stats['fastest_prediction']}")
+        print(f"   Average Training Time: {summary_stats['avg_training_time']:.3f}s")
+        print(f"   Average Prediction Time: {summary_stats['avg_prediction_time']:.6f}s")
+        
         return str(save_path)
     
     def consolidate_results(self, 

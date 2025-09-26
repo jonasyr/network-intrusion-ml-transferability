@@ -190,9 +190,10 @@ class CrossValidationFramework:
         
         df = pd.DataFrame(summary_data)
         
-        # Sort by accuracy mean
-        df['_accuracy_mean'] = [float(acc.split(' ± ')[0]) for acc in df['Accuracy']]
-        df = df.sort_values('_accuracy_mean', ascending=False).drop('_accuracy_mean', axis=1)
+        # Sort by accuracy mean if we have results
+        if not df.empty and 'Accuracy' in df.columns:
+            df['_accuracy_mean'] = [float(acc.split(' ± ')[0]) for acc in df['Accuracy']]
+            df = df.sort_values('_accuracy_mean', ascending=False).drop('_accuracy_mean', axis=1)
         
         return df
     
@@ -287,30 +288,113 @@ class CrossValidationFramework:
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
         
+        # Determine dataset suffix from output path or context
+        dataset_suffix = ""
+        if "nsl" in str(output_path).lower():
+            dataset_suffix = "_nsl"
+        elif "cic" in str(output_path).lower():
+            dataset_suffix = "_cic"
+        
         # Save detailed results
         detailed_results = pd.DataFrame([result for result in self.results.values()])
-        detailed_results.to_csv(output_path / 'cv_detailed_results.csv', index=False)
+        detailed_results.to_csv(output_path / f'cv_detailed_results{dataset_suffix}.csv', index=False)
         
         # Save summary table
         summary_df = self.create_cv_summary_table(list(self.results.values()))
-        summary_df.to_csv(output_path / 'cv_summary_table.csv', index=False)
+        summary_df.to_csv(output_path / f'cv_summary_table{dataset_suffix}.csv', index=False)
         
         # Save LaTeX table
         latex_table = self.generate_latex_table(summary_df)
-        with open(output_path / 'cv_summary_table.tex', 'w') as f:
+        with open(output_path / f'cv_summary_table{dataset_suffix}.tex', 'w') as f:
             f.write(latex_table)
         
         # Save statistical comparison
         if len(self.results) > 1:
             comparison_df = self.compare_models_statistical(list(self.results.values()))
-            comparison_df.to_csv(output_path / 'statistical_comparison.csv', index=False)
+            comparison_df.to_csv(output_path / f'statistical_comparison{dataset_suffix}.csv', index=False)
         
         print(f"📊 Cross-validation results saved to {output_path}")
 
 
+def run_cic_cross_validation():
+    """
+    Run cross-validation specifically for CIC-IDS-2017 models
+    """
+    print("🚀 CIC-IDS-2017 Cross-Validation Analysis")
+    print("=" * 60)
+    
+    from src.utils import get_memory_adaptive_config
+    config = get_memory_adaptive_config()
+    
+    # Load CIC data (same preprocessing as training)
+    from src.preprocessing import CICIDSPreprocessor
+    from pathlib import Path
+    
+    print("🔍 Loading CIC-IDS-2017 dataset...")
+    preprocessor = CICIDSPreprocessor()
+    
+    # Load sample for cross-validation (use sample for speed)
+    try:
+        # Load the sample data using the standard method
+        cic_data = preprocessor.load_data(use_full_dataset=False)  # This loads sample
+        if cic_data is not None:
+            X, y = preprocessor.fit_transform(cic_data)
+            print(f"✅ Loaded CIC sample: {X.shape}")
+        else:
+            print("❌ CIC data loading failed, skipping CIC cross-validation")
+            return None, []
+    except Exception as e:
+        print(f"❌ Error loading CIC data: {e}")
+        return None, []
+    
+    # Initialize cross-validation framework
+    cv_framework = CrossValidationFramework(n_folds=3)  # Use 3 folds for efficiency
+    
+    # Load CIC models
+    model_paths = {}
+    
+    # Baseline CIC models
+    for model in ['random_forest', 'logistic_regression', 'decision_tree', 'naive_bayes', 'knn', 'svm_linear']:
+        model_path = Path(f'data/models/cic_baseline/{model}_cic.joblib')
+        if model_path.exists():
+            model_paths[f"{model}_cic"] = str(model_path)
+    
+    # Advanced CIC models  
+    for model in ['xgboost', 'lightgbm', 'gradient_boosting', 'extra_trees', 'mlp', 'voting_classifier']:
+        model_path = Path(f'data/models/cic_advanced/{model}_cic.joblib')
+        if model_path.exists():
+            model_paths[f"{model}_cic"] = str(model_path)
+    
+    print(f"📊 Found {len(model_paths)} CIC models: {list(model_paths.keys())}")
+    
+    if len(model_paths) == 0:
+        print("❌ No CIC models found for cross-validation!")
+        return None, []
+    
+    # Perform cross-validation
+    cv_results = []
+    for idx, (model_name, model_path) in enumerate(model_paths.items(), 1):
+        print(f"\n📊 [{idx}/{len(model_paths)}] Processing {model_name}...")
+        try:
+            import joblib
+            model = joblib.load(model_path)
+            result = cv_framework.evaluate_model_cv(model, X, y, model_name)
+            cv_results.append(result)
+            print(f"   ✅ {model_name} complete!")
+        except Exception as e:
+            print(f"   ❌ Error with {model_name}: {e}")
+    
+    # Save CIC cross-validation results
+    if cv_results:
+        cv_framework.save_results('data/results/cross_validation/cic')
+        print(f"💾 CIC cross-validation results saved")
+    
+    return cv_framework, cv_results
+
+
 def run_full_cross_validation():
     """
-    Run complete cross-validation pipeline on all models
+    Run complete cross-validation pipeline on all models (NSL-KDD only)
     """
     print("🚀 Running Complete Cross-Validation Pipeline")
     print("=" * 60)
@@ -367,22 +451,26 @@ def run_full_cross_validation():
     
     # Load all trained models
     print("📂 Loading trained models...")
-    model_paths = {
-        # Baseline models
-        'random_forest': 'data/models/baseline/random_forest.joblib',
-        'logistic_regression': 'data/models/baseline/logistic_regression.joblib',
-        'decision_tree': 'data/models/baseline/decision_tree.joblib',
-        'naive_bayes': 'data/models/baseline/naive_bayes.joblib',
-        'knn': 'data/models/baseline/knn.joblib',
-        
-        # Advanced models
-        'xgboost': 'data/models/advanced/xgboost.joblib',
-        'lightgbm': 'data/models/advanced/lightgbm.joblib',
-        'gradient_boosting': 'data/models/advanced/gradient_boosting.joblib',
-        'extra_trees': 'data/models/advanced/extra_trees.joblib',
-        'mlp': 'data/models/advanced/mlp.joblib',
-        'voting_classifier': 'data/models/advanced/voting_classifier.joblib'
-    }
+    
+    # Check for existing model files and build paths dynamically
+    from pathlib import Path
+    model_paths = {}
+    
+    # Baseline models
+    baseline_models = ['random_forest', 'logistic_regression', 'decision_tree', 'naive_bayes', 'knn', 'svm_linear']
+    for model in baseline_models:
+        model_path = Path(f'data/models/baseline/{model}_nsl.joblib')
+        if model_path.exists():
+            model_paths[model] = str(model_path)
+    
+    # Advanced models  
+    advanced_models = ['xgboost', 'lightgbm', 'gradient_boosting', 'extra_trees', 'mlp', 'voting_classifier']
+    for model in advanced_models:
+        model_path = Path(f'data/models/advanced/{model}_nsl.joblib')
+        if model_path.exists():
+            model_paths[model] = str(model_path)
+    
+    print(f"📊 Found {len(model_paths)} trained models: {list(model_paths.keys())}")
     
     # Perform cross-validation for each model
     cv_results = []
@@ -407,6 +495,14 @@ def run_full_cross_validation():
     
     print(f"\n✅ Cross-validation completed for {len(cv_results)} models!")
     
+    # Check if we have any results before proceeding
+    if len(cv_results) == 0:
+        print("\n❌ No models found for cross-validation!")
+        print("🔧 Please ensure models are trained first by running:")
+        print("   python experiments/02_baseline_training.py")  
+        print("   python experiments/03_advanced_training.py")
+        return None, []
+    
     # Statistical comparison
     if len(cv_results) > 1:
         print("\n📊 Statistical comparison...")
@@ -414,9 +510,17 @@ def run_full_cross_validation():
         print(f"✅ Found {len(comparison_df)} pairwise comparisons")
     
     # Create summary table
-    summary_table = cv_framework.create_cv_summary_table(cv_results)
-    print("\n📋 Cross-Validation Summary:")
-    print(summary_table.to_string(index=False))
+    try:
+        summary_table = cv_framework.create_cv_summary_table(cv_results)
+        print("\n📋 Cross-Validation Summary:")
+        print(summary_table.to_string(index=False))
+    except Exception as e:
+        print(f"\n❌ Error creating summary table: {e}")
+        # Create a basic summary as fallback
+        print("\n📋 Basic Cross-Validation Results:")
+        for result in cv_results:
+            print(f"   {result['model_name']}: Accuracy={result['accuracy_mean']:.4f}±{result['accuracy_std']:.4f}")
+        return cv_framework, cv_results
     
     # Create visualizations
     print("\n📊 Creating visualizations...")

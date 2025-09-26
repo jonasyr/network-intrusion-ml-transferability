@@ -43,17 +43,26 @@ class CICIDSPreprocessor:
         """Add shared traffic statistics used for cross-dataset alignment."""
 
         df = features.copy()
-        forward = 'Total_Length_of_Fwd_Packets'
-        backward = 'Total_Length_of_Bwd_Packets'
-        duration = 'Flow_Duration'
+        
+        # Handle both formats: with and without underscores
+        forward_candidates = ['Total_Length_of_Fwd_Packets', 'Total Length of Fwd Packets']
+        backward_candidates = ['Total_Length_of_Bwd_Packets', 'Total Length of Bwd Packets']
+        duration_candidates = ['Flow_Duration', 'Flow Duration']
+        
+        # Find the actual column names
+        forward = next((col for col in forward_candidates if col in df.columns), None)
+        backward = next((col for col in backward_candidates if col in df.columns), None)
+        duration = next((col for col in duration_candidates if col in df.columns), None)
 
-        if {forward, backward}.issubset(df.columns):
+        if forward and backward:
             df['total_bytes'] = df[forward] + df[backward]
             backward_safe = np.where(df[backward] <= 0, 1.0, df[backward])
             df['byte_ratio'] = df[forward] / backward_safe
-        if {forward, backward, duration}.issubset(df.columns):
+            
+        if forward and backward and duration:
             duration_safe = np.where(df[duration] <= 0, 1.0, df[duration])
             df['bytes_per_second'] = (df[forward] + df[backward]) / duration_safe
+            
         return df
 
     def load_data(self, file_path: str = None, use_full_dataset: bool = True) -> pd.DataFrame:

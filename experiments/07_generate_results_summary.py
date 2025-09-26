@@ -16,6 +16,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.append(str(PROJECT_ROOT))
 
 RESULTS_DIR = PROJECT_ROOT / "data/results"
+# Dataset-specific result paths
+NSL_BASELINE_PATH = RESULTS_DIR / "nsl_baseline_results.csv"
+NSL_ADVANCED_PATH = RESULTS_DIR / "nsl_advanced_results.csv"
+CIC_BASELINE_PATH = RESULTS_DIR / "cic_baseline_results.csv"
+CIC_ADVANCED_PATH = RESULTS_DIR / "cic_advanced_results.csv"
+# Legacy paths for fallback
 BASELINE_PATH = RESULTS_DIR / "baseline_results.csv"
 ADVANCED_PATH = RESULTS_DIR / "advanced_results.csv"
 CV_SUMMARY_PATH = RESULTS_DIR / "cross_validation/cv_summary_table.csv"

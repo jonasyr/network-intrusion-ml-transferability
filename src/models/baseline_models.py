@@ -64,9 +64,11 @@ class BaselineModels:
             ),
             'naive_bayes': GaussianNB(),
             'knn': KNeighborsClassifier(
-                n_neighbors=5,
-                n_jobs=-1,
-                algorithm='auto'   # Let sklearn choose best algorithm
+                n_neighbors=3,     # Reduced for speed
+                n_jobs=-1,         # Use all cores
+                algorithm='kd_tree',  # Fast for high-dimensional data
+                leaf_size=50,      # Larger leaf size for speed
+                metric='euclidean'  # Fast metric
             ),
             'svm_linear': SVC(
                 kernel='linear',
@@ -153,6 +155,16 @@ class BaselineModels:
             
             if result['status'] == 'success':
                 print(f"✅ {model_name}: {result['training_time']:.2f}s")
+                
+                # IMMEDIATE SAVE after each successful model to prevent data loss
+                try:
+                    import joblib
+                    temp_model_path = Path("data/models/temp") / f"{model_name}_temp.joblib"
+                    temp_model_path.parent.mkdir(parents=True, exist_ok=True)
+                    joblib.dump(self.trained_models[model_name], temp_model_path)
+                    print(f"💾 Temp saved: {model_name} (crash protection)")
+                except Exception as e:
+                    print(f"⚠️ Temp save failed for {model_name}: {e}")
             else:
                 print(f"❌ {model_name}: Failed")
         
@@ -242,6 +254,16 @@ class BaselineModels:
                 
                 print(f"✅ {model_name}: F1={result['f1_score']:.3f}, Acc={result['accuracy']:.3f}")
                 
+                # IMMEDIATE INCREMENTAL SAVE after each evaluation
+                try:
+                    current_results_df = pd.DataFrame(self.results)
+                    temp_results_path = Path("data/results/temp_baseline_results.csv")
+                    temp_results_path.parent.mkdir(parents=True, exist_ok=True)
+                    current_results_df.to_csv(temp_results_path, index=False)
+                    print(f"💾 Incremental save: {len(self.results)} results")
+                except Exception as save_err:
+                    print(f"⚠️ Incremental save failed: {save_err}")
+                
             except Exception as e:
                 print(f"❌ Error evaluating {model_name}: {str(e)}")
         
@@ -308,12 +330,26 @@ class BaselineModels:
             joblib.dump(model, model_path)
             print(f"💾 Saved {model_name} to {model_path}")
         
-        # Save results DataFrame
+        # Save results DataFrame with dataset-specific naming
         if self.results:
             results_df = pd.DataFrame(self.results)
-            results_file_path = results_path / "baseline_results.csv"
-            results_df.to_csv(results_file_path, index=False)
-            print(f"💾 Saved results to {results_path}")
+            
+            # Determine dataset from suffix or results_path
+            dataset_name = "nsl"  # default
+            if "cic" in dataset_suffix.lower():
+                dataset_name = "cic"
+            elif "cic" in str(results_path).lower():
+                dataset_name = "cic"
+            
+            # Always save to data/results with dataset-specific name
+            results_output_dir = Path("data/results")
+            results_output_dir.mkdir(parents=True, exist_ok=True)
+            
+            dataset_results_file = results_output_dir / f"{dataset_name}_baseline_results.csv"
+            results_df.to_csv(dataset_results_file, index=False)
+            print(f"💾 Saved {dataset_name.upper()} baseline results to {dataset_results_file}")
+            
+            # NO MORE DUPLICATE SAVES - only dataset-specific naming from now on!
     
     def load_models(self, input_dir: str):
         """

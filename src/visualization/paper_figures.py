@@ -63,6 +63,29 @@ class PaperFigureGenerator:
             'Neural Networks': ['mlp']
         }
     
+    def _has_nsl_data(self) -> bool:
+        """Check if NSL-KDD data/results are available"""
+        nsl_paths = [
+            "data/results/nsl_baseline_results.csv",
+            "data/results/nsl_advanced_results.csv",
+            "data/results/nsl/baseline_results.csv",
+            "data/results/baseline_results.csv"  # Legacy that might be NSL
+        ]
+        return any(Path(path).exists() for path in nsl_paths)
+    
+    def _has_cic_data(self) -> bool:
+        """Check if CIC-IDS-2017 data/results are available"""
+        cic_paths = [
+            "data/results/cic_baseline_results.csv", 
+            "data/results/cic_advanced_results.csv",
+            "data/results/cic/baseline_results.csv"
+        ]
+        return any(Path(path).exists() for path in cic_paths)
+    
+    def _has_both_datasets(self) -> bool:
+        """Check if both datasets are available"""
+        return self._has_nsl_data() and self._has_cic_data()
+    
     def load_all_results(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
         Load baseline and advanced model results
@@ -71,17 +94,44 @@ class PaperFigureGenerator:
             Tuple of (baseline_results, advanced_results) DataFrames
         """
         try:
-            baseline_results = pd.read_csv("data/results/baseline_results.csv")
-            # Try multiple locations for advanced results
-            try:
-                advanced_results = pd.read_csv("data/models/advanced/advanced_results.csv")
-            except FileNotFoundError:
+            # Try to load NSL-KDD baseline results from dataset-specific files
+            baseline_results = None
+            nsl_baseline_paths = [
+                "data/results/nsl_baseline_results.csv",
+                "data/results/baseline_results.csv", 
+                "data/results/nsl/baseline_results.csv"
+            ]
+            for baseline_path in nsl_baseline_paths:
                 try:
-                    advanced_results = pd.read_csv("data/results/advanced_results.csv")
+                    baseline_results = pd.read_csv(baseline_path)
+                    print(f"📊 Loaded baseline results from: {baseline_path}")
+                    break
                 except FileNotFoundError:
-                    # If no advanced results, create empty DataFrame
-                    print("⚠️ Advanced results not found, using baseline results only")
-                    advanced_results = pd.DataFrame()
+                    continue
+            
+            if baseline_results is None:
+                print("⚠️ No NSL baseline results found, creating empty DataFrame")
+                baseline_results = pd.DataFrame()
+            
+            # Try to load NSL-KDD advanced results from dataset-specific files
+            advanced_results = None
+            nsl_advanced_paths = [
+                "data/results/nsl_advanced_results.csv",
+                "data/results/advanced_results.csv",
+                "data/results/nsl/advanced_results.csv", 
+                "data/models/advanced/advanced_results.csv"
+            ]
+            for advanced_path in nsl_advanced_paths:
+                try:
+                    advanced_results = pd.read_csv(advanced_path)
+                    print(f"📊 Loaded advanced results from: {advanced_path}")
+                    break
+                except FileNotFoundError:
+                    continue
+            
+            if advanced_results is None:
+                print("⚠️ No NSL advanced results found, creating empty DataFrame")
+                advanced_results = pd.DataFrame()
             
             # Add model category
             def categorize_model(model_name):
@@ -200,8 +250,9 @@ class PaperFigureGenerator:
         
         # Save figure
         if save_path is None:
-            save_path = self.output_dir / "model_performance_comparison.png"
-        
+            dataset_prefix = "nsl_cic" if self._has_both_datasets() else ("nsl" if self._has_nsl_data() else "cic")
+            save_path = self.output_dir / f"{dataset_prefix}_model_performance_comparison.png"
+            
         plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
         print(f"📊 Model comparison figure saved to {save_path}")
         
@@ -317,7 +368,7 @@ class PaperFigureGenerator:
         
         # Save figure
         if save_path is None:
-            save_path = self.output_dir / "attack_distribution_analysis.png"
+            save_path = self.output_dir / "nsl_attack_distribution_analysis.png"
         
         plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
         print(f"📊 Attack distribution analysis saved to {save_path}")
@@ -518,7 +569,8 @@ class PaperFigureGenerator:
         
         # Save to CSV and LaTeX
         if save_path is None:
-            save_path = self.output_dir / "performance_summary_table"
+            dataset_prefix = "nsl_cic" if self._has_both_datasets() else ("nsl" if self._has_nsl_data() else "cic")
+            save_path = self.output_dir / f"{dataset_prefix}_performance_summary_table"
         
         summary_table.to_csv(f"{save_path}.csv", index=False)
         

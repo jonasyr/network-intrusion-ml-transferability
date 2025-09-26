@@ -255,6 +255,19 @@ class AdvancedModels:
         results: Dict[str, TrainingResult] = {}
         for model_name in to_train:
             results[model_name] = self.train_model(model_name, X_train, y_train, verbose=verbose)
+            
+            # IMMEDIATE SAVE after each successful advanced model to prevent data loss
+            if results[model_name].status == "success":
+                try:
+                    import joblib
+                    temp_model_path = Path("data/models/temp_advanced") / f"{model_name}_temp.joblib"
+                    temp_model_path.parent.mkdir(parents=True, exist_ok=True)
+                    joblib.dump(self.trained_models[model_name], temp_model_path)
+                    if verbose:
+                        print(f"💾 Temp saved: {model_name} (crash protection)")
+                except Exception as e:
+                    if verbose:
+                        print(f"⚠️ Temp save failed for {model_name}: {e}")
 
         return results
 
@@ -343,6 +356,16 @@ class AdvancedModels:
                     f"Acc={metrics['accuracy']:.3f} | Prec={metrics['precision']:.3f} | "
                     f"Rec={metrics['recall']:.3f}"
                 )
+                
+                # IMMEDIATE INCREMENTAL SAVE after each advanced model evaluation
+                try:
+                    current_results_df = pd.DataFrame(self.results)
+                    temp_results_path = Path("data/results/temp_advanced_results.csv")
+                    temp_results_path.parent.mkdir(parents=True, exist_ok=True)
+                    current_results_df.to_csv(temp_results_path, index=False)
+                    print(f"💾 Incremental save: {len(self.results)} advanced results")
+                except Exception as save_err:
+                    print(f"⚠️ Incremental save failed: {save_err}")
 
         results_df = pd.DataFrame(self.results)
         if not results_df.empty and sort_by in results_df.columns:
@@ -380,9 +403,23 @@ class AdvancedModels:
 
         if self.results:
             results_df = pd.DataFrame(self.results)
-            results_file_path = results_path / results_filename
-            results_df.to_csv(results_file_path, index=False)
-            print(f"💾 Saved evaluation results to {results_file_path}")
+            
+            # Determine dataset from suffix or results_path  
+            dataset_name = "nsl"  # default
+            if "cic" in dataset_suffix.lower():
+                dataset_name = "cic"
+            elif "cic" in str(results_path).lower():
+                dataset_name = "cic"
+            
+            # Always save to data/results with dataset-specific name
+            results_output_dir = Path("data/results")
+            results_output_dir.mkdir(parents=True, exist_ok=True)
+            
+            dataset_results_file = results_output_dir / f"{dataset_name}_advanced_results.csv"
+            results_df.to_csv(dataset_results_file, index=False)
+            print(f"💾 Saved {dataset_name.upper()} advanced results to {dataset_results_file}")
+            
+            # NO MORE DUPLICATE SAVES - only dataset-specific naming from now on!
 
     # ------------------------------------------------------------------
     # Convenience API
