@@ -179,6 +179,22 @@ def get_memory_adaptive_config() -> Dict[str, Any]:
     return config
 
 
+def get_memory_adaptive_constants() -> Dict[str, Any]:
+    """
+    Get memory-adaptive constants derived from configuration.
+    This extracts commonly used constants from the memory config.
+    """
+    config = get_memory_adaptive_config()
+    
+    return {
+        "MAX_SAMPLES": config.get("max_sample_size", 100000),
+        "BATCH_SIZE": config["batch_size"],
+        "N_JOBS": config.get("n_jobs", -1),
+        "TARGET_MEMORY_GB": config.get("target_memory_gb", 8.0),
+        "USE_FULL_DATASET": config["use_full_dataset"]
+    }
+
+
 class MemoryMonitor:
     """Context manager for monitoring memory usage during training."""
     
