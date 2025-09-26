@@ -323,8 +323,8 @@ def run_cic_cross_validation():
     print("🚀 CIC-IDS-2017 Cross-Validation Analysis")
     print("=" * 60)
     
-    from src.utils import memory_utils
-    config = memory_utils.get_memory_config()
+    from src.utils import get_memory_adaptive_config
+    config = get_memory_adaptive_config()
     
     # Load CIC data (same preprocessing as training)
     from src.preprocessing import CICIDSPreprocessor
@@ -334,13 +334,17 @@ def run_cic_cross_validation():
     preprocessor = CICIDSPreprocessor()
     
     # Load sample for cross-validation (use sample for speed)
-    cic_sample_path = Path("data/raw/cic-ids-2017/cic_ids_sample_backup.csv")
-    if cic_sample_path.exists():
-        # Load sample
-        X, y = preprocessor.load_sample_data(str(cic_sample_path))
-        print(f"✅ Loaded CIC sample: {X.shape}")
-    else:
-        print("❌ CIC sample not found, skipping CIC cross-validation")
+    try:
+        # Load the sample data using the standard method
+        cic_data = preprocessor.load_data(use_full_dataset=False)  # This loads sample
+        if cic_data is not None:
+            X, y = preprocessor.fit_transform(cic_data)
+            print(f"✅ Loaded CIC sample: {X.shape}")
+        else:
+            print("❌ CIC data loading failed, skipping CIC cross-validation")
+            return None, []
+    except Exception as e:
+        print(f"❌ Error loading CIC data: {e}")
         return None, []
     
     # Initialize cross-validation framework
