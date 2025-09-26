@@ -176,7 +176,7 @@ def _align_nsl_to_cic() -> DatasetBundle:
     print("\n📁 Loading datasets…")
     nsl_train = analyzer.load_data("KDDTrain+.txt")
     nsl_test = analyzer.load_data("KDDTest+.txt")
-    cic_data = cic_preprocessor.load_data(use_full_dataset=False)
+    cic_data = cic_preprocessor.load_data(use_full_dataset=True)  # FULL DATASET FOR SCIENTIFIC PAPER
 
     if nsl_train is None or nsl_test is None or cic_data is None:
         raise RuntimeError("Failed to load one or more datasets")
@@ -257,7 +257,7 @@ def _align_cic_to_nsl() -> DatasetBundle:
     cic_preprocessor = CICIDSPreprocessor()
 
     print("\n📁 Loading datasets…")
-    cic_data = cic_preprocessor.load_data(use_full_dataset=False)
+    cic_data = cic_preprocessor.load_data(use_full_dataset=True)  # FULL DATASET FOR SCIENTIFIC PAPER
     nsl_train = analyzer.load_data("KDDTrain+.txt")
     nsl_test = analyzer.load_data("KDDTest+.txt")
 
