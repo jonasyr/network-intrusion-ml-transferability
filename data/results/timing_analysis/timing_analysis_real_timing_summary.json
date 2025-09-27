@@ -1,0 +1,11 @@
+{
+  "fastest_model": "XGBoost",
+  "slowest_model": "Random Forest (CIC\u2192NSL)",
+  "most_efficient_model": "XGBoost",
+  "avg_training_time": 23.447777777777777,
+  "median_training_time": 4.06,
+  "min_training_time": 0.38,
+  "max_training_time": 183.48,
+  "total_models_analyzed": 9,
+  "data_source": "real_experimental_measurements"
+}

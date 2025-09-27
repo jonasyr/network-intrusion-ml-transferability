@@ -561,7 +561,7 @@ class EnhancedEvaluator:
         Returns:
             Path to saved analysis plot
         """
-        print("⏱️ Generating timing analysis from real recorded data...")
+        print("⏱️ Generating cross-dataset timing analysis (limited to aligned features)...")
         
         # Load real timing data from cross-dataset evaluation results
         timing_files = [
@@ -621,7 +621,7 @@ class EnhancedEvaluator:
         
         # Create timing visualization
         fig, axes = plt.subplots(2, 2, figsize=(15, 12))
-        fig.suptitle('Computational Time Analysis (Real Data)', fontsize=16, fontweight='bold')
+        fig.suptitle('Cross-Dataset Training Time Analysis (6 Aligned Features)', fontsize=16, fontweight='bold')
         
         # 1. Training Time Comparison
         sorted_df = timing_df.sort_values('Training_Time_s')
