@@ -229,7 +229,7 @@ giveninits=true % Nur Initialen für Vornamen
         urldate = {2024-01-15}
     }
 \end{filecontents*}
-\addbibresource{\jobname.bib}
+\addbibresource{Praxisprojekt_4.bib}
 
 % ---------- Automatische Verzeichnisse nur bei ≥3 Einträgen ----------
 \usepackage{totcount}
@@ -259,14 +259,14 @@ giveninits=true % Nur Initialen für Vornamen
 
 % ---------- Meta-Felder für Titelseite ----------
 \newcommand{\university}{IU Internationale Hochschule}
-\newcommand{\studyprogram}{Studiengang (z.\,B. B.\,Sc.\ Data Science)}
-\newcommand{\thesistype}{Art der Arbeit (z.\,B. Hausarbeit / Bachelorarbeit)}
-\newcommand{\papertitle}{Titel der Arbeit}
-\newcommand{\authorname}{Vorname Nachname}
+\newcommand{\studyprogram}{Studiengang (B.\,Sc.\ Informatik)}
+\newcommand{\thesistype}{Art der Arbeit (Wissenschaftliche Arbeit)}
+\newcommand{\papertitle}{Inwieweit sind Machine-Learning-Modelle für Netzwerk-Anomalieerkennung zwischen verschiedenen Datensätzen übertragbar?}
+\newcommand{\authorname}{Jonas Weirauch}
 \newcommand{\matno}{Matrikelnummer}
-\newcommand{\address}{Straße Hausnr., PLZ Ort}
+\newcommand{\address}{Im Wiesengrund 19, 55286 Sulzheim}
 \newcommand{\advisor}{Betreuer:in, akademischer Titel}
-\newcommand{\submissiondate}{TT.MM.JJJJ}
+\newcommand{\submissiondate}{30.09.2025}
 
 % ============================================================
 %                         DOKUMENT
@@ -348,19 +348,32 @@ giveninits=true % Nur Initialen für Vornamen
     \setcounter{page}{1}
 
     \section{Einleitung}
-    Hier beginnt der Fließtext der Arbeit. Jede Section (Ebene 1) startet auf neuer Seite.
-    Zitieren nach APA7, z.\,B. \parencite{Goodfellow2016,Bishop2006}. Direktzitat ≤40 Wörter „mit
-    Anführungszeichen“ \parencite[S.~123]{Hastie2009}. Längeres Direktzitat:
-    \begin{blockzitat}
-        Dies ist ein Blockzitat (≥ 40 Wörter) ohne Anführungszeichen; links um \SI{1.27}{cm} eingerückt.
-        Quellenangabe folgt nach APA: (Autor, Jahr, S.~xx).
-    \end{blockzitat}
+    \subsection{Motivation und Problemstellung}
 
-    \subsection{Zielsetzung und Aufbau}
-    Kurze Darstellung der Ziele und der Gliederung.
+    Mit über 10,5 Billionen US-Dollar geschätzten jährlichen Schäden bis 2025 stellen Cyberangriffe eine der größten globalen Bedrohungen dar \parencite{GlobalRisksReport2024}. Gemäß dem Global Risk Report 2024 des Weltwirtschaftsforums gehören Cyberangriffe zu den fünf bedeutendsten globalen Risiken in den nächsten Jahren, was einer Verdreifachung der finanziellen Verluste im Vergleich zu 2015 entspricht \parencite{GlobalRiskReport2024}. Diese besorgniserregenden Statistiken unterstreichen die akute Notwendigkeit wirksamer Sicherheitsvorkehrungen zum Schutz kritischer Infrastrukturen.
 
-    \subsubsection{Beitrag}
-    Klarer Beitrag (Problem, Ansatz, Nutzen).
+    Traditionelle signaturbasierte Intrusion Detection Systeme (IDS) erreichen zunehmend ihre Grenzen bei der Erkennung neuartiger Zero-Day-Exploits und unbekannter Angriffsmuster \parencite{Ring2019}. Diese Systeme können lediglich bekannte Signaturen identifizieren und versagen bei der Detektion innovativer Bedrohungen. Gleichzeitig führen die steigende Vernetzung und Digitalisierung zu einer kontinuierlichen Zunahme der Angriffsvektoren und einer erhöhten Komplexität der Netzwerkumgebungen.
+
+    Machine Learning (ML) bietet das Potenzial, diese Limitationen zu überwinden und auch bisher unbekannte Angriffsmuster aufzudecken \parencite{Vinayakumar2019}. Dennoch ist die tatsächliche Wirksamkeit verschiedener ML-Modelle in heterogenen Netzwerken noch nicht vollständig geklärt. Ein kritisches Problem stellt dabei die Generalisierungsfähigkeit dar: Während Modelle auf spezifischen Trainingsdaten exzellente Leistungen erzielen, zeigen sie oft dramatische Leistungseinbußen beim Transfer auf neue Netzwerkumgebungen oder unterschiedliche Datensätze \parencite{Ring2019}.
+
+    \subsection{Forschungsfrage und Zielsetzung}
+
+    Diese Arbeit untersucht systematisch die Generalisierungsfähigkeit von zwölf ML-Modellen über zwei fundamental unterschiedliche Netzwerk-Datensätze hinweg. Die zentrale Forschungsfrage lautet:
+
+    \textit{„Inwieweit sind Machine-Learning-Modelle für Netzwerk-Anomalieerkennung zwischen verschiedenen Datensätzen übertragbar?"}
+
+    Die Untersuchung fokussiert sich auf die Cross-Dataset-Transferierbarkeit zwischen dem NSL-KDD-Datensatz (simulierter Netzwerkverkehr von 1998 mit 125.973 Trainingsdatensätzen) und dem CIC-IDS-2017-Datensatz (realistischer Netzwerkverkehr mit 2,8 Millionen Datenpunkten aus einer fünftägigen Netzwerkumgebung). Diese Datensätze unterscheiden sich fundamental in ihrer Datenverteilung, Merkmalsdimensionalität und den abgebildeten Angriffsszenarien.
+
+    Die konkreten Forschungsziele umfassen:
+
+    \begin{itemize}
+        \item \textbf{Vergleichende Evaluation}: Systematische Bewertung von Baseline-Modellen (Random Forest, Decision Tree, k-NN) und Advanced-Modellen (XGBoost, LightGBM, Neural Networks) hinsichtlich ihrer Intra-Dataset-Performance und Cross-Dataset-Robustheit.
+        \item \textbf{Cross-Dataset-Transferierbarkeit}: Quantifizierung der Generalisierungslücken beim Transfer zwischen NSL-KDD und CIC-IDS-2017 sowie Identifikation der robustesten Algorithmen für heterogene Netzwerkumgebungen.
+        \item \textbf{Praktische Effizienzbetrachtung}: Analyse des Trade-offs zwischen Erkennungsleistung und computational Effizienz durch systematische Messung von Trainings- und Inferenzzeiten zur Bewertung der Praktikabilität in Echtzeit-Systemen.
+    \end{itemize}
+
+    Die Ergebnisse sollen konkrete Handlungsempfehlungen für die effektive Anwendung von ML-Modellen in verschiedenen Netzwerkszenarien liefern und zur aktuellen Forschungslandschaft der adaptiven Anomalieerkennung beitragen.
+
 
     \section{Theoretischer Hintergrund}
     Relevante Modelle/Begriffe, z.\,B. Regularisierung, Bias/Varianz. Formeln werden gesetzt:

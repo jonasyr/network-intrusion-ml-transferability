@@ -3059,9 +3059,11 @@
     <bcf:datasource type="file" datatype="bibtex" glob="false">Praxisprojekt_4.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
-    <bcf:citekey order="1" intorder="1">Goodfellow2016</bcf:citekey>
-    <bcf:citekey order="1" intorder="2">Bishop2006</bcf:citekey>
-    <bcf:citekey order="2" intorder="1">Hastie2009</bcf:citekey>
+    <bcf:citekey order="1" intorder="1">GlobalRisksReport2024</bcf:citekey>
+    <bcf:citekey order="2" intorder="1">GlobalRiskReport2024</bcf:citekey>
+    <bcf:citekey order="3" intorder="1">Ring2019</bcf:citekey>
+    <bcf:citekey order="4" intorder="1">Vinayakumar2019</bcf:citekey>
+    <bcf:citekey order="5" intorder="1">Ring2019</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nyt">

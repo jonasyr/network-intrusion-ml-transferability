@@ -19,225 +19,316 @@
 
 \refsection{0}
   \datalist[entry]{nyt/apasortcite//global/global}
-    \entry{Bishop2006}{book}{}
-      \name{author}{1}{}{%
-        {{un=0,uniquepart=base,hash=1926457ebcacd352693574a2d8d484ce}{%
-           family={Bishop},
-           familyi={B\bibinitperiod},
-           given={C.\bibnamedelimi M.},
-           giveni={C\bibinitperiod\bibinitdelim M\bibinitperiod},
+    \entry{Ring2019}{article}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=7361b9a0106d6a758684e3473c3d6e84}{%
+           family={Ring},
+           familyi={R\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
            givenun=0}}%
-      }
-      \list{publisher}{1}{%
-        {Springer}%
-      }
-      \strng{namehash}{1926457ebcacd352693574a2d8d484ce}
-      \strng{fullhash}{1926457ebcacd352693574a2d8d484ce}
-      \strng{bibnamehash}{1926457ebcacd352693574a2d8d484ce}
-      \strng{authorbibnamehash}{1926457ebcacd352693574a2d8d484ce}
-      \strng{authornamehash}{1926457ebcacd352693574a2d8d484ce}
-      \strng{authorfullhash}{1926457ebcacd352693574a2d8d484ce}
-      \field{sortinit}{B}
-      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
-      \field{extradatescope}{labelyear}
-      \field{labeldatesource}{}
-      \true{uniqueprimaryauthor}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{title}{Pattern Recognition and Machine Learning}
-      \field{year}{2006}
-    \endentry
-    \entry{Goodfellow2016}{book}{}
-      \name{author}{3}{}{%
-        {{un=0,uniquepart=base,hash=97448a3cf6f5cb771679d00efeb7782c}{%
-           family={Goodfellow},
-           familyi={G\bibinitperiod},
-           given={I.},
-           giveni={I\bibinitperiod},
+        {{un=0,uniquepart=base,hash=9e9e9c716237f224c4d2ac2518e3510c}{%
+           family={Wunderlich},
+           familyi={W\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod},
            givenun=0}}%
-        {{un=0,uniquepart=base,hash=419350ebbeb4eba5351469f378dee007}{%
-           family={Bengio},
-           familyi={B\bibinitperiod},
-           given={Y.},
-           giveni={Y\bibinitperiod},
+        {{un=0,uniquepart=base,hash=e10b02779088e19771db1f7498b51814}{%
+           family={Scheuring},
+           familyi={S\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod},
            givenun=0}}%
-        {{un=0,uniquepart=base,hash=0162d284c680646fe3354338106399ce}{%
-           family={Courville},
-           familyi={C\bibinitperiod},
+        {{un=0,uniquepart=base,hash=a32f7e8ad89d4830f17f54603ed7c061}{%
+           family={Landes},
+           familyi={L\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5ac6e515eecb51b424977d53e9e0f25e}{%
+           family={Hotho},
+           familyi={H\bibinitperiod},
            given={A.},
            giveni={A\bibinitperiod},
            givenun=0}}%
       }
-      \list{publisher}{1}{%
-        {MIT Press}%
-      }
-      \strng{namehash}{cbdf0636afcc58dfa09b4e1be9870f56}
-      \strng{fullhash}{046a68a306553a04a7fa3dbd33c044bb}
-      \strng{bibnamehash}{046a68a306553a04a7fa3dbd33c044bb}
-      \strng{authorbibnamehash}{046a68a306553a04a7fa3dbd33c044bb}
-      \strng{authornamehash}{cbdf0636afcc58dfa09b4e1be9870f56}
-      \strng{authorfullhash}{046a68a306553a04a7fa3dbd33c044bb}
-      \field{sortinit}{G}
-      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \strng{namehash}{83bd87a34dbec865d6f0fd63f8f68cce}
+      \strng{fullhash}{bab771054e9c61cdbdc5ae164728450e}
+      \strng{bibnamehash}{bab771054e9c61cdbdc5ae164728450e}
+      \strng{authorbibnamehash}{bab771054e9c61cdbdc5ae164728450e}
+      \strng{authornamehash}{83bd87a34dbec865d6f0fd63f8f68cce}
+      \strng{authorfullhash}{bab771054e9c61cdbdc5ae164728450e}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
       \field{extradatescope}{labelyear}
       \field{labeldatesource}{}
       \true{uniqueprimaryauthor}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{title}{Deep Learning}
-      \field{year}{2016}
+      \field{journaltitle}{Computers \& Security}
+      \field{title}{A Survey of Network-based Intrusion Detection Data Sets}
+      \field{volume}{86}
+      \field{year}{2019}
+      \field{pages}{147\bibrangedash 167}
+      \range{pages}{21}
+      \verb{doi}
+      \verb 10.1016/j.cose.2019.06.005
+      \endverb
     \endentry
-    \entry{Hastie2009}{book}{}
-      \name{author}{3}{}{%
-        {{un=0,uniquepart=base,hash=e1440a33ef594fbe1375568d9288cc69}{%
-           family={Hastie},
-           familyi={H\bibinitperiod},
-           given={T.},
-           giveni={T\bibinitperiod},
-           givenun=0}}%
-        {{un=0,uniquepart=base,hash=21780bd4ff9a4cecd018c6cfdbd80280}{%
-           family={Tibshirani},
-           familyi={T\bibinitperiod},
+    \entry{Vinayakumar2019}{article}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=6132de4a82b69e9c9a4b36edd1704420}{%
+           family={Vinayakumar},
+           familyi={V\bibinitperiod},
            given={R.},
            giveni={R\bibinitperiod},
            givenun=0}}%
-        {{un=0,uniquepart=base,hash=1744c71a13ec525bb87612fff17bcfe1}{%
-           family={Friedman},
-           familyi={F\bibinitperiod},
-           given={J.},
-           giveni={J\bibinitperiod},
+        {{un=0,uniquepart=base,hash=e40bf263a2de9e124bb4ae3c96ffe65d}{%
+           family={Alazab},
+           familyi={A\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1cd7ca3537ce0bd980cc06b59795ddf1}{%
+           family={Soman},
+           familyi={S\bibinitperiod},
+           given={K.\bibnamedelimi P.},
+           giveni={K\bibinitperiod\bibinitdelim P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d1bfaa9ab8cce5dcecd6e34a7112c17e}{%
+           family={Poornachandran},
+           familyi={P\bibinitperiod},
+           given={P.},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4ef54f372a0c956f6130e131cf2540f4}{%
+           family={Al-Nemrat},
+           familyi={A\bibinithyphendelim N\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ac8d4eefcf17a6f47c69f8d8dc5952d1}{%
+           family={Venkatraman},
+           familyi={V\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod},
            givenun=0}}%
       }
-      \list{publisher}{1}{%
-        {Springer}%
-      }
-      \strng{namehash}{f1123bbdcd7529575228dfcb6bea6702}
-      \strng{fullhash}{95aee2243bf53075e61eef0f7b9640aa}
-      \strng{bibnamehash}{95aee2243bf53075e61eef0f7b9640aa}
-      \strng{authorbibnamehash}{95aee2243bf53075e61eef0f7b9640aa}
-      \strng{authornamehash}{f1123bbdcd7529575228dfcb6bea6702}
-      \strng{authorfullhash}{95aee2243bf53075e61eef0f7b9640aa}
-      \field{sortinit}{H}
-      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \strng{namehash}{a395f46d78914c5ea239a04983cea549}
+      \strng{fullhash}{bc355fe72207c0892d970940e0a2324f}
+      \strng{bibnamehash}{bc355fe72207c0892d970940e0a2324f}
+      \strng{authorbibnamehash}{bc355fe72207c0892d970940e0a2324f}
+      \strng{authornamehash}{a395f46d78914c5ea239a04983cea549}
+      \strng{authorfullhash}{bc355fe72207c0892d970940e0a2324f}
+      \field{sortinit}{V}
+      \field{sortinithash}{afb52128e5b4dc4b843768c0113d673b}
       \field{extradatescope}{labelyear}
       \field{labeldatesource}{}
       \true{uniqueprimaryauthor}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{title}{The Elements of Statistical Learning}
-      \field{year}{2009}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{Deep Learning Approach for Intelligent Intrusion Detection System}
+      \field{volume}{7}
+      \field{year}{2019}
+      \field{pages}{41525\bibrangedash 41550}
+      \range{pages}{26}
+      \verb{doi}
+      \verb 10.1109/ACCESS.2019.2895334
+      \endverb
+    \endentry
+    \entry{GlobalRisksReport2024}{report}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=9f6d16e0eaf271813481bd46be0c7a35}{%
+           family={{World Economic Forum}},
+           familyi={W\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {World Economic Forum}%
+      }
+      \strng{namehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{fullhash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{bibnamehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{authorbibnamehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{authornamehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{authorfullhash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Global Risks Report 2024}
+      \field{urlday}{29}
+      \field{urlmonth}{3}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.weforum.org/publications/global-risks-report-2024/
+      \endverb
+      \verb{url}
+      \verb https://www.weforum.org/publications/global-risks-report-2024/
+      \endverb
     \endentry
   \enddatalist
   \datalist[entry]{nyt/global//global/global}
-    \entry{Bishop2006}{book}{}
-      \name{author}{1}{}{%
-        {{un=0,uniquepart=base,hash=1926457ebcacd352693574a2d8d484ce}{%
-           family={Bishop},
-           familyi={B\bibinitperiod},
-           given={C.\bibnamedelimi M.},
-           giveni={C\bibinitperiod\bibinitdelim M\bibinitperiod},
+    \entry{Ring2019}{article}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=7361b9a0106d6a758684e3473c3d6e84}{%
+           family={Ring},
+           familyi={R\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
            givenun=0}}%
-      }
-      \list{publisher}{1}{%
-        {Springer}%
-      }
-      \strng{namehash}{1926457ebcacd352693574a2d8d484ce}
-      \strng{fullhash}{1926457ebcacd352693574a2d8d484ce}
-      \strng{bibnamehash}{1926457ebcacd352693574a2d8d484ce}
-      \strng{authorbibnamehash}{1926457ebcacd352693574a2d8d484ce}
-      \strng{authornamehash}{1926457ebcacd352693574a2d8d484ce}
-      \strng{authorfullhash}{1926457ebcacd352693574a2d8d484ce}
-      \field{sortinit}{B}
-      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
-      \field{extradatescope}{labelyear}
-      \field{labeldatesource}{}
-      \true{uniqueprimaryauthor}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{title}{Pattern Recognition and Machine Learning}
-      \field{year}{2006}
-    \endentry
-    \entry{Goodfellow2016}{book}{}
-      \name{author}{3}{}{%
-        {{un=0,uniquepart=base,hash=97448a3cf6f5cb771679d00efeb7782c}{%
-           family={Goodfellow},
-           familyi={G\bibinitperiod},
-           given={I.},
-           giveni={I\bibinitperiod},
+        {{un=0,uniquepart=base,hash=9e9e9c716237f224c4d2ac2518e3510c}{%
+           family={Wunderlich},
+           familyi={W\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod},
            givenun=0}}%
-        {{un=0,uniquepart=base,hash=419350ebbeb4eba5351469f378dee007}{%
-           family={Bengio},
-           familyi={B\bibinitperiod},
-           given={Y.},
-           giveni={Y\bibinitperiod},
+        {{un=0,uniquepart=base,hash=e10b02779088e19771db1f7498b51814}{%
+           family={Scheuring},
+           familyi={S\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod},
            givenun=0}}%
-        {{un=0,uniquepart=base,hash=0162d284c680646fe3354338106399ce}{%
-           family={Courville},
-           familyi={C\bibinitperiod},
+        {{un=0,uniquepart=base,hash=a32f7e8ad89d4830f17f54603ed7c061}{%
+           family={Landes},
+           familyi={L\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5ac6e515eecb51b424977d53e9e0f25e}{%
+           family={Hotho},
+           familyi={H\bibinitperiod},
            given={A.},
            giveni={A\bibinitperiod},
            givenun=0}}%
       }
-      \list{publisher}{1}{%
-        {MIT Press}%
-      }
-      \strng{namehash}{cbdf0636afcc58dfa09b4e1be9870f56}
-      \strng{fullhash}{046a68a306553a04a7fa3dbd33c044bb}
-      \strng{bibnamehash}{046a68a306553a04a7fa3dbd33c044bb}
-      \strng{authorbibnamehash}{046a68a306553a04a7fa3dbd33c044bb}
-      \strng{authornamehash}{cbdf0636afcc58dfa09b4e1be9870f56}
-      \strng{authorfullhash}{046a68a306553a04a7fa3dbd33c044bb}
-      \field{sortinit}{G}
-      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \strng{namehash}{83bd87a34dbec865d6f0fd63f8f68cce}
+      \strng{fullhash}{bab771054e9c61cdbdc5ae164728450e}
+      \strng{bibnamehash}{bab771054e9c61cdbdc5ae164728450e}
+      \strng{authorbibnamehash}{bab771054e9c61cdbdc5ae164728450e}
+      \strng{authornamehash}{83bd87a34dbec865d6f0fd63f8f68cce}
+      \strng{authorfullhash}{bab771054e9c61cdbdc5ae164728450e}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
       \field{extradatescope}{labelyear}
       \field{labeldatesource}{}
       \true{uniqueprimaryauthor}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{title}{Deep Learning}
-      \field{year}{2016}
+      \field{journaltitle}{Computers \& Security}
+      \field{title}{A Survey of Network-based Intrusion Detection Data Sets}
+      \field{volume}{86}
+      \field{year}{2019}
+      \field{pages}{147\bibrangedash 167}
+      \range{pages}{21}
+      \verb{doi}
+      \verb 10.1016/j.cose.2019.06.005
+      \endverb
     \endentry
-    \entry{Hastie2009}{book}{}
-      \name{author}{3}{}{%
-        {{un=0,uniquepart=base,hash=e1440a33ef594fbe1375568d9288cc69}{%
-           family={Hastie},
-           familyi={H\bibinitperiod},
-           given={T.},
-           giveni={T\bibinitperiod},
-           givenun=0}}%
-        {{un=0,uniquepart=base,hash=21780bd4ff9a4cecd018c6cfdbd80280}{%
-           family={Tibshirani},
-           familyi={T\bibinitperiod},
+    \entry{Vinayakumar2019}{article}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=6132de4a82b69e9c9a4b36edd1704420}{%
+           family={Vinayakumar},
+           familyi={V\bibinitperiod},
            given={R.},
            giveni={R\bibinitperiod},
            givenun=0}}%
-        {{un=0,uniquepart=base,hash=1744c71a13ec525bb87612fff17bcfe1}{%
-           family={Friedman},
-           familyi={F\bibinitperiod},
-           given={J.},
-           giveni={J\bibinitperiod},
+        {{un=0,uniquepart=base,hash=e40bf263a2de9e124bb4ae3c96ffe65d}{%
+           family={Alazab},
+           familyi={A\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1cd7ca3537ce0bd980cc06b59795ddf1}{%
+           family={Soman},
+           familyi={S\bibinitperiod},
+           given={K.\bibnamedelimi P.},
+           giveni={K\bibinitperiod\bibinitdelim P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d1bfaa9ab8cce5dcecd6e34a7112c17e}{%
+           family={Poornachandran},
+           familyi={P\bibinitperiod},
+           given={P.},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4ef54f372a0c956f6130e131cf2540f4}{%
+           family={Al-Nemrat},
+           familyi={A\bibinithyphendelim N\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ac8d4eefcf17a6f47c69f8d8dc5952d1}{%
+           family={Venkatraman},
+           familyi={V\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod},
            givenun=0}}%
       }
-      \list{publisher}{1}{%
-        {Springer}%
-      }
-      \strng{namehash}{f1123bbdcd7529575228dfcb6bea6702}
-      \strng{fullhash}{95aee2243bf53075e61eef0f7b9640aa}
-      \strng{bibnamehash}{95aee2243bf53075e61eef0f7b9640aa}
-      \strng{authorbibnamehash}{95aee2243bf53075e61eef0f7b9640aa}
-      \strng{authornamehash}{f1123bbdcd7529575228dfcb6bea6702}
-      \strng{authorfullhash}{95aee2243bf53075e61eef0f7b9640aa}
-      \field{sortinit}{H}
-      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \strng{namehash}{a395f46d78914c5ea239a04983cea549}
+      \strng{fullhash}{bc355fe72207c0892d970940e0a2324f}
+      \strng{bibnamehash}{bc355fe72207c0892d970940e0a2324f}
+      \strng{authorbibnamehash}{bc355fe72207c0892d970940e0a2324f}
+      \strng{authornamehash}{a395f46d78914c5ea239a04983cea549}
+      \strng{authorfullhash}{bc355fe72207c0892d970940e0a2324f}
+      \field{sortinit}{V}
+      \field{sortinithash}{afb52128e5b4dc4b843768c0113d673b}
       \field{extradatescope}{labelyear}
       \field{labeldatesource}{}
       \true{uniqueprimaryauthor}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{title}{The Elements of Statistical Learning}
-      \field{year}{2009}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{Deep Learning Approach for Intelligent Intrusion Detection System}
+      \field{volume}{7}
+      \field{year}{2019}
+      \field{pages}{41525\bibrangedash 41550}
+      \range{pages}{26}
+      \verb{doi}
+      \verb 10.1109/ACCESS.2019.2895334
+      \endverb
+    \endentry
+    \entry{GlobalRisksReport2024}{report}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=9f6d16e0eaf271813481bd46be0c7a35}{%
+           family={{World Economic Forum}},
+           familyi={W\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {World Economic Forum}%
+      }
+      \strng{namehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{fullhash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{bibnamehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{authorbibnamehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{authornamehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{authorfullhash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Global Risks Report 2024}
+      \field{urlday}{29}
+      \field{urlmonth}{3}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.weforum.org/publications/global-risks-report-2024/
+      \endverb
+      \verb{url}
+      \verb https://www.weforum.org/publications/global-risks-report-2024/
+      \endverb
     \endentry
   \enddatalist
+  \missing{GlobalRiskReport2024}
 \endrefsection
 \endinput
 
