@@ -333,19 +333,36 @@ def run_cic_cross_validation():
     print("🔍 Loading CIC-IDS-2017 dataset...")
     preprocessor = CICIDSPreprocessor()
     
-    # Load sample for cross-validation (use sample for speed)
+    # Load the same dataset that was used for training (based on memory config)
     try:
-        # Load the sample data using the standard method
-        cic_data = preprocessor.load_data(use_full_dataset=False)  # This loads sample
+        use_full_dataset = config["use_full_dataset"]
+        dataset_type = "full dataset" if use_full_dataset else "sample dataset"
+        print(f"🔍 Loading CIC-IDS-2017 {dataset_type} (same as training)...")
+        print(f"📊 Memory config: use_full_dataset={use_full_dataset}")
+        
+        cic_data = preprocessor.load_data(use_full_dataset=use_full_dataset)
         if cic_data is not None:
             X, y = preprocessor.fit_transform(cic_data)
-            print(f"✅ Loaded CIC sample: {X.shape}")
+            print(f"✅ Loaded CIC {dataset_type}: {X.shape}")
+            print(f"📊 Class distribution: Normal={np.sum(y == 0)}, Attack={np.sum(y == 1)}")
         else:
-            print("❌ CIC data loading failed, skipping CIC cross-validation")
+            print(f"❌ CIC {dataset_type} loading failed, skipping CIC cross-validation")
             return None, []
     except Exception as e:
         print(f"❌ Error loading CIC data: {e}")
-        return None, []
+        print("🔄 Falling back to sample dataset...")
+        try:
+            cic_data = preprocessor.load_data(use_full_dataset=False)  # Fallback to sample
+            if cic_data is not None:
+                X, y = preprocessor.fit_transform(cic_data)
+                print(f"⚠️ Using CIC sample dataset: {X.shape}")
+                print("⚠️ WARNING: This may not match training data distribution!")
+            else:
+                print("❌ Both full and sample CIC data loading failed")
+                return None, []
+        except Exception as e2:
+            print(f"❌ Error loading CIC sample data: {e2}")
+            return None, []
     
     # Initialize cross-validation framework
     cv_framework = CrossValidationFramework(n_folds=3)  # Use 3 folds for efficiency
