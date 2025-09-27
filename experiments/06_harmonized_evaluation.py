@@ -85,6 +85,22 @@ NUMERIC_FEATURES = [
 CATEGORICAL_FEATURES = ["protocol", "connection_state"]
 
 
+def convert_numpy_types(obj):
+    """Convert numpy types to JSON serializable types."""
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, dict):
+        return {key: convert_numpy_types(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_numpy_types(item) for item in obj]
+    else:
+        return obj
+
+
 def save_checkpoint(pipeline: Pipeline, checkpoint_path: Path, progress_info: Dict) -> None:
     """Save model checkpoint and training progress."""
     checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
@@ -93,10 +109,11 @@ def save_checkpoint(pipeline: Pipeline, checkpoint_path: Path, progress_info: Di
     with checkpoint_path.open('wb') as f:
         pickle.dump(pipeline, f)
     
-    # Save progress info
+    # Save progress info (convert numpy types to JSON serializable types)
     progress_path = checkpoint_path.parent / "training_progress.json"
+    serializable_progress_info = convert_numpy_types(progress_info)
     with progress_path.open('w') as f:
-        json.dump(progress_info, f, indent=2)
+        json.dump(serializable_progress_info, f, indent=2)
     
     print(f"💾 Checkpoint saved: {checkpoint_path.name}")
 
