@@ -3059,13 +3059,20 @@
     <bcf:datasource type="file" datatype="bibtex" glob="false">Praxisprojekt_4.bib</bcf:datasource>
   </bcf:bibdata>
   <bcf:section number="0">
-    <bcf:citekey order="1" intorder="1">CICIDS2017</bcf:citekey>
+    <bcf:citekey order="1" intorder="1">GlobalRisksReport2024</bcf:citekey>
     <bcf:citekey order="2" intorder="1">GlobalRisksReport2024</bcf:citekey>
-    <bcf:citekey order="2" intorder="2">Sharafaldin2018</bcf:citekey>
-    <bcf:citekey order="3" intorder="1">GlobalRiskReport2024</bcf:citekey>
+    <bcf:citekey order="3" intorder="1">Taman2024</bcf:citekey>
     <bcf:citekey order="4" intorder="1">Ring2019</bcf:citekey>
+    <bcf:citekey order="4" intorder="2">Belavagi2016</bcf:citekey>
     <bcf:citekey order="5" intorder="1">Vinayakumar2019</bcf:citekey>
     <bcf:citekey order="6" intorder="1">Ring2019</bcf:citekey>
+    <bcf:citekey order="7" intorder="1">NSLKDD2024</bcf:citekey>
+    <bcf:citekey order="8" intorder="1">CICIDS2017</bcf:citekey>
+    <bcf:citekey order="8" intorder="2">Sharafaldin2018</bcf:citekey>
+    <bcf:citekey order="9" intorder="1">Mourouzis2021</bcf:citekey>
+    <bcf:citekey order="10" intorder="1">McHugh2000</bcf:citekey>
+    <bcf:citekey order="10" intorder="2">Vinayakumar2019</bcf:citekey>
+    <bcf:citekey order="11" intorder="1">Gharib2016</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nyt">

@@ -1,21 +1,19 @@
 [0] Config.pm:307> INFO - This is Biber 2.19
 [0] Config.pm:310> INFO - Logfile is 'Praxisprojekt_4.blg'
-[62] biber:340> INFO - === Sun Sep 28, 2025, 00:44:14
-[75] Biber.pm:419> INFO - Reading 'Praxisprojekt_4.bcf'
-[135] Biber.pm:979> INFO - Found 6 citekeys in bib section 0
-[149] Biber.pm:4419> INFO - Processing section 0
-[157] Biber.pm:4610> INFO - Looking for bibtex file 'Praxisprojekt_4.bib' for section 0
-[158] bibtex.pm:1713> INFO - LaTeX decoding ...
-[171] bibtex.pm:1519> INFO - Found BibTeX data source 'Praxisprojekt_4.bib'
-[228] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[228] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[228] Biber.pm:4239> INFO - Sorting list 'nyt/apasortcite//global/global' of type 'entry' with template 'nyt' and locale 'en-US'
-[228] Biber.pm:4245> INFO - No sort tailoring available for locale 'en-US'
-[241] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[241] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[241] Biber.pm:4239> INFO - Sorting list 'nyt/global//global/global' of type 'entry' with template 'nyt' and locale 'en-US'
-[241] Biber.pm:4245> INFO - No sort tailoring available for locale 'en-US'
-[249] bbl.pm:660> INFO - Writing 'Praxisprojekt_4.bbl' with encoding 'UTF-8'
-[254] bbl.pm:763> INFO - Output to Praxisprojekt_4.bbl
-[254] Biber.pm:131> WARN - I didn't find a database entry for 'GlobalRiskReport2024' (section 0)
-[254] Biber.pm:133> INFO - WARNINGS: 1
+[68] biber:340> INFO - === Sun Sep 28, 2025, 00:48:08
+[80] Biber.pm:419> INFO - Reading 'Praxisprojekt_4.bcf'
+[142] Biber.pm:979> INFO - Found 12 citekeys in bib section 0
+[155] Biber.pm:4419> INFO - Processing section 0
+[163] Biber.pm:4610> INFO - Looking for bibtex file 'Praxisprojekt_4.bib' for section 0
+[164] bibtex.pm:1713> INFO - LaTeX decoding ...
+[177] bibtex.pm:1519> INFO - Found BibTeX data source 'Praxisprojekt_4.bib'
+[268] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[268] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[268] Biber.pm:4239> INFO - Sorting list 'nyt/apasortcite//global/global' of type 'entry' with template 'nyt' and locale 'en-US'
+[268] Biber.pm:4245> INFO - No sort tailoring available for locale 'en-US'
+[290] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[291] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[291] Biber.pm:4239> INFO - Sorting list 'nyt/global//global/global' of type 'entry' with template 'nyt' and locale 'en-US'
+[291] Biber.pm:4245> INFO - No sort tailoring available for locale 'en-US'
+[305] bbl.pm:660> INFO - Writing 'Praxisprojekt_4.bbl' with encoding 'UTF-8'
+[314] bbl.pm:763> INFO - Output to Praxisprojekt_4.bbl
