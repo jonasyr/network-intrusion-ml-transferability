@@ -45,8 +45,8 @@ except ImportError:  # pragma: no cover - optional component
 
 RANDOM_STATE = 42
 RESULTS_DIR = project_root / "data/results"
-FORWARD_RESULTS_PATH = RESULTS_DIR / "cross_dataset_evaluation_fixed.csv"
-REVERSE_RESULTS_PATH = RESULTS_DIR / "reverse_cross_dataset_evaluation_fixed.csv"
+FORWARD_RESULTS_PATH = RESULTS_DIR / "nsl_trained_tested_on_cic.csv"  # NSL→CIC
+REVERSE_RESULTS_PATH = RESULTS_DIR / "cic_trained_tested_on_nsl.csv"   # CIC→NSL  
 BIDIRECTIONAL_RESULTS_PATH = RESULTS_DIR / "bidirectional_cross_dataset_analysis.csv"
 
 
@@ -180,7 +180,8 @@ def _evaluate_model(
 
 
 def _align_nsl_to_cic() -> DatasetBundle:
-    print("🚀 CROSS-DATASET EVALUATION (NSL-KDD → CIC-IDS-2017)")
+    """Train on NSL-KDD, test on CIC-IDS-2017 (Forward direction)"""
+    print("🚀 CROSS-DATASET EVALUATION: TRAIN=NSL-KDD → TEST=CIC-IDS-2017")
     print("=" * 80)
 
     analyzer = NSLKDDAnalyzer()
@@ -263,7 +264,8 @@ def _align_nsl_to_cic() -> DatasetBundle:
 
 
 def _align_cic_to_nsl() -> DatasetBundle:
-    print("\n🔄 CROSS-DATASET EVALUATION (CIC-IDS-2017 → NSL-KDD)")
+    """Train on CIC-IDS-2017, test on NSL-KDD (Reverse direction)"""
+    print("\n🔄 CROSS-DATASET EVALUATION: TRAIN=CIC-IDS-2017 → TEST=NSL-KDD")
     print("=" * 80)
 
     analyzer = NSLKDDAnalyzer()
@@ -430,7 +432,7 @@ def run_cross_dataset_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFra
     if not forward_results.empty:
         FORWARD_RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
         forward_results.to_csv(FORWARD_RESULTS_PATH, index=False)
-        print("\n📊 CROSS-DATASET RESULTS (NSL-KDD → CIC-IDS-2017)")
+        print("\n📊 CROSS-DATASET RESULTS (NSL-TRAINED → CIC-TESTED)")
         print(forward_results.to_string(index=False))
         print(f"\n💾 Results saved to {FORWARD_RESULTS_PATH}")
 
@@ -444,7 +446,7 @@ def run_cross_dataset_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFra
     if not reverse_results.empty:
         REVERSE_RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
         reverse_results.to_csv(REVERSE_RESULTS_PATH, index=False)
-        print("\n📊 CROSS-DATASET RESULTS (CIC-IDS-2017 → NSL-KDD)")
+        print("\n📊 CROSS-DATASET RESULTS (CIC-TRAINED → NSL-TESTED)")
         print(reverse_results.to_string(index=False))
         print(f"\n💾 Results saved to {REVERSE_RESULTS_PATH}")
 
