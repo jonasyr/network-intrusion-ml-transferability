@@ -1,0 +1,562 @@
+% !TeX program = lualatex
+% Für echtes Arial/Calibri: lualatex/xelatex + biber verwenden.
+% Fallback mit pdflatex funktioniert (sans: TeX Gyre Heros).
+
+\documentclass[11pt,a4paper]{article}
+
+% ---------- Pakete: Sprache, Schrift, Mikrotypografie ----------
+\usepackage[a4paper,margin=2cm]{geometry} % 2,00 cm Ränder
+\usepackage[ngerman,english]{babel}       % Silbentrennung DE/EN
+\usepackage{microtype}                    % Mikrotypografie (Silbentrennung/Zeilenumbrüche)
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{iftex}
+\ifPDFTeX
+% Fallback: pdfLaTeX (Arial-ähnlich)
+\usepackage[scale=0.95]{tgheros}   % TeX Gyre Heros ~ Helvetica/Arial
+\renewcommand{\familydefault}{\sfdefault}
+\else
+% Echte Systemschriften mit Lua/XeLaTeX:
+\usepackage{fontspec}
+\setmainfont{Arial}[
+Ligatures=TeX,
+Scale=1.0
+]
+% Optionaler alternativer Sans-Font:
+% \setmainfont{Calibri}[Ligatures=TeX,Scale=1.0]
+\fi
+
+% ---------- Zeilen & Absätze ----------
+\usepackage{setspace}
+\onehalfspacing                           % 1,5-zeilig
+\setlength{\parindent}{0pt}               % kein Einzug
+\setlength{\parskip}{6pt}                 % 6 pt Abstand nach Absatz
+
+% ---------- Mathe, Grafik, Tabellen ----------
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{siunitx}
+\sisetup{detect-all}                      % Sans-Serif in siunitx
+\usepackage{csquotes}                     % saubere Anführungszeichen / Blockzitate
+\usepackage{mwe}                          % Beispielbilder (example-image*)
+
+% ---------- Bild-/Tabellenunterschriften (10 pt) ----------
+\usepackage{caption}
+\captionsetup{font=footnotesize,labelfont=bf,labelsep=colon}
+\addto\captionsngerman{\renewcommand{\figurename}{Abb.}}
+\addto\captionsngerman{\renewcommand{\tablename}{Tab.}}
+\newcommand{\source}[1]{\caption*{\footnotesize #1}} % Quellenangabe 10 pt
+
+% ---------- Überschriften: Größen/Abstände/Nummerntiefe ----------
+\usepackage{titlesec}
+% H1: 16 pt, 12/12
+\titleformat{\section}{\bfseries\fontsize{16pt}{18pt}\selectfont}{\thesection}{0.6em}{}
+\titlespacing*{\section}{0pt}{12pt}{12pt}
+% H2: 14 pt, 12/6
+\titleformat{\subsection}{\bfseries\fontsize{14pt}{16pt}\selectfont}{\thesubsection}{0.6em}{}
+\titlespacing*{\subsection}{0pt}{12pt}{6pt}
+% H3: 11 pt, 12/6
+\titleformat{\subsubsection}{\bfseries\fontsize{11pt}{13pt}\selectfont}{\thesubsubsection}{0.6em}{}
+\titlespacing*{\subsubsection}{0pt}{12pt}{6pt}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Jede Section (Ebene 1) startet auf neuer Seite
+\usepackage{etoolbox}
+\pretocmd{\section}{\clearpage}{}{}
+
+% ---------- Inhaltsverzeichnis: nur Ebene 1 fett ----------
+\usepackage{tocloft}
+\renewcommand{\cftsecfont}{\bfseries}
+\renewcommand{\cftsecpagefont}{}
+
+% ---------- Fußnoten explizit 10 pt ----------
+\makeatletter
+\renewcommand\footnotesize{\@setfontsize\footnotesize{10pt}{12pt}}
+\makeatother
+
+% ---------- Seitenzahlen: zentriert im Fuß ----------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\cfoot{\thepage}
+
+% ---------- Hyperlinks schwarz (keine Farben/Rahmen) ----------
+\usepackage[hidelinks]{hyperref}
+
+% ---------- APA7 Literatur (Biber) + deutscher Mapping ----------
+\usepackage[
+style=apa,
+backend=biber,
+sorting=nyt,
+uniquename=init,
+maxcitenames=2, % "et al." ab 3
+maxbibnames=99,
+doi=true,
+url=true,
+dateabbrev=false, % Vollständige Datumsangaben
+eprint=false, % Unterdrücke eprint-Felder wenn DOI vorhanden
+isbn=false, % ISBN normalerweise nicht in APA7
+giveninits=true % Nur Initialen für Vornamen
+]{biblatex}
+\DeclareLanguageMapping{ngerman}{ngerman-apa}
+
+% Zusätzliche APA7-Konfigurationen
+\ExecuteBibliographyOptions{maxbibnames=999} % Alle Autoren im Literaturverzeichnis
+\ExecuteBibliographyOptions{giveninits=true} % Nur Initialen
+\ExecuteBibliographyOptions{uniquename=init} % Eindeutigkeit durch Initialen
+
+% DOI-Formatierung anpassen
+\DeclareFieldFormat{doi}{%
+  \mkbibacro{DOI}\addcolon\space
+  \ifhyperref
+    {\href{https://doi.org/#1}{\nolinkurl{#1}}}
+    {\nolinkurl{#1}}}
+
+% Hängender Einzug 1.27 cm, 1,5-zeilig wie Text
+\setlength{\bibhang}{1.27cm}
+\defbibenvironment{bibliography}
+{\list
+    {\printtext[labelnumberwidth]{\printfield[labelnumberwidth]{labelnumber}}}
+    {\setlength{\leftmargin}{\bibhang}
+        \setlength{\itemindent}{-\bibhang}
+        \setlength{\itemsep}{\baselineskip} % 1.5-Zeilenabstand wie Text
+        \setlength{\parsep}{0pt}}
+    \renewcommand*{\makelabel}[1]{##1\hss}}
+{\endlist}
+{\item}
+
+% Beispiel-Bibliothek im Dokument (kannst du ersetzen)
+\begin{filecontents*}{\jobname.bib}
+    @book{Goodfellow2016,
+        author    = {Goodfellow, Ian and Bengio, Yoshua and Courville, Aaron},
+        year      = {2016},
+        title     = {Deep Learning},
+        publisher = {MIT Press},
+        address   = {Cambridge, MA},
+        isbn      = {978-0262035613}
+    }
+    @book{Bishop2006,
+        author    = {Bishop, Christopher M.},
+        year      = {2006},
+        title     = {Pattern Recognition and Machine Learning},
+        publisher = {Springer},
+        address   = {New York, NY},
+        doi       = {10.1007/978-0-387-45528-0}
+    }
+    @book{Hastie2009,
+        author    = {Hastie, Trevor and Tibshirani, Robert and Friedman, Jerome},
+        year      = {2009},
+        title     = {The Elements of Statistical Learning},
+        subtitle  = {Data Mining, Inference, and Prediction},
+        edition   = {2},
+        publisher = {Springer},
+        address   = {New York, NY},
+        doi       = {10.1007/978-0-387-84858-7}
+    }
+    @article{Kingma2015,
+        author  = {Kingma, Diederik P. and Ba, Jimmy},
+        year    = {2015},
+        title   = {Adam: A Method for Stochastic Optimization},
+        journaltitle = {Proceedings of the 3rd International Conference on Learning Representations},
+        venue   = {San Diego, CA},
+        eprint  = {1412.6980},
+        eprinttype = {arxiv},
+        url     = {https://arxiv.org/abs/1412.6980}
+    }
+    @incollection{Platt1999,
+        author    = {Platt, John},
+        year      = {1999},
+        title     = {Probabilistic Outputs for Support Vector Machines and Comparisons to Regularized Likelihood Methods},
+        booktitle = {Advances in Large Margin Classifiers},
+        editor    = {Smola, Alexander J. and Bartlett, Peter and Schölkopf, Bernhard and Schuurmans, Dale},
+        publisher = {MIT Press},
+        address   = {Cambridge, MA},
+        pages     = {61--74}
+    }
+    @online{Mueller2023,
+        author = {Müller, Andreas and Schmidt, Maria},
+        year   = {2023},
+        title  = {Aktuelle Entwicklungen im Machine Learning},
+        url    = {https://example.com/ml-trends},
+        urldate = {2024-01-15}
+    }
+\end{filecontents*}
+\addbibresource{\jobname.bib}
+
+% ---------- Automatische Verzeichnisse nur bei ≥3 Einträgen ----------
+\usepackage{totcount}
+\regtotcounter{figure}
+\regtotcounter{table}
+\newcommand{\addtoTOC}[1]{\addcontentsline{toc}{section}{#1}}
+\newcommand{\printlistsconditional}{%
+    % Wirksam nach erneutem LaTeX-Lauf (Zähler aus .aux):
+    \ifnum\totvalue{figure}>2
+    \renewcommand{\listfigurename}{Abbildungsverzeichnis}
+    \listoffigures
+    \addtoTOC{Abbildungsverzeichnis}
+    \clearpage
+    \fi
+    \ifnum\totvalue{table}>2
+    \renewcommand{\listtablename}{Tabellenverzeichnis}
+    \listoftables
+    \addtoTOC{Tabellenverzeichnis}
+    \clearpage
+    \fi
+}
+
+% ---------- Blockzitat ≥ 40 Wörter (APA) ----------
+\newenvironment{blockzitat}{%
+    \begin{quote}\setlength{\leftskip}{1.27cm}\itshape\upshape\mdseries\selectfont
+    }{\end{quote}}
+
+% ---------- Meta-Felder für Titelseite ----------
+\newcommand{\university}{IU Internationale Hochschule}
+\newcommand{\studyprogram}{Studiengang (z.\,B. B.\,Sc.\ Data Science)}
+\newcommand{\thesistype}{Art der Arbeit (z.\,B. Hausarbeit / Bachelorarbeit)}
+\newcommand{\papertitle}{Titel der Arbeit}
+\newcommand{\authorname}{Vorname Nachname}
+\newcommand{\matno}{Matrikelnummer}
+\newcommand{\address}{Straße Hausnr., PLZ Ort}
+\newcommand{\advisor}{Betreuer:in, akademischer Titel}
+\newcommand{\submissiondate}{TT.MM.JJJJ}
+
+% ============================================================
+%                         DOKUMENT
+% ============================================================
+\begin{document}
+    \selectlanguage{ngerman}
+
+    % ---------- Titelblatt (zählt als I, ohne Zahl) ----------
+    \pagenumbering{Roman}
+    \setcounter{page}{1}
+    \begin{titlepage}
+        \thispagestyle{empty}
+        \begin{center}
+            \large \university\\[6pt]
+            \studyprogram\\[18pt]
+            \textbf{\Large \thesistype}\\[24pt]
+            {\bfseries\fontsize{18pt}{20pt}\selectfont \papertitle}\\[24pt]
+        \end{center}
+        \vspace{6mm}
+        \begin{tabular}{@{}ll}
+            Autor:            & \authorname \\
+            Matrikelnummer:   & \matno \\
+            Anschrift:        & \address \\
+            Betreuung:        & \advisor \\
+            Abgabedatum:      & \submissiondate \\
+        \end{tabular}
+        \vfill
+        \begin{center}
+            \footnotesize
+
+        \end{center}
+    \end{titlepage}
+
+    % ---------- Erklärung / Sperrvermerk (optional je nach Arbeit) ----------
+    \section*{Erklärung / Sperrvermerk}
+    \addtoTOC{Erklärung / Sperrvermerk}
+    Hier ggf. die Eigenständigkeits- und Sperrvermerkserklärung gemäß Vorgaben der Hochschule.
+    \clearpage
+
+    % ---------- Danksagung (optional) ----------
+    \section*{Danksagung}
+    \addtoTOC{Danksagung}
+    Optionaler Text für Danksagungen.
+    \clearpage
+
+    % ---------- Abstracts (Deutsch & Englisch, je ca. 200 Wörter) ----------
+    \section*{Abstract (Deutsch)}
+    \addtoTOC{Abstract (Deutsch)}
+    Kurzfassung der Arbeit (ca. 200 Wörter): Problemstellung, Methode, Ergebnisse, Implikationen.
+    \clearpage
+
+    \begin{otherlanguage*}{english}
+        \section*{Abstract (English)}
+        \addtoTOC{Abstract (English)}
+        Abstract (approx. 200 words): problem, method, results, implications.
+    \end{otherlanguage*}
+    \clearpage
+
+    % ---------- Inhaltsverzeichnis ----------
+    \renewcommand{\contentsname}{Inhaltsverzeichnis}
+    \tableofcontents
+    \clearpage
+
+    % ---------- Abbildungs-/Tabellenverzeichnis (nur bei ≥3) ----------
+    \printlistsconditional
+
+    % ---------- Abkürzungsverzeichnis ----------
+    \section*{Abkürzungsverzeichnis}
+    \addtoTOC{Abkürzungsverzeichnis}
+    \begin{tabular}{@{}ll}
+        \textbf{AUROC} & Area under the Receiver Operating Characteristic \\
+        \textbf{BA}    & Balanced Accuracy \\
+        \textbf{SNR}   & Signal-zu-Rausch-Verhältnis \\
+    \end{tabular}
+    \clearpage
+
+    % ---------- Hauptteil: arabische Seitenzahlen ab "Einleitung" ----------
+    \pagenumbering{arabic}
+    \setcounter{page}{1}
+
+    \section{Einleitung}
+    Hier beginnt der Fließtext der Arbeit. Jede Section (Ebene 1) startet auf neuer Seite.
+    Zitieren nach APA7, z.\,B. \parencite{Goodfellow2016,Bishop2006}. Direktzitat ≤40 Wörter „mit
+    Anführungszeichen“ \parencite[S.~123]{Hastie2009}. Längeres Direktzitat:
+    \begin{blockzitat}
+        Dies ist ein Blockzitat (≥ 40 Wörter) ohne Anführungszeichen; links um \SI{1.27}{cm} eingerückt.
+        Quellenangabe folgt nach APA: (Autor, Jahr, S.~xx).
+    \end{blockzitat}
+
+    \subsection{Zielsetzung und Aufbau}
+    Kurze Darstellung der Ziele und der Gliederung.
+
+    \subsubsection{Beitrag}
+    Klarer Beitrag (Problem, Ansatz, Nutzen).
+
+    \section{Theoretischer Hintergrund}
+    Relevante Modelle/Begriffe, z.\,B. Regularisierung, Bias/Varianz. Formeln werden gesetzt:
+    \begin{align}
+        \hat{R}(\theta) &= \frac{1}{N}\sum_{i=1}^{N}\ell\!\left(y_i,f_\theta(x_i)\right) + \lambda\lVert\theta\rVert_2^2,\\
+        \ell(y,\hat{y}) &= -\big[y\log\hat{y} + (1-y)\log(1-\hat{y})\big].
+    \end{align}
+
+    \section{Methodik}
+    Design, Daten, Preprocessing, Metriken, Validierung.
+    \subsection{Daten}
+    Kurzbeschreibung der Datensätze.
+    \subsection{Modelle und Hyperparameter}
+    Tabellenbeispiel mit Quellenangabe (10 pt):
+    \begin{table}[h]
+        \centering
+        \begin{tabular}{lcc}
+            \toprule
+            \textbf{Parameter} & \textbf{Wert A} & \textbf{Wert B} \\
+            \midrule
+            Lernrate & 0{,}001 & 0{,}01 \\
+            Batchgröße & 64 & 64 \\
+            \bottomrule
+        \end{tabular}
+        \caption{Beispielhafte Hyperparameter.}
+        \source{Eigene Darstellung.}
+        \label{tab:hyper}
+    \end{table}
+
+    \section{Ergebnisse}
+    Beispielabbildung mit Titel und Quelle (10 pt):
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.85\textwidth]{example-image}
+        \caption{Schematische Lernkurven.}
+        \source{Eigene Darstellung (Platzhalter).}
+        \label{fig:learn}
+    \end{figure}
+
+    \section{Diskussion}
+    Ergebnisse interpretieren, Limitationen, Implikationen.
+
+    \section{Fazit}
+    Zentrale Punkte, Ausblick, Handlungsempfehlungen.
+
+    % ---------- Literaturverzeichnis ----------
+    \clearpage
+    \printbibliography[title={Literaturverzeichnis}]
+
+    % ---------- Anhangsverzeichnis (bei Bedarf) ----------
+    \clearpage
+    \section*{Anhangsverzeichnis}
+    \addtoTOC{Anhangsverzeichnis}
+    \begin{itemize}
+        \item Anhang A: Zusatzabbildungen
+        \item Anhang B: Pseudocode
+    \end{itemize}
+    \clearpage
+
+    % ---------- Anhänge ----------
+    \appendix
+    \section{Zusatzabbildungen}
+    (Optionaler Inhalt des Anhangs.)
+
+    \section{Pseudocode}
+    (Optionaler Inhalt des Anhangs.)
+
+        % ---------- Nützliche LaTeX-Referenz ----------
+
+    \clearpage
+    \section*{Nützliche LaTeX-Referenz}
+    \addtoTOC{Nützliche LaTeX-Referenz}
+
+    \subsection*{Zitieren nach APA 7 (biblatex-apa)}
+    Indirektes Zitat: \verb|\parencite{Goodfellow2016}| → (Goodfellow et al., 2016)\\
+    Mit Seitenzahl: \verb|\parencite[S.~123]{Bishop2006}|\\
+    Direktzitat ≤40 Wörter: „…“ \verb|\parencite[S.~45]{Hastie2009}|\\
+    Blockzitat ≥40 Wörter:
+    \begin{verbatim}
+        \begin{blockzitat}
+            Langes Zitat ohne Anführungszeichen …
+        \end{blockzitat}
+    \end{verbatim}
+
+    \subsection*{Abbildungen}
+    \begin{verbatim}
+        \begin{figure}[h]
+            \centering
+            \includegraphics[width=0.85\textwidth]{pfad/zur/datei}
+            \caption{Titel der Abbildung.}
+            \source{Quelle: Eigene Darstellung / Autor, Jahr, S.~xx.}
+            \label{fig:beispiel}
+        \end{figure}
+    \end{verbatim}
+    Querverweis: „siehe Abb.~\verb|\ref{fig:beispiel}|“.
+
+    \subsection*{Tabellen}
+    \begin{verbatim}
+        \begin{table}[h]
+            \centering
+            \begin{tabular}{lcc}
+                \toprule
+                \textbf{Variable} & \textbf{Gruppe A} & \textbf{Gruppe B} \\
+                \midrule
+                x & 1{,}23 & 4{,}56 \\
+                \bottomrule
+            \end{tabular}
+            \caption{Titel der Tabelle.}
+            \source{Quelle: Eigene Darstellung.}
+            \label{tab:beispiel}
+        \end{table}
+    \end{verbatim}
+    Querverweis: „siehe Tab.~\verb|\ref{tab:beispiel}|“.
+
+    \subsection*{Gleichungen}
+    Einzeln:
+    \begin{verbatim}
+        \begin{equation}
+            E = mc^2
+        \end{equation}
+    \end{verbatim}
+    Mehrzeilig (nummeriert):
+    \begin{verbatim}
+        \begin{align}
+            \hat{R}(\theta) &= \frac{1}{N}\sum_{i=1}^{N}\ell(y_i,f_\theta(x_i)) + \lambda\lVert\theta\rVert_2^2,\\
+            \ell(y,\hat{y}) &= -\big[y\log\hat{y} + (1-y)\log(1-\hat{y})\big].
+        \end{align}
+    \end{verbatim}
+
+    \subsection*{Listen}
+    \begin{verbatim}
+        \begin{itemize}
+            \item Punkt A
+            \item Punkt B
+        \end{itemize}
+
+        \begin{enumerate}
+            \item Erstens
+            \item Zweitens
+        \end{enumerate}
+    \end{verbatim}
+
+    \subsection*{Fußnoten}
+    \verb|Text\footnote{Inhalt der Fußnote in 10 pt.}|
+
+    \subsection*{Einheiten und Zahlen (siunitx)}
+    \verb|\SI{12,5}{\kilo\meter\per\hour}| → \SI{12,5}{\kilo\meter\per\hour}\\
+    \verb|\num{12345,678}| → \num{12345,678}
+
+    \subsection*{Quellen in Abbildungen/Tabellen}
+    Direkt unter \verb|\caption| einfügen: \verb|\source{Quelle: …}| (10 pt).
+
+    \subsection*{Platzhalter \& Blindtext}
+    Platzhalterbild: \verb|\includegraphics{example-image}| (aus Paket \verb|mwe|).\\
+    Kurzer Blindtext:
+    \begin{verbatim}
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    \end{verbatim}
+
+    \subsection*{Bibliografie-Einträge (BibTeX mit Biber)}
+    \textbf{Wichtige Eintragstypen:}
+    \begin{verbatim}
+@book{key,
+  author = {Nachname, Vorname},
+  year = {2023},
+  title = {Titel des Buches},
+  subtitle = {Untertitel (optional)},
+  publisher = {Verlag},
+  address = {Ort},
+  edition = {2}, % nur bei 2. Auflage oder höher
+  doi = {10.1000/xyz}
+}
+
+@article{key,
+  author = {Nachname, Vorname and Zweiter, Autor},
+  year = {2023},
+  title = {Titel des Artikels},
+  journaltitle = {Name der Zeitschrift},
+  volume = {42},
+  number = {3},
+  pages = {123--145},
+  doi = {10.1000/xyz}
+}
+
+@online{key,
+  author = {Nachname, Vorname},
+  year = {2023},
+  title = {Titel der Webseite},
+  url = {https://example.com},
+  urldate = {2024-01-15}
+}
+    \end{verbatim}
+    
+    \textbf{Biber-spezifische Felder:}
+    \begin{itemize}
+        \item \verb|journaltitle| statt \verb|journal| (APA-konform)
+        \item \verb|location| statt \verb|address| (moderne biblatex-Syntax)
+        \item \verb|date| statt \verb|year| für komplexere Datumsangaben
+    \end{itemize}
+
+    \subsection*{Erweiterte LaTeX-Tipps}
+    \textbf{Mathematik:}
+    \begin{itemize}
+        \item Inline-Mathe: \verb|$E = mc^2$| → $E = mc^2$
+        \item Display-Mathe: \verb|\[E = mc^2\]| (unnummeriert)
+        \item Nummerierte Gleichung: \verb|\begin{equation}...\end{equation}|
+        \item Griechische Buchstaben: \verb|\alpha, \beta, \gamma| → $\alpha, \beta, \gamma$
+    \end{itemize}
+    
+    \textbf{Querverweise:}
+    \begin{itemize}
+        \item Label setzen: \verb|\label{fig:beispiel}|
+        \item Verweis: \verb|\ref{fig:beispiel}| oder \verb|\autoref{fig:beispiel}|
+        \item Seitenverweis: \verb|\pageref{fig:beispiel}|
+    \end{itemize}
+    
+    \textbf{Typografie:}
+    \begin{itemize}
+        \item Geschützte Leerzeichen: \verb|Abb.~\ref{fig:1}|
+        \item Anführungszeichen: \verb|\enquote{Text}| (sprachabhängig)
+        \item Gedankenstrich: \verb|--| (Bindestrich), \verb|---| (Gedankenstrich)
+        \item Auslassungspunkte: \verb|\ldots| → …
+    \end{itemize}
+    
+    \textbf{Häufige Probleme und Lösungen:}
+    \begin{itemize}
+        \item Biber-Cache löschen: \verb|biber --cache-clear|
+        \item Umlaute: Verwende \verb|fontspec| mit LuaLaTeX/XeLaTeX
+        \item Lange URLs: \verb|\url{...}| oder \verb|\href{url}{Text}|
+        \item Overfull hbox: \verb|\sloppy| oder manuelle Zeilenumbrüche
+    \end{itemize}
+
+    \subsection*{Kompilierreihenfolge mit Biber}
+    \textbf{Standard:} LuaLaTeX → Biber → LuaLaTeX → LuaLaTeX
+    
+    \textbf{VS Code/Automatisierung:}
+    \begin{itemize}
+        \item LaTeX Workshop Extension konfigurieren
+        \item \verb|latexmkrc| für automatische Biber-Ausführung
+        \item Overleaf nutzt automatisch die richtige Reihenfolge
+    \end{itemize}
+
+
+    % ========= Ende =========
+\end{document}
