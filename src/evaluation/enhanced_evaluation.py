@@ -548,158 +548,172 @@ class EnhancedEvaluator:
         print(f"🏆 Top models comparison saved: {save_path}")
         return str(save_path)
     
-    def generate_computational_time_analysis(self,
-                                           model_results: List[Dict],
-                                           save_prefix: str = "computational_analysis") -> str:
+    def generate_timing_analysis_from_real_data(self, save_prefix: str = "timing_analysis") -> str:
         """
-        Generate comprehensive computational time analysis
+        Generate timing analysis using REAL recorded training data from experiments.
+        
+        This function uses scientifically valid timing data from actual training
+        processes recorded in the cross-dataset evaluation results.
         
         Args:
-            model_results: List of model results containing timing information
             save_prefix: Prefix for saved files
             
         Returns:
             Path to saved analysis plot
         """
-        # Extract timing data
+        print("⏱️ Generating timing analysis from real recorded data...")
+        
+        # Load real timing data from cross-dataset evaluation results
+        timing_files = [
+            self.output_dir / "cross_dataset_evaluation_fixed.csv",
+            self.output_dir / "reverse_cross_dataset_evaluation_fixed.csv",
+            self.output_dir / "bidirectional_cross_dataset_analysis.csv"
+        ]
+        
         timing_data = []
-        for result in model_results:
-            model_name = result.get('model_name', 'Unknown')
-            training_time = result.get('training_time', 0)
-            prediction_time = result.get('prediction_time', 0)
-            
-            # Calculate per-sample prediction time if available
-            n_samples = result.get('n_test_samples', 1)
-            per_sample_time = (prediction_time * 1000) / n_samples  # Convert to milliseconds
-            
-            timing_data.append({
-                'Model': model_name,
-                'Training_Time_s': training_time,
-                'Prediction_Time_s': prediction_time,
-                'Per_Sample_Time_ms': per_sample_time,
-                'Total_Time_s': training_time + prediction_time
-            })
         
-        timing_df = pd.DataFrame(timing_data)
+        # Extract real timing data from cross-dataset evaluation
+        for file_path in timing_files:
+            if file_path.exists():
+                try:
+                    df = pd.read_csv(file_path)
+                    
+                    if 'Training_Time_s' in df.columns:
+                        # Standard format
+                        for _, row in df.iterrows():
+                            timing_data.append({
+                                'Model': row['Model'],
+                                'Training_Time_s': row['Training_Time_s'],
+                                'Source': file_path.stem,
+                                'Accuracy': row.get('Source_Accuracy', row.get('Target_Accuracy', 0))
+                            })
+                    
+                    # Also check for bidirectional data with forward/reverse timing
+                    if 'Training_Time_s_forward' in df.columns:
+                        for _, row in df.iterrows():
+                            timing_data.append({
+                                'Model': f"{row['Model']} (NSL→CIC)",
+                                'Training_Time_s': row['Training_Time_s_forward'],
+                                'Source': 'forward_transfer',
+                                'Accuracy': row.get('NSL_Test_Accuracy', 0)
+                            })
+                    
+                    if 'Training_Time_s_reverse' in df.columns:
+                        for _, row in df.iterrows():
+                            timing_data.append({
+                                'Model': f"{row['Model']} (CIC→NSL)",
+                                'Training_Time_s': row['Training_Time_s_reverse'],
+                                'Source': 'reverse_transfer',
+                                'Accuracy': row.get('CIC_Validation_Accuracy', 0)
+                            })
+                            
+                except Exception as e:
+                    print(f"   ⚠️ Could not read {file_path}: {e}")
+                    continue
         
-        # Create comprehensive timing visualization
+        if not timing_data:
+            print("   ❌ No real timing data found. Run experiments 05-06 first.")
+            return ""
+        
+        # Convert to DataFrame and remove duplicates
+        timing_df = pd.DataFrame(timing_data).drop_duplicates(subset=['Model'])
+        print(f"   ✅ Found {len(timing_df)} real timing measurements")
+        
+        # Create timing visualization
         fig, axes = plt.subplots(2, 2, figsize=(15, 12))
-        fig.suptitle('Computational Performance Analysis', fontsize=16, fontweight='bold')
+        fig.suptitle('Computational Time Analysis (Real Data)', fontsize=16, fontweight='bold')
         
         # 1. Training Time Comparison
-        axes[0, 0].barh(timing_df['Model'], timing_df['Training_Time_s'], 
+        sorted_df = timing_df.sort_values('Training_Time_s')
+        axes[0, 0].barh(sorted_df['Model'], sorted_df['Training_Time_s'], 
                        color='skyblue', alpha=0.8)
         axes[0, 0].set_xlabel('Training Time (seconds)', fontsize=12)
-        axes[0, 0].set_title('Training Time Comparison', fontweight='bold')
+        axes[0, 0].set_title('Training Time Comparison (Real Data)', fontweight='bold')
         axes[0, 0].grid(True, alpha=0.3)
         
         # Add value labels
-        for i, v in enumerate(timing_df['Training_Time_s']):
-            axes[0, 0].text(v + max(timing_df['Training_Time_s']) * 0.01, i, 
-                           f'{v:.2f}s', va='center', fontsize=9)
+        for i, (model, time_val) in enumerate(zip(sorted_df['Model'], sorted_df['Training_Time_s'])):
+            axes[0, 0].text(time_val + max(sorted_df['Training_Time_s']) * 0.01, i, 
+                           f'{time_val:.2f}s', va='center', fontsize=9)
         
-        # 2. Prediction Time Comparison
-        axes[0, 1].barh(timing_df['Model'], timing_df['Prediction_Time_s'], 
-                       color='lightcoral', alpha=0.8)
-        axes[0, 1].set_xlabel('Prediction Time (seconds)', fontsize=12)
-        axes[0, 1].set_title('Prediction Time Comparison', fontweight='bold')
+        # 2. Time vs Accuracy Trade-off
+        scatter = axes[0, 1].scatter(timing_df['Training_Time_s'], timing_df['Accuracy'],
+                                   c=range(len(timing_df)), cmap='viridis', s=100, alpha=0.7)
+        
+        for i, (time_val, acc_val, model_name) in enumerate(
+            zip(timing_df['Training_Time_s'], timing_df['Accuracy'], timing_df['Model'])):
+            axes[0, 1].annotate(model_name, (time_val, acc_val),
+                              xytext=(5, 5), textcoords='offset points',
+                              fontsize=8, alpha=0.8, rotation=15)
+        
+        axes[0, 1].set_xlabel('Training Time (seconds)', fontsize=12)
+        axes[0, 1].set_ylabel('Accuracy', fontsize=12)
+        axes[0, 1].set_title('Training Time vs Accuracy Trade-off', fontweight='bold')
         axes[0, 1].grid(True, alpha=0.3)
         
-        # Add value labels
-        for i, v in enumerate(timing_df['Prediction_Time_s']):
-            axes[0, 1].text(v + max(timing_df['Prediction_Time_s']) * 0.01, i, 
-                           f'{v:.4f}s', va='center', fontsize=9)
+        # 3. Time Distribution by Source
+        if 'Source' in timing_df.columns:
+            source_groups = timing_df.groupby('Source')['Training_Time_s'].apply(list)
+            axes[1, 0].boxplot(source_groups.values, labels=source_groups.index)
+            axes[1, 0].set_ylabel('Training Time (seconds)', fontsize=12)
+            axes[1, 0].set_title('Training Time Distribution by Experiment', fontweight='bold')
+            axes[1, 0].tick_params(axis='x', rotation=45)
+            axes[1, 0].grid(True, alpha=0.3)
         
-        # 3. Per-Sample Prediction Time
-        axes[1, 0].barh(timing_df['Model'], timing_df['Per_Sample_Time_ms'], 
+        # 4. Efficiency Ranking (Time per Accuracy Point)
+        timing_df['Efficiency'] = timing_df['Accuracy'] / (timing_df['Training_Time_s'] + 0.01)  # Avoid division by zero
+        efficiency_sorted = timing_df.sort_values('Efficiency', ascending=True)
+        
+        axes[1, 1].barh(efficiency_sorted['Model'], efficiency_sorted['Efficiency'],
                        color='lightgreen', alpha=0.8)
-        axes[1, 0].set_xlabel('Per-Sample Prediction Time (milliseconds)', fontsize=12)
-        axes[1, 0].set_title('Per-Sample Prediction Time', fontweight='bold')
-        axes[1, 0].grid(True, alpha=0.3)
-        
-        # Add value labels
-        for i, v in enumerate(timing_df['Per_Sample_Time_ms']):
-            axes[1, 0].text(v + max(timing_df['Per_Sample_Time_ms']) * 0.01, i, 
-                           f'{v:.4f}ms', va='center', fontsize=9)
-        
-        # 4. Total Time vs Accuracy Trade-off (if accuracy available)
-        if any('accuracy' in result for result in model_results):
-            accuracy_data = [result.get('accuracy', 0) for result in model_results]
-            scatter = axes[1, 1].scatter(timing_df['Total_Time_s'], accuracy_data,
-                                       c=range(len(timing_df)), cmap='viridis', 
-                                       s=100, alpha=0.7)
-            
-            # Add model name labels
-            for i, (time_val, acc_val, model_name) in enumerate(
-                zip(timing_df['Total_Time_s'], accuracy_data, timing_df['Model'])):
-                axes[1, 1].annotate(model_name, (time_val, acc_val),
-                                  xytext=(5, 5), textcoords='offset points',
-                                  fontsize=8, alpha=0.8)
-            
-            axes[1, 1].set_xlabel('Total Time (seconds)', fontsize=12)
-            axes[1, 1].set_ylabel('Accuracy', fontsize=12)
-            axes[1, 1].set_title('Time vs Accuracy Trade-off', fontweight='bold')
-            axes[1, 1].grid(True, alpha=0.3)
-        else:
-            # Alternative: Training vs Prediction Time scatter
-            axes[1, 1].scatter(timing_df['Training_Time_s'], timing_df['Prediction_Time_s'],
-                             c=range(len(timing_df)), cmap='viridis', s=100, alpha=0.7)
-            
-            for i, (train_time, pred_time, model_name) in enumerate(
-                zip(timing_df['Training_Time_s'], timing_df['Prediction_Time_s'], timing_df['Model'])):
-                axes[1, 1].annotate(model_name, (train_time, pred_time),
-                                  xytext=(5, 5), textcoords='offset points',
-                                  fontsize=8, alpha=0.8)
-            
-            axes[1, 1].set_xlabel('Training Time (seconds)', fontsize=12)
-            axes[1, 1].set_ylabel('Prediction Time (seconds)', fontsize=12)
-            axes[1, 1].set_title('Training vs Prediction Time', fontweight='bold')
-            axes[1, 1].grid(True, alpha=0.3)
+        axes[1, 1].set_xlabel('Efficiency (Accuracy / Training Time)', fontsize=12)
+        axes[1, 1].set_title('Model Training Efficiency', fontweight='bold')
+        axes[1, 1].grid(True, alpha=0.3)
         
         plt.tight_layout()
         
         # Save figure
-        # Create timing_analysis subdirectory if not exists
         timing_dir = self.output_dir / 'timing_analysis'
         timing_dir.mkdir(parents=True, exist_ok=True)
         
-        filename = f"{save_prefix}_timing_analysis.png"
+        filename = f"{save_prefix}_real_timing_analysis.png"
         save_path = timing_dir / filename
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         plt.close()
         
         # Save timing data as CSV
-        csv_path = timing_dir / f"{save_prefix}_timing_data.csv"
+        csv_path = timing_dir / f"{save_prefix}_real_timing_data.csv"
         timing_df.to_csv(csv_path, index=False)
         
         # Generate timing summary statistics
         summary_stats = {
-            'fastest_training': timing_df.loc[timing_df['Training_Time_s'].idxmin(), 'Model'],
-            'fastest_prediction': timing_df.loc[timing_df['Prediction_Time_s'].idxmin(), 'Model'],
-            'slowest_training': timing_df.loc[timing_df['Training_Time_s'].idxmax(), 'Model'],
-            'slowest_prediction': timing_df.loc[timing_df['Prediction_Time_s'].idxmax(), 'Model'],
-            'avg_training_time': timing_df['Training_Time_s'].mean(),
-            'avg_prediction_time': timing_df['Prediction_Time_s'].mean(),
-            'total_training_time': timing_df['Training_Time_s'].sum(),
-            'total_prediction_time': timing_df['Prediction_Time_s'].sum()
+            'fastest_model': timing_df.loc[timing_df['Training_Time_s'].idxmin(), 'Model'],
+            'slowest_model': timing_df.loc[timing_df['Training_Time_s'].idxmax(), 'Model'],
+            'most_efficient_model': timing_df.loc[timing_df['Efficiency'].idxmax(), 'Model'],
+            'avg_training_time': float(timing_df['Training_Time_s'].mean()),
+            'median_training_time': float(timing_df['Training_Time_s'].median()),
+            'min_training_time': float(timing_df['Training_Time_s'].min()),
+            'max_training_time': float(timing_df['Training_Time_s'].max()),
+            'total_models_analyzed': len(timing_df),
+            'data_source': 'real_experimental_measurements'
         }
         
         # Save summary as JSON
         import json
-        summary_path = timing_dir / f"{save_prefix}_timing_summary.json"
+        summary_path = timing_dir / f"{save_prefix}_real_timing_summary.json"
         with open(summary_path, 'w') as f:
             json.dump(summary_stats, f, indent=2)
         
-        print(f"⏱️ Computational time analysis saved: {save_path}")
-        print(f"📊 Timing data saved: {csv_path}")
-        print(f"📋 Timing summary saved: {summary_path}")
+        print(f"   ✅ Real timing analysis saved: {save_path}")
+        print(f"   📊 Timing data saved: {csv_path}")
+        print(f"   📋 Summary saved: {summary_path}")
         
         # Print key insights
-        print(f"\n🎯 Key Timing Insights:")
-        print(f"   Fastest Training: {summary_stats['fastest_training']}")
-        print(f"   Fastest Prediction: {summary_stats['fastest_prediction']}")
-        print(f"   Average Training Time: {summary_stats['avg_training_time']:.3f}s")
-        print(f"   Average Prediction Time: {summary_stats['avg_prediction_time']:.6f}s")
+        print("\n🎯 Key Timing Insights (Real Data):")
+        print(f"   Fastest Model: {summary_stats['fastest_model']} ({summary_stats['min_training_time']:.2f}s)")
+        print(f"   Slowest Model: {summary_stats['slowest_model']} ({summary_stats['max_training_time']:.2f}s)")
+        print(f"   Most Efficient: {summary_stats['most_efficient_model']}")
+        print(f"   Average Time: {summary_stats['avg_training_time']:.2f}s")
         
         return str(save_path)
     
