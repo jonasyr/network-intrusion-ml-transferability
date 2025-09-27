@@ -1,0 +1,4 @@
+Model,Source_Accuracy,Source_Precision,Source_Recall,Source_F1,Target_Accuracy,Target_Precision,Target_Recall,Target_F1,Generalization_Gap,Relative_Drop_%,Transfer_Ratio,Domain_Divergence,Training_Time_s,Aligned_Features
+Random Forest,0.8095,0.9563,0.6972,0.8064,0.3466,0.1354,0.5327,0.2159,0.4628,57.18,0.4282,0.1476,4.64,6
+XGBoost,0.8349,0.9601,0.7407,0.8363,0.8272,0.0748,0.0021,0.0041,0.0077,0.93,0.9907,0.1476,3.85,6
+LightGBM,0.8067,0.9578,0.691,0.8028,0.764,0.2136,0.1484,0.1752,0.0428,5.3,0.947,0.1476,8.05,6
