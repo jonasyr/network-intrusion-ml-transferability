@@ -18,6 +18,7 @@
 \else
 % Echte Systemschriften mit Lua/XeLaTeX:
 \usepackage{fontspec}
+\usepackage{xcolor}
 \setmainfont{Arial}[
 Ligatures=TeX,
 Scale=1.0
@@ -40,6 +41,51 @@ Scale=1.0
 \sisetup{detect-all}                      % Sans-Serif in siunitx
 \usepackage{csquotes}                     % saubere Anführungszeichen / Blockzitate
 \usepackage{mwe}                          % Beispielbilder (example-image*)
+
+% ---------- Code ----------
+\usepackage{listings}
+
+% dezente Farben
+\definecolor{lwbg}{rgb}{0.98,0.98,0.98}     % leichter Hintergrund
+\definecolor{lwkeyword}{rgb}{0.0,0.45,0.30} % keywords (dezent grün)
+\definecolor{lwcomment}{rgb}{0.45,0.45,0.45}
+\definecolor{lwstring}{rgb}{0.5,0.15,0.15}
+
+\lstdefinestyle{python-academic}{
+    language=Python,
+    backgroundcolor=\color{lwbg},
+    basicstyle=\ttfamily\small,        % gut lesbare Größe im Fließtext
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    frame=single,                      % klarer, aber dezenter Rahmen
+    rulecolor=\color{black!20},
+    tabsize=4,
+    breaklines=true,
+    breakatwhitespace=false,
+    showstringspaces=false,
+    captionpos=b,
+    aboveskip=6pt,
+    belowskip=6pt,
+    xleftmargin=4pt,
+    keywordstyle=\bfseries\color{lwkeyword},
+    commentstyle=\itshape\color{lwcomment},
+    stringstyle=\color{lwstring},
+    upquote=true,                      % gerade quotes, falls nötig
+    escapeinside={(*@}{@*)},           % für LaTeX-Math etc. im Listing
+}
+
+\lstset{style=python-academic}
+
+% Nutzung: entweder inline
+% \begin{lstlisting}[caption={Minimalbeispiel},label={lst:mini}]
+    % def foo(x):
+    %     return x**2
+    % \end{lstlisting}
+%
+% oder aus Datei:
+% \lstinputlisting[language=Python, caption={Script X}, label={lst:scriptx}]{path/to/script.py}
 
 % ---------- Bild-/Tabellenunterschriften (10 pt) ----------
 \usepackage{caption}
@@ -255,29 +301,29 @@ giveninits=true % Nur Initialen für Vornamen
     \end{titlepage}
 
     % ---------- Erklärung / Sperrvermerk (optional je nach Arbeit) ----------
-    \section*{Erklärung / Sperrvermerk}
-    \addtoTOC{Erklärung / Sperrvermerk}
-    Hier ggf. die Eigenständigkeits- und Sperrvermerkserklärung gemäß Vorgaben der Hochschule.
-    \clearpage
+%    \section*{Erklärung / Sperrvermerk}
+%    \addtoTOC{Erklärung / Sperrvermerk}
+%    Hier ggf. die Eigenständigkeits- und Sperrvermerkserklärung gemäß Vorgaben der Hochschule.
+%    \clearpage
 
     % ---------- Danksagung (optional) ----------
-    \section*{Danksagung}
-    \addtoTOC{Danksagung}
-    Optionaler Text für Danksagungen.
-    \clearpage
+%    \section*{Danksagung}
+%    \addtoTOC{Danksagung}
+%    Optionaler Text für Danksagungen.
+%    \clearpage
 
     % ---------- Abstracts (Deutsch & Englisch, je ca. 200 Wörter) ----------
-    \section*{Abstract (Deutsch)}
-    \addtoTOC{Abstract (Deutsch)}
-    Kurzfassung der Arbeit (ca. 200 Wörter): Problemstellung, Methode, Ergebnisse, Implikationen.
-    \clearpage
+%    \section*{Abstract (Deutsch)}
+%    \addtoTOC{Abstract (Deutsch)}
+%    Kurzfassung der Arbeit (ca. 200 Wörter): Problemstellung, Methode, Ergebnisse, Implikationen.
+%    \clearpage
 
-    \begin{otherlanguage*}{english}
-        \section*{Abstract (English)}
-        \addtoTOC{Abstract (English)}
-        Abstract (approx. 200 words): problem, method, results, implications.
-    \end{otherlanguage*}
-    \clearpage
+%    \begin{otherlanguage*}{english}
+%        \section*{Abstract (English)}
+%        \addtoTOC{Abstract (English)}
+%        Abstract (approx. 200 words): problem, method, results, implications.
+%    \end{otherlanguage*}
+%    \clearpage
 
     % ---------- Inhaltsverzeichnis ----------
     \renewcommand{\contentsname}{Inhaltsverzeichnis}
@@ -393,6 +439,7 @@ giveninits=true % Nur Initialen für Vornamen
     Mit Seitenzahl: \verb|\parencite[S.~123]{Bishop2006}|\\
     Direktzitat ≤40 Wörter: „…“ \verb|\parencite[S.~45]{Hastie2009}|\\
     Blockzitat ≥40 Wörter:
+
     \begin{verbatim}
         \begin{blockzitat}
             Langes Zitat ohne Anführungszeichen …
@@ -436,6 +483,7 @@ giveninits=true % Nur Initialen für Vornamen
             E = mc^2
         \end{equation}
     \end{verbatim}
+
     Mehrzeilig (nummeriert):
     \begin{verbatim}
         \begin{align}
@@ -507,7 +555,7 @@ giveninits=true % Nur Initialen für Vornamen
   urldate = {2024-01-15}
 }
     \end{verbatim}
-    
+
     \textbf{Biber-spezifische Felder:}
     \begin{itemize}
         \item \verb|journaltitle| statt \verb|journal| (APA-konform)
@@ -515,7 +563,60 @@ giveninits=true % Nur Initialen für Vornamen
         \item \verb|date| statt \verb|year| für komplexere Datumsangaben
     \end{itemize}
 
+\subsection*{Code-Beispiele in LaTeX}
+
+\textbf{Einfacher Python-Code:}
+
+\begin{lstlisting}[language=Python, caption={Fibonacci-Beispiel}, label={lst:fib}]
+    def fibonacci(n: int) -> list[int]:
+    """Berechnet die ersten n Fibonacci-Zahlen."""
+    seq = [0, 1]
+    for i in range(2, n):
+    seq.append(seq[-1] + seq[-2])
+    return seq[:n]
+
+
+    if __name__ == "__main__":
+    print("Fibonacci(10):", fibonacci(10))
+\end{lstlisting}
+
+\textbf{Ausgabe:}
+\begin{verbatim}
+    Fibonacci(10): [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+\end{verbatim}
+
+---
+
+\textbf{Inline-Nutzung (LaTeX-Syntax wörtlich):}
+\begin{verbatim}
+    \begin{lstlisting}[language=Python, caption={Minimalbeispiel}, label={lst:mini}]
+        def foo(x):
+        return x**2
+    \end{lstlisting}
+\end{verbatim}
+
+\textbf{Tatsächliches Listing (ausführbarer Code):}
+\begin{lstlisting}[caption={Minimalbeispiel}, label={lst:mini}]
+    def foo(x):
+    return x**2
+\end{lstlisting}
+
+\textbf{Ausgabe:}
+\begin{verbatim}
+    >>> foo(5)
+    25
+\end{verbatim}
+
+    ---
+
+    \textbf{Code aus Datei einbinden:}
+    \lstinline[language=TeX]|\lstinputlisting[language=Python, caption={Script X}, label={lst:scriptx}]{path/to/script.py}|
+
+
+
+
     \subsection*{Erweiterte LaTeX-Tipps}
+
     \textbf{Mathematik:}
     \begin{itemize}
         \item Inline-Mathe: \verb|$E = mc^2$| → $E = mc^2$
@@ -523,14 +624,14 @@ giveninits=true % Nur Initialen für Vornamen
         \item Nummerierte Gleichung: \verb|\begin{equation}...\end{equation}|
         \item Griechische Buchstaben: \verb|\alpha, \beta, \gamma| → $\alpha, \beta, \gamma$
     \end{itemize}
-    
+
     \textbf{Querverweise:}
     \begin{itemize}
         \item Label setzen: \verb|\label{fig:beispiel}|
         \item Verweis: \verb|\ref{fig:beispiel}| oder \verb|\autoref{fig:beispiel}|
         \item Seitenverweis: \verb|\pageref{fig:beispiel}|
     \end{itemize}
-    
+
     \textbf{Typografie:}
     \begin{itemize}
         \item Geschützte Leerzeichen: \verb|Abb.~\ref{fig:1}|
@@ -538,7 +639,7 @@ giveninits=true % Nur Initialen für Vornamen
         \item Gedankenstrich: \verb|--| (Bindestrich), \verb|---| (Gedankenstrich)
         \item Auslassungspunkte: \verb|\ldots| → …
     \end{itemize}
-    
+
     \textbf{Häufige Probleme und Lösungen:}
     \begin{itemize}
         \item Biber-Cache löschen: \verb|biber --cache-clear|
@@ -549,7 +650,7 @@ giveninits=true % Nur Initialen für Vornamen
 
     \subsection*{Kompilierreihenfolge mit Biber}
     \textbf{Standard:} LuaLaTeX → Biber → LuaLaTeX → LuaLaTeX
-    
+
     \textbf{VS Code/Automatisierung:}
     \begin{itemize}
         \item LaTeX Workshop Extension konfigurieren
