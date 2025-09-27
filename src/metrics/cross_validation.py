@@ -46,7 +46,7 @@ class CrossValidationFramework:
         Returns:
             Dictionary with cross-validation results
         """
-        print(f"🔄 Cross-validating {model_name}... (this may take 1-2 minutes)")
+        print(f"🔄 Cross-validating {model_name}... (this may take 15-30 minutes)")
         
         # Define scoring metrics
         scoring = {
@@ -60,7 +60,7 @@ class CrossValidationFramework:
         # Perform cross-validation with progress indication
         import time
         start_time = time.time()
-        print(f"   ⏳ Starting 5-fold cross-validation...")
+        print(f"   ⏳ Starting {self.n_folds}-fold cross-validation...")
         
         cv_results = cross_validate(
             model, X, y, 
@@ -72,7 +72,7 @@ class CrossValidationFramework:
         )
         
         elapsed = time.time() - start_time
-        print(f"   ✅ Completed in {elapsed:.1f}s")
+        print(f"   ✅ Completed in {elapsed/60:.1f} minutes")
         
         # Calculate statistics
         results = {
@@ -314,6 +314,85 @@ class CrossValidationFramework:
             comparison_df.to_csv(output_path / f'statistical_comparison{dataset_suffix}.csv', index=False)
         
         print(f"📊 Cross-validation results saved to {output_path}")
+    
+    def save_incremental_result(self, model_result: Dict[str, Any], output_dir: str):
+        """
+        Save a single model's cross-validation result incrementally
+        
+        Args:
+            model_result: Single model CV result dictionary
+            output_dir: Directory to save results
+        """
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        # Determine dataset suffix
+        dataset_suffix = ""
+        if "nsl" in str(output_path).lower():
+            dataset_suffix = "_nsl"
+        elif "cic" in str(output_path).lower():
+            dataset_suffix = "_cic"
+        
+        # Incremental detailed results file
+        detailed_file = output_path / f'cv_detailed_results{dataset_suffix}.csv'
+        
+        # Convert single result to DataFrame
+        result_df = pd.DataFrame([model_result])
+        
+        # Append to existing file or create new one
+        if detailed_file.exists():
+            result_df.to_csv(detailed_file, mode='a', header=False, index=False)
+            print(f"   📄 Appended {model_result['model_name']} to {detailed_file}")
+        else:
+            result_df.to_csv(detailed_file, mode='w', header=True, index=False)
+            print(f"   📄 Created {detailed_file} with {model_result['model_name']}")
+    
+    def load_existing_results(self, output_dir: str) -> List[str]:
+        """
+        Load existing cross-validation results and return list of completed models
+        
+        Args:
+            output_dir: Directory containing existing results
+            
+        Returns:
+            List of model names that have already been processed
+        """
+        output_path = Path(output_dir)
+        
+        # Determine dataset suffix
+        dataset_suffix = ""
+        if "nsl" in str(output_path).lower():
+            dataset_suffix = "_nsl"
+        elif "cic" in str(output_path).lower():
+            dataset_suffix = "_cic"
+        
+        detailed_file = output_path / f'cv_detailed_results{dataset_suffix}.csv'
+        
+        completed_models = []
+        if detailed_file.exists():
+            try:
+                existing_df = pd.read_csv(detailed_file)
+                completed_models = existing_df['model_name'].tolist()
+                print(f"📋 Found {len(completed_models)} existing results: {completed_models}")
+                
+                # Load results back into framework
+                for _, row in existing_df.iterrows():
+                    model_name = row['model_name']
+                    # Convert row back to result dictionary
+                    result_dict = row.to_dict()
+                    # Parse list columns back from string representation
+                    for col in result_dict.keys():
+                        if col.endswith('_scores') and isinstance(result_dict[col], str):
+                            try:
+                                # Convert string representation back to list
+                                result_dict[col] = eval(result_dict[col])
+                            except:
+                                pass
+                    self.results[model_name] = result_dict
+            except Exception as e:
+                print(f"⚠️ Error loading existing results: {e}")
+        
+        return completed_models
 
 
 def run_cic_cross_validation():
@@ -367,6 +446,13 @@ def run_cic_cross_validation():
     # Initialize cross-validation framework
     cv_framework = CrossValidationFramework(n_folds=3)  # Use 3 folds for efficiency
     
+    # Setup output directory
+    output_dir = 'data/results/cross_validation/cic'
+    
+    # Check for existing results and resume if possible
+    print("🔍 Checking for existing cross-validation results...")
+    completed_models = cv_framework.load_existing_results(output_dir)
+    
     # Load CIC models
     model_paths = {}
     
@@ -388,25 +474,54 @@ def run_cic_cross_validation():
         print("❌ No CIC models found for cross-validation!")
         return None, []
     
-    # Perform cross-validation
+    # Filter out already completed models
+    remaining_models = {name: path for name, path in model_paths.items() 
+                       if name not in completed_models}
+    
+    if completed_models:
+        print(f"✅ Resuming: {len(completed_models)} models already done, {len(remaining_models)} remaining")
+    else:
+        print(f"🚀 Starting fresh: {len(remaining_models)} models to process")
+    
+    # Estimate time
+    if remaining_models:
+        print(f"⏱️  Estimated time: {len(remaining_models) * 15-30} minutes")
+        print("💾 Results will be saved after each model to prevent data loss")
+    
+    # Perform cross-validation with incremental saving
     cv_results = []
-    for idx, (model_name, model_path) in enumerate(model_paths.items(), 1):
-        print(f"\n📊 [{idx}/{len(model_paths)}] Processing {model_name}...")
+    total_models = len(model_paths)
+    completed_count = len(completed_models)
+    
+    for model_name, model_path in remaining_models.items():
+        completed_count += 1
+        print(f"\n📊 [{completed_count}/{total_models}] Processing {model_name}...")
+        
         try:
             import joblib
+            
             model = joblib.load(model_path)
             result = cv_framework.evaluate_model_cv(model, X, y, model_name)
+            
+            # Save immediately after each model
+            cv_framework.save_incremental_result(result, output_dir)
             cv_results.append(result)
+            
             print(f"   ✅ {model_name} complete!")
+            
         except Exception as e:
             print(f"   ❌ Error with {model_name}: {e}")
+            import traceback
+            traceback.print_exc()
     
-    # Save CIC cross-validation results
-    if cv_results:
-        cv_framework.save_results('data/results/cross_validation/cic')
-        print(f"💾 CIC cross-validation results saved")
+    # Collect all results (existing + new)
+    all_results = list(cv_framework.results.values())
     
-    return cv_framework, cv_results
+    # Save final comprehensive results
+    if all_results:
+        cv_framework.save_results(output_dir)
+    
+    return cv_framework, all_results
 
 
 def run_full_cross_validation():
