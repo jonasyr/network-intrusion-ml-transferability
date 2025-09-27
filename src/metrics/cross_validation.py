@@ -59,20 +59,66 @@ class CrossValidationFramework:
         
         # Perform cross-validation with progress indication
         import time
+        from sklearn.base import clone
         start_time = time.time()
         print(f"   ⏳ Starting {self.n_folds}-fold cross-validation...")
         
-        cv_results = cross_validate(
-            model, X, y, 
-            cv=self.cv, 
-            scoring=scoring,
-            return_train_score=True,
-            n_jobs=1,  # Reduced parallelism to avoid overwhelming output
-            verbose=0  # Suppress sklearn verbose output
-        )
+        # Initialize result containers
+        cv_results = {
+            'test_accuracy': [],
+            'test_f1': [],
+            'test_precision': [],
+            'test_recall': [],
+            'test_roc_auc': [],
+            'train_accuracy': [],
+            'train_f1': [],
+            'train_precision': [],
+            'train_recall': [],
+            'train_roc_auc': []
+        }
+        
+        # Manual cross-validation with per-fold progress
+        for fold_idx, (train_idx, test_idx) in enumerate(self.cv.split(X, y), 1):
+            fold_start_time = time.time()
+            print(f"   📁 Processing fold {fold_idx}/{self.n_folds}...", end=" ", flush=True)
+            
+            # Split data
+            X_train, X_test = X[train_idx], X[test_idx]
+            y_train, y_test = y[train_idx], y[test_idx]
+            
+            # Clone and train model
+            fold_model = clone(model)
+            fold_model.fit(X_train, y_train)
+            
+            # Predict
+            y_train_pred = fold_model.predict(X_train)
+            y_test_pred = fold_model.predict(X_test)
+            y_train_proba = fold_model.predict_proba(X_train)[:, 1] if hasattr(fold_model, 'predict_proba') else y_train_pred
+            y_test_proba = fold_model.predict_proba(X_test)[:, 1] if hasattr(fold_model, 'predict_proba') else y_test_pred
+            
+            # Calculate metrics for test set
+            cv_results['test_accuracy'].append(accuracy_score(y_test, y_test_pred))
+            cv_results['test_f1'].append(f1_score(y_test, y_test_pred))
+            cv_results['test_precision'].append(precision_score(y_test, y_test_pred))
+            cv_results['test_recall'].append(recall_score(y_test, y_test_pred))
+            cv_results['test_roc_auc'].append(roc_auc_score(y_test, y_test_proba))
+            
+            # Calculate metrics for train set
+            cv_results['train_accuracy'].append(accuracy_score(y_train, y_train_pred))
+            cv_results['train_f1'].append(f1_score(y_train, y_train_pred))
+            cv_results['train_precision'].append(precision_score(y_train, y_train_pred))
+            cv_results['train_recall'].append(recall_score(y_train, y_train_pred))
+            cv_results['train_roc_auc'].append(roc_auc_score(y_train, y_train_proba))
+            
+            fold_elapsed = time.time() - fold_start_time
+            print(f"✅ {fold_elapsed:.1f}s (Acc: {cv_results['test_accuracy'][-1]:.3f})")
+        
+        # Convert lists to numpy arrays for consistency with cross_validate output
+        for key in cv_results:
+            cv_results[key] = np.array(cv_results[key])
         
         elapsed = time.time() - start_time
-        print(f"   ✅ Completed in {elapsed/60:.1f} minutes")
+        print(f"   ✅ All folds completed in {elapsed/60:.1f} minutes")
         
         # Calculate statistics
         results = {
