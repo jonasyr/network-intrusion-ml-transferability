@@ -75,6 +75,7 @@ def _build_model_suite() -> Dict[str, object]:
             max_depth=25,
             random_state=RANDOM_STATE,
             n_jobs=-1,
+            class_weight='balanced',  # Handle class imbalance
         )
     }
 
@@ -89,6 +90,7 @@ def _build_model_suite() -> Dict[str, object]:
             n_jobs=-1,
             objective="binary:logistic",
             eval_metric="logloss",
+            scale_pos_weight=1,  # Will be set dynamically based on class ratio
         )
     else:
         print("   ⚠️ XGBoost not available – skipping")
@@ -102,6 +104,7 @@ def _build_model_suite() -> Dict[str, object]:
             colsample_bytree=0.8,
             random_state=RANDOM_STATE,
             n_jobs=-1,
+            class_weight='balanced',  # Handle class imbalance
         )
     else:
         print("   ⚠️ LightGBM not available – skipping")
@@ -117,6 +120,17 @@ def _evaluate_model(
     target_label: str,
 ) -> Dict[str, float]:
     print(f"\n🤖 Training {model_name} on aligned {source_label} features…")
+    
+    # Calculate class weights for XGBoost
+    if model_name == "XGBoost" and hasattr(model, 'scale_pos_weight'):
+        unique, counts = np.unique(bundle.train_labels, return_counts=True)
+        if len(unique) == 2:
+            neg_count = counts[unique == 0][0] if len(counts[unique == 0]) > 0 else 1
+            pos_count = counts[unique == 1][0] if len(counts[unique == 1]) > 0 else 1
+            scale_pos_weight = neg_count / pos_count
+            model.set_params(scale_pos_weight=scale_pos_weight)
+            print(f"   ⚖️ Set scale_pos_weight={scale_pos_weight:.2f} for class balance")
+    
     start_time = time.time()
     model.fit(bundle.train_features, bundle.train_labels)
     training_time = time.time() - start_time
