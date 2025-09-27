@@ -45,9 +45,12 @@ except ImportError:  # pragma: no cover - optional component
 
 RANDOM_STATE = 42
 RESULTS_DIR = project_root / "data/results"
+# Output paths
 FORWARD_RESULTS_PATH = RESULTS_DIR / "nsl_trained_tested_on_cic.csv"  # NSL→CIC
 REVERSE_RESULTS_PATH = RESULTS_DIR / "cic_trained_tested_on_nsl.csv"   # CIC→NSL  
 BIDIRECTIONAL_RESULTS_PATH = RESULTS_DIR / "bidirectional_cross_dataset_analysis.csv"
+FORWARD_INCREMENTAL_PATH = RESULTS_DIR / "nsl_trained_tested_on_cic_incremental.csv"
+REVERSE_INCREMENTAL_PATH = RESULTS_DIR / "cic_trained_tested_on_nsl_incremental.csv"
 
 
 @dataclass
@@ -357,6 +360,73 @@ def _align_cic_to_nsl() -> DatasetBundle:
     )
 
 
+def _save_incremental_result(
+    result: Dict[str, float],
+    incremental_path: Path,
+    source_label: str,
+    target_label: str,
+) -> None:
+    """Save individual model result incrementally to prevent data loss."""
+    # Create directory if it doesn't exist
+    incremental_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Check if file exists and read existing data
+    if incremental_path.exists():
+        try:
+            existing_df = pd.read_csv(incremental_path)
+            # Append new result
+            new_df = pd.concat([existing_df, pd.DataFrame([result])], ignore_index=True)
+        except Exception as e:
+            print(f"⚠️  Warning: Could not read existing incremental file: {e}")
+            new_df = pd.DataFrame([result])
+    else:
+        new_df = pd.DataFrame([result])
+    
+    # Save updated data
+    new_df.to_csv(incremental_path, index=False)
+    print(f"💾 Saved {result['Model']} ({source_label}→{target_label}) to {incremental_path.name}")
+
+
+def _save_incremental_result(
+    result: Dict[str, float],
+    incremental_path: Path,
+    source_label: str,
+    target_label: str,
+) -> None:
+    """Save individual model result incrementally to prevent data loss."""
+    # Create directory if it doesn't exist
+    incremental_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Check if file exists and read existing data
+    if incremental_path.exists():
+        try:
+            existing_df = pd.read_csv(incremental_path)
+            # Append new result
+            new_df = pd.concat([existing_df, pd.DataFrame([result])], ignore_index=True)
+        except Exception as e:
+            print(f"⚠️  Warning: Could not read existing incremental file: {e}")
+            new_df = pd.DataFrame([result])
+    else:
+        new_df = pd.DataFrame([result])
+    
+    # Save updated data
+    new_df.to_csv(incremental_path, index=False)
+    print(f"💾 Saved {result['Model']} ({source_label}→{target_label}) to {incremental_path.name}")
+
+
+def _recover_from_incremental(incremental_path: Path) -> pd.DataFrame:
+    """Recover results from incremental save file if it exists."""
+    if incremental_path.exists():
+        try:
+            recovered_df = pd.read_csv(incremental_path)
+            if not recovered_df.empty:
+                print(f"📥 Recovered {len(recovered_df)} model results from {incremental_path.name}")
+                return recovered_df
+        except Exception as e:
+            print(f"⚠️  Could not recover from {incremental_path.name}: {e}")
+    return pd.DataFrame()
+
+
 def _run_direction(
     bundle: DatasetBundle,
     source_label: str,
@@ -364,10 +434,31 @@ def _run_direction(
 ) -> pd.DataFrame:
     models = _build_model_suite()
     results: List[Dict[str, float]] = []
+    
+    # Determine incremental save path based on direction
+    if source_label == "NSL-KDD":
+        incremental_path = FORWARD_INCREMENTAL_PATH
+    else:
+        incremental_path = REVERSE_INCREMENTAL_PATH
+    
+    # Clear any existing incremental file at start
+    if incremental_path.exists():
+        incremental_path.unlink()
+        print(f"🗑️  Cleared existing incremental file: {incremental_path.name}")
 
     for model_name, model in models.items():
-        metrics = _evaluate_model(model_name, model, bundle, source_label, target_label)
-        results.append(metrics)
+        print(f"\n🔄 Training {model_name} ({source_label}→{target_label})...")
+        try:
+            metrics = _evaluate_model(model_name, model, bundle, source_label, target_label)
+            results.append(metrics)
+            
+            # Save result incrementally
+            _save_incremental_result(metrics, incremental_path, source_label, target_label)
+            
+        except Exception as e:
+            print(f"❌ {model_name} failed: {e}")
+            # Continue with other models even if one fails
+            continue
 
     if not results:
         return pd.DataFrame()
@@ -422,12 +513,22 @@ def _create_bidirectional_summary(forward_df: pd.DataFrame, reverse_df: pd.DataF
 
 
 def run_cross_dataset_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    try:
-        forward_bundle = _align_nsl_to_cic()
-        forward_results = _run_direction(forward_bundle, "NSL-KDD", "CIC-IDS-2017")
-    except Exception as exc:  # pragma: no cover - runtime failures
-        print(f"❌ NSL→CIC evaluation failed: {exc}")
-        forward_results = pd.DataFrame()
+    print("🔍 Checking for previous incomplete runs...")
+    existing_forward = _recover_from_incremental(FORWARD_INCREMENTAL_PATH)
+    existing_reverse = _recover_from_incremental(REVERSE_INCREMENTAL_PATH)
+    
+    # NSL-KDD → CIC-IDS-2017 evaluation
+    if not existing_forward.empty:
+        print(f"\n✅ Using recovered NSL→CIC results ({len(existing_forward)} models)")
+        forward_results = existing_forward
+    else:
+        try:
+            forward_bundle = _align_nsl_to_cic()
+            forward_results = _run_direction(forward_bundle, "NSL-KDD", "CIC-IDS-2017")
+        except Exception as exc:  # pragma: no cover - runtime failures
+            print(f"❌ NSL→CIC evaluation failed: {exc}")
+            # Try to recover partial results
+            forward_results = _recover_from_incremental(FORWARD_INCREMENTAL_PATH)
 
     if not forward_results.empty:
         FORWARD_RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -436,12 +537,18 @@ def run_cross_dataset_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFra
         print(forward_results.to_string(index=False))
         print(f"\n💾 Results saved to {FORWARD_RESULTS_PATH}")
 
-    try:
-        reverse_bundle = _align_cic_to_nsl()
-        reverse_results = _run_direction(reverse_bundle, "CIC-IDS-2017", "NSL-KDD")
-    except Exception as exc:  # pragma: no cover - runtime failures
-        print(f"❌ CIC→NSL evaluation failed: {exc}")
-        reverse_results = pd.DataFrame()
+    # CIC-IDS-2017 → NSL-KDD evaluation
+    if not existing_reverse.empty:
+        print(f"\n✅ Using recovered CIC→NSL results ({len(existing_reverse)} models)")
+        reverse_results = existing_reverse
+    else:
+        try:
+            reverse_bundle = _align_cic_to_nsl()
+            reverse_results = _run_direction(reverse_bundle, "CIC-IDS-2017", "NSL-KDD")
+        except Exception as exc:  # pragma: no cover - runtime failures
+            print(f"❌ CIC→NSL evaluation failed: {exc}")
+            # Try to recover partial results
+            reverse_results = _recover_from_incremental(REVERSE_INCREMENTAL_PATH)
 
     if not reverse_results.empty:
         REVERSE_RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -473,6 +580,12 @@ def run_cross_dataset_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFra
             f"{summary_df.sort_values('Transfer_Asymmetry').iloc[0]['Model']}"
         )
         print(f"\n💾 Combined results saved to {BIDIRECTIONAL_RESULTS_PATH}")
+        
+        # Clean up incremental files on successful completion
+        for incremental_path in [FORWARD_INCREMENTAL_PATH, REVERSE_INCREMENTAL_PATH]:
+            if incremental_path.exists():
+                incremental_path.unlink()
+                print(f"🗑️  Cleaned up incremental file: {incremental_path.name}")
 
     return forward_results, reverse_results, summary_df
 
