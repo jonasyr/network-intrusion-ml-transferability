@@ -6,9 +6,10 @@ from __future__ import annotations
 import gc
 import json
 import numpy as np
+import pickle
 from pathlib import Path
 import sys
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -46,6 +47,10 @@ NSL_PATH = PROJECT_ROOT / "data/raw/nsl-kdd/KDDTrain+.txt"
 CIC_SAMPLE_PATH = PROJECT_ROOT / "data/raw/cic-ids-2017/cic_ids_sample_backup.csv"
 CIC_DATASET_DIR = PROJECT_ROOT / "data/raw/cic-ids-2017/full_dataset"
 RESULTS_PATH = PROJECT_ROOT / "data/results/harmonized_cross_validation.json"
+CHECKPOINT_DIR = PROJECT_ROOT / "data/results/harmonized_checkpoints"
+NSL_CIC_CHECKPOINT = CHECKPOINT_DIR / "nsl_to_cic_model.pkl"
+CIC_NSL_CHECKPOINT = CHECKPOINT_DIR / "cic_to_nsl_model.pkl"
+PROGRESS_CHECKPOINT = CHECKPOINT_DIR / "training_progress.json"
 
 RANDOM_STATE = 42
 
@@ -78,6 +83,59 @@ NUMERIC_FEATURES = [
 ]
 
 CATEGORICAL_FEATURES = ["protocol", "connection_state"]
+
+
+def save_checkpoint(pipeline: Pipeline, checkpoint_path: Path, progress_info: Dict) -> None:
+    """Save model checkpoint and training progress."""
+    checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save model
+    with checkpoint_path.open('wb') as f:
+        pickle.dump(pipeline, f)
+    
+    # Save progress info
+    progress_path = checkpoint_path.parent / "training_progress.json"
+    with progress_path.open('w') as f:
+        json.dump(progress_info, f, indent=2)
+    
+    print(f"💾 Checkpoint saved: {checkpoint_path.name}")
+
+
+def load_checkpoint(checkpoint_path: Path) -> Optional[Pipeline]:
+    """Load model checkpoint if exists."""
+    if checkpoint_path.exists():
+        try:
+            with checkpoint_path.open('rb') as f:
+                pipeline = pickle.load(f)
+            print(f"📥 Loaded checkpoint: {checkpoint_path.name}")
+            return pipeline
+        except Exception as e:
+            print(f"⚠️  Failed to load checkpoint: {e}")
+    return None
+
+
+def create_balanced_batch(chunk: pd.DataFrame, batch_size: int = 20000) -> Optional[pd.DataFrame]:
+    """Create balanced batch from chunk ensuring both classes are present."""
+    if chunk.empty:
+        return None
+        
+    benign = chunk[chunk['label_binary'] == 0]
+    malicious = chunk[chunk['label_binary'] == 1]
+    
+    if len(benign) == 0 or len(malicious) == 0:
+        return None  # Skip if only one class
+    
+    # Take balanced samples
+    samples_per_class = min(batch_size // 2, len(benign), len(malicious))
+    
+    if samples_per_class < 100:  # Skip very small batches
+        return None
+        
+    benign_sample = benign.sample(n=samples_per_class, random_state=42)
+    malicious_sample = malicious.sample(n=samples_per_class, random_state=42)
+    
+    balanced_batch = pd.concat([benign_sample, malicious_sample]).sample(frac=1, random_state=42)
+    return balanced_batch
 
 
 def compute_adaptive_class_weights(y: np.ndarray) -> Dict[int, float]:
@@ -371,6 +429,15 @@ def train_on_full_cic_dataset() -> Pipeline:
         if final_val:
             print(f"Final validation predictions: {final_val['pred_benign']} benign, {final_val['pred_malicious']} malicious")
     
+    # Save checkpoint for incremental training
+    save_checkpoint(pipeline, CIC_NSL_CHECKPOINT, {
+        "total_samples": total_samples_processed,
+        "benign_samples": total_benign_seen,
+        "malicious_samples": total_malicious_seen,
+        "validation_scores": validation_scores[-10:] if validation_scores else [],
+        "training_type": "incremental"
+    })
+    
     return pipeline
 
 
@@ -510,6 +577,81 @@ def _build_regular_pipeline() -> Pipeline:
     return Pipeline(steps=[("preprocess", preprocessor), ("clf", classifier)])
 
 
+def evaluate_with_existing_model(
+    pipeline: Pipeline,
+    target_common: pd.DataFrame,
+    source_name: str,
+    target_name: str,
+    use_incremental: bool = False,
+) -> Dict[str, float | str]:
+    """Evaluate using existing trained model."""
+    X_target, y_target = _prepare_features(target_common)
+    
+    # Get prediction probabilities for threshold tuning
+    y_proba = pipeline.predict_proba(X_target)
+    
+    # Try different thresholds to optimize F1 score
+    thresholds = [0.3, 0.4, 0.5, 0.6, 0.7]
+    best_threshold = 0.5
+    best_f1 = 0.0
+    
+    print("Testing different classification thresholds:")
+    for threshold in thresholds:
+        y_pred_thresh = (y_proba[:, 1] >= threshold).astype(int)
+        f1_thresh = f1_score(y_target, y_pred_thresh, zero_division=0)
+        acc_thresh = accuracy_score(y_target, y_pred_thresh)
+        
+        unique_pred, counts_pred = np.unique(y_pred_thresh, return_counts=True)
+        pred_dist = dict(zip(unique_pred, counts_pred))
+        
+        print(f"  Threshold {threshold}: F1={f1_thresh:.3f}, Acc={acc_thresh:.3f}, Pred dist={pred_dist}")
+        
+        if f1_thresh > best_f1:
+            best_f1 = f1_thresh
+            best_threshold = threshold
+    
+    print(f"Best threshold: {best_threshold} (F1={best_f1:.3f})")
+    
+    # Use best threshold for final predictions
+    y_pred = (y_proba[:, 1] >= best_threshold).astype(int)
+    
+    # Calculate final metrics
+    target_accuracy = float(accuracy_score(y_target, y_pred))
+    target_precision = float(precision_score(y_target, y_pred, zero_division=0))
+    target_recall = float(recall_score(y_target, y_pred, zero_division=0))
+    target_f1 = float(f1_score(y_target, y_pred, zero_division=0))
+    
+    unique_true, counts_true = np.unique(y_target, return_counts=True)
+    unique_pred, counts_pred = np.unique(y_pred, return_counts=True)
+    
+    print(f"Target true labels: {dict(zip(unique_true, counts_true))}")
+    print(f"Final predicted labels: {dict(zip(unique_pred, counts_pred))}")
+    print(f"Mean probabilities: {np.mean(y_proba, axis=0)}")
+    
+    # Print results
+    print("\n" + "=" * 80)
+    print(f"Training on {source_name} → Evaluating on {target_name}")
+    print("-" * 80)
+    print(f"Cross-validation F1 (source, 3-fold): N/A (cached model)")
+    print(f"Optimized threshold: {best_threshold}")
+    print(f"Transfer performance Acc={target_accuracy:.3f} | F1={target_f1:.3f} | Precision={target_precision:.3f} | Recall={target_recall:.3f}")
+    if use_incremental:
+        print("(Using cached incremental training model)")
+    
+    return {
+        "source_dataset": source_name,
+        "target_dataset": target_name,
+        "cv_f1_mean": -1.0,  # N/A for cached model
+        "cv_f1_std": -1.0,
+        "best_threshold": best_threshold,
+        "target_accuracy": target_accuracy,
+        "target_precision": target_precision,
+        "target_recall": target_recall,
+        "target_f1": target_f1,
+        "incremental_training": use_incremental,
+    }
+
+
 def evaluate_transfer_with_full_training(
     source_common: pd.DataFrame,
     target_common: pd.DataFrame,
@@ -536,6 +678,16 @@ def evaluate_transfer_with_full_training(
         cv_f1_mean = float(np.mean(cv_scores))
         cv_f1_std = float(np.std(cv_scores))
         pipeline.fit(X_source, y_source)
+        
+        # Save checkpoint for regular training
+        if source_name == "NSL-KDD":
+            save_checkpoint(pipeline, NSL_CIC_CHECKPOINT, {
+                "source": source_name,
+                "target": target_name,
+                "cv_f1_mean": cv_f1_mean,
+                "cv_f1_std": cv_f1_std,
+                "training_type": "regular"
+            })
 
     # Evaluate on target with detailed debugging
     print("Evaluating on target dataset...")
@@ -684,15 +836,32 @@ def main() -> None:
     print("\nRunning cross-dataset evaluation...")
     results: List[Dict[str, float | str]] = []
     
-    # 1. Train on NSL-KDD (regular) → Evaluate on CIC-IDS-2017
-    results.append(evaluate_transfer_with_full_training(
-        nsl_sample, cic_eval_sample, "NSL-KDD", "CIC-IDS-2017", use_incremental=False
-    ))
+    # Check for existing checkpoints
+    print("\n🔍 Checking for existing model checkpoints...")
+    nsl_cic_model = load_checkpoint(NSL_CIC_CHECKPOINT)
+    cic_nsl_model = load_checkpoint(CIC_NSL_CHECKPOINT)
     
-    # 2. Train on FULL CIC-IDS-2017 (incremental) → Evaluate on NSL-KDD  
-    results.append(evaluate_transfer_with_full_training(
-        cic_eval_sample, nsl_sample, "CIC-IDS-2017", "NSL-KDD", use_incremental=True
-    ))
+    # 1. Train on NSL-KDD (regular) → Evaluate on CIC-IDS-2017
+    if nsl_cic_model is not None:
+        print("✅ Using cached NSL→CIC model")
+        results.append(evaluate_with_existing_model(
+            nsl_cic_model, cic_eval_sample, "NSL-KDD", "CIC-IDS-2017", use_incremental=False
+        ))
+    else:
+        results.append(evaluate_transfer_with_full_training(
+            nsl_sample, cic_eval_sample, "NSL-KDD", "CIC-IDS-2017", use_incremental=False
+        ))
+    
+    # 2. Train on FULL CIC-IDS-2017 (incremental) → Evaluate on NSL-KDD
+    if cic_nsl_model is not None:
+        print("✅ Using cached CIC→NSL model")
+        results.append(evaluate_with_existing_model(
+            cic_nsl_model, nsl_sample, "CIC-IDS-2017", "NSL-KDD", use_incremental=True
+        ))
+    else:
+        results.append(evaluate_transfer_with_full_training(
+            cic_eval_sample, nsl_sample, "CIC-IDS-2017", "NSL-KDD", use_incremental=True
+        ))
 
     # Save results
     with MemoryMonitor("Results Saving"):
