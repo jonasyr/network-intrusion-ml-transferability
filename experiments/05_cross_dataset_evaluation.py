@@ -71,6 +71,16 @@ def _format_percentage(value: float) -> str:
     return f"{value * 100:.2f}%"
 
 
+def _get_expected_models() -> List[str]:
+    """Get list of expected model names for validation."""
+    expected = ["Random Forest"]
+    if xgb is not None:
+        expected.append("XGBoost")
+    if lgb is not None:
+        expected.append("LightGBM")
+    return expected
+
+
 def _build_model_suite() -> Dict[str, object]:
     models: Dict[str, object] = {
         "Random Forest": RandomForestClassifier(
@@ -414,23 +424,45 @@ def _save_incremental_result(
     print(f"💾 Saved {result['Model']} ({source_label}→{target_label}) to {incremental_path.name}")
 
 
-def _recover_from_incremental(incremental_path: Path) -> pd.DataFrame:
-    """Recover results from incremental save file if it exists."""
-    if incremental_path.exists():
-        try:
-            recovered_df = pd.read_csv(incremental_path)
-            if not recovered_df.empty:
-                print(f"📥 Recovered {len(recovered_df)} model results from {incremental_path.name}")
-                return recovered_df
-        except Exception as e:
-            print(f"⚠️  Could not recover from {incremental_path.name}: {e}")
-    return pd.DataFrame()
+def _recover_from_incremental(incremental_path: Path) -> Tuple[pd.DataFrame, bool]:
+    """Recover results from incremental save file if it exists.
+    
+    Returns:
+        Tuple of (recovered_dataframe, is_complete)
+        is_complete is True only if ALL expected models are present
+    """
+    if not incremental_path.exists():
+        return pd.DataFrame(), False
+        
+    try:
+        recovered_df = pd.read_csv(incremental_path)
+        if recovered_df.empty:
+            return pd.DataFrame(), False
+            
+        expected_models = set(_get_expected_models())
+        recovered_models = set(recovered_df['Model'].tolist())
+        missing_models = expected_models - recovered_models
+        
+        is_complete = len(missing_models) == 0
+        
+        print(f"📥 Recovered {len(recovered_df)} model results from {incremental_path.name}")
+        if missing_models:
+            print(f"   ⚠️  Missing models: {', '.join(sorted(missing_models))}")
+        else:
+            print(f"   ✅ All {len(expected_models)} expected models present")
+            
+        return recovered_df, is_complete
+        
+    except Exception as e:
+        print(f"⚠️  Could not recover from {incremental_path.name}: {e}")
+        return pd.DataFrame(), False
 
 
 def _run_direction(
     bundle: DatasetBundle,
     source_label: str,
     target_label: str,
+    recovered_df: pd.DataFrame = None,
 ) -> pd.DataFrame:
     models = _build_model_suite()
     results: List[Dict[str, float]] = []
@@ -441,12 +473,24 @@ def _run_direction(
     else:
         incremental_path = REVERSE_INCREMENTAL_PATH
     
-    # Clear any existing incremental file at start
-    if incremental_path.exists():
-        incremental_path.unlink()
-        print(f"🗑️  Cleared existing incremental file: {incremental_path.name}")
+    # If we have recovered results, use them and only train missing models
+    if recovered_df is not None and not recovered_df.empty:
+        results = recovered_df.to_dict('records')
+        recovered_models = set(recovered_df['Model'].tolist())
+        print(f"🔄 Continuing from {len(recovered_models)} recovered models...")
+    else:
+        recovered_models = set()
+        # Clear any existing incremental file at start only if no recovery
+        if incremental_path.exists():
+            incremental_path.unlink()
+            print(f"🗑️  Cleared existing incremental file: {incremental_path.name}")
 
+    # Train only missing models
     for model_name, model in models.items():
+        if model_name in recovered_models:
+            print(f"✅ Skipping {model_name} ({source_label}→{target_label}) - already completed")
+            continue
+            
         print(f"\n🔄 Training {model_name} ({source_label}→{target_label})...")
         try:
             metrics = _evaluate_model(model_name, model, bundle, source_label, target_label)
@@ -514,21 +558,24 @@ def _create_bidirectional_summary(forward_df: pd.DataFrame, reverse_df: pd.DataF
 
 def run_cross_dataset_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     print("🔍 Checking for previous incomplete runs...")
-    existing_forward = _recover_from_incremental(FORWARD_INCREMENTAL_PATH)
-    existing_reverse = _recover_from_incremental(REVERSE_INCREMENTAL_PATH)
+    existing_forward, forward_complete = _recover_from_incremental(FORWARD_INCREMENTAL_PATH)
+    existing_reverse, reverse_complete = _recover_from_incremental(REVERSE_INCREMENTAL_PATH)
     
     # NSL-KDD → CIC-IDS-2017 evaluation
-    if not existing_forward.empty:
-        print(f"\n✅ Using recovered NSL→CIC results ({len(existing_forward)} models)")
+    if forward_complete:
+        print(f"\n✅ Using complete NSL→CIC results ({len(existing_forward)} models)")
         forward_results = existing_forward
     else:
         try:
             forward_bundle = _align_nsl_to_cic()
-            forward_results = _run_direction(forward_bundle, "NSL-KDD", "CIC-IDS-2017")
+            if not existing_forward.empty:
+                print(f"\n🔄 Resuming NSL→CIC evaluation with {len(existing_forward)} recovered models")
+            forward_results = _run_direction(forward_bundle, "NSL-KDD", "CIC-IDS-2017", existing_forward)
         except Exception as exc:  # pragma: no cover - runtime failures
             print(f"❌ NSL→CIC evaluation failed: {exc}")
             # Try to recover partial results
-            forward_results = _recover_from_incremental(FORWARD_INCREMENTAL_PATH)
+            partial_results, _ = _recover_from_incremental(FORWARD_INCREMENTAL_PATH)
+            forward_results = partial_results
 
     if not forward_results.empty:
         FORWARD_RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -538,17 +585,20 @@ def run_cross_dataset_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFra
         print(f"\n💾 Results saved to {FORWARD_RESULTS_PATH}")
 
     # CIC-IDS-2017 → NSL-KDD evaluation
-    if not existing_reverse.empty:
-        print(f"\n✅ Using recovered CIC→NSL results ({len(existing_reverse)} models)")
+    if reverse_complete:
+        print(f"\n✅ Using complete CIC→NSL results ({len(existing_reverse)} models)")
         reverse_results = existing_reverse
     else:
         try:
             reverse_bundle = _align_cic_to_nsl()
-            reverse_results = _run_direction(reverse_bundle, "CIC-IDS-2017", "NSL-KDD")
+            if not existing_reverse.empty:
+                print(f"\n🔄 Resuming CIC→NSL evaluation with {len(existing_reverse)} recovered models")
+            reverse_results = _run_direction(reverse_bundle, "CIC-IDS-2017", "NSL-KDD", existing_reverse)
         except Exception as exc:  # pragma: no cover - runtime failures
             print(f"❌ CIC→NSL evaluation failed: {exc}")
             # Try to recover partial results
-            reverse_results = _recover_from_incremental(REVERSE_INCREMENTAL_PATH)
+            partial_results, _ = _recover_from_incremental(REVERSE_INCREMENTAL_PATH)
+            reverse_results = partial_results
 
     if not reverse_results.empty:
         REVERSE_RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
