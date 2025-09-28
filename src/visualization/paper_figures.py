@@ -402,56 +402,40 @@ class PaperFigureGenerator:
         
         axes[0, 1].grid(True, alpha=0.3, axis='x')
         
-        # 3. Precision vs Recall - Zoomed view for high-performance models
-        min_recall, max_recall = all_results['recall'].min(), all_results['recall'].max()
-        min_precision, max_precision = all_results['precision'].min(), all_results['precision'].max()
+        # 3. Precision vs Recall - Clean visualization with smart labeling
+        # Separate high and low performers for better visualization
+        high_performers = all_results[(all_results['precision'] >= 0.8) & (all_results['recall'] >= 0.8)]
+        low_performers = all_results[(all_results['precision'] < 0.8) | (all_results['recall'] < 0.8)]
         
-        # Check if all models are high-performing (>0.95)
-        if min_recall > 0.95 and min_precision > 0.95:
-            # Zoomed view for high-performance region
-            axes[1, 0].set_xlim(0.95, 1.001)
-            axes[1, 0].set_ylim(0.95, 1.001)
+        # Create scatter plot with different treatments for different performance levels
+        for category in all_results['category'].unique():
+            cat_data = all_results[all_results['category'] == category]
+            axes[1, 0].scatter(cat_data['recall'], cat_data['precision'], 
+                               c=category_colors.get(category, self.colors['neutral']), 
+                               s=120, alpha=0.7, edgecolors='white', linewidth=1.5,
+                               label=category)
+        
+        # Only label the top performers and notable outliers
+        top_models = all_results.nlargest(3, 'f1_score')  # Top 3 only
+        worst_models = all_results.nsmallest(2, 'f1_score')  # Worst 2 for context
+        
+        models_to_label = pd.concat([top_models, worst_models])
+        
+        for i, row in models_to_label.iterrows():
+            # Short model names
+            short_name = row['model_name'].split('_')[0]
+            if len(short_name) > 8:
+                short_name = short_name[:8] + '...'
             
-            # Create scatter plot with larger markers for visibility
-            for category in all_results['category'].unique():
-                cat_data = all_results[all_results['category'] == category]
-                axes[1, 0].scatter(cat_data['recall'], cat_data['precision'], 
-                                   c=category_colors.get(category, self.colors['neutral']), 
-                                   s=150, alpha=0.8, edgecolors='black', linewidth=1,
-                                   label=category)
-            
-            # Add only top 5 model labels to avoid overcrowding
-            top_models = all_results.nlargest(5, 'f1_score')
-            for i, row in top_models.iterrows():
-                axes[1, 0].annotate(f"{row['model_name'].split('_')[0]}", 
-                                   (row['recall'], row['precision']),
-                                   xytext=(5, 5), textcoords='offset points',
-                                   fontsize=7, fontweight='bold', ha='left',
-                                   bbox=dict(boxstyle='round,pad=0.2', facecolor='white', alpha=0.7))
-            
-            axes[1, 0].set_title('Precision vs Recall (Zoomed: High Performance)', fontweight='bold', fontsize=10)
-            axes[1, 0].text(0.951, 0.999, 'All models >95%\\nperformance', fontsize=8, 
-                           bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.7))
-            
-        else:
-            # Standard full view
-            for category in all_results['category'].unique():
-                cat_data = all_results[all_results['category'] == category]
-                axes[1, 0].scatter(cat_data['recall'], cat_data['precision'], 
-                                   c=category_colors.get(category, self.colors['neutral']), 
-                                   s=120, alpha=0.7, edgecolors='white', linewidth=1.5,
-                                   label=category)
-            
-            # Add model labels for lower performing models only
-            for i, row in all_results.iterrows():
-                axes[1, 0].annotate(row['display_name'], 
-                                   (row['recall'], row['precision']),
-                                   xytext=(3, 3), textcoords='offset points',
-                                   fontsize=6, alpha=0.8, ha='left')
-            
-            axes[1, 0].set_title('Precision vs Recall', fontweight='bold', fontsize=10)
-            axes[1, 0].set_xlim(0, 1.05)
-            axes[1, 0].set_ylim(0, 1.05)
+            axes[1, 0].annotate(f"{short_name}", 
+                               (row['recall'], row['precision']),
+                               xytext=(5, 5), textcoords='offset points',
+                               fontsize=7, fontweight='bold', ha='left',
+                               bbox={'boxstyle': 'round,pad=0.2', 'facecolor': 'white', 'alpha': 0.8, 'edgecolor': 'gray'})
+        
+        axes[1, 0].set_title('Precision vs Recall (Top & Bottom Models Labeled)', fontweight='bold', fontsize=10)
+        axes[1, 0].set_xlim(-0.05, 1.05)
+        axes[1, 0].set_ylim(-0.05, 1.05)
         
         axes[1, 0].set_xlabel('Recall', fontsize=9)
         axes[1, 0].set_ylabel('Precision', fontsize=9)
