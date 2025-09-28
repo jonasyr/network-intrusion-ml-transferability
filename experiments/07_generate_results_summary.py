@@ -23,12 +23,13 @@ CIC_BASELINE_PATH = RESULTS_DIR / "cic_baseline_results.csv"
 CIC_ADVANCED_PATH = RESULTS_DIR / "cic_advanced_results.csv"
 # Cross-validation paths
 NSL_CV_SUMMARY_PATH = RESULTS_DIR / "cross_validation/cv_summary_table.csv"
-CIC_CV_SUMMARY_PATH = RESULTS_DIR / "cross_validation/cic/cv_summary_table.csv"
+CIC_CV_SUMMARY_PATH = RESULTS_DIR / "cross_validation/cic/cv_summary_table_cic.csv"
 # Cross-dataset evaluation paths
 NSL_TO_CIC_PATH = RESULTS_DIR / "nsl_trained_tested_on_cic.csv"
 CIC_TO_NSL_PATH = RESULTS_DIR / "cic_trained_tested_on_nsl.csv"
 BIDIRECTIONAL_PATH = RESULTS_DIR / "bidirectional_cross_dataset_analysis.csv"
 HARMONIZED_PATH = RESULTS_DIR / "harmonized_cross_validation.json"
+TIMING_ANALYSIS_PATH = RESULTS_DIR / "timing_analysis/timing_analysis_real_timing_summary.json"
 SUMMARY_OUTPUT_PATH = RESULTS_DIR / "experiment_summary.csv"
 SUMMARY_JSON_PATH = RESULTS_DIR / "experiment_summary.json"
 
@@ -59,6 +60,32 @@ def _load_harmonized_results(path: Path) -> Optional[Dict]:
     except json.JSONDecodeError as exc:  # pragma: no cover - malformed JSON
         print(f"❌ Failed to parse harmonized results: {exc}")
         return None
+
+
+def _load_timing_analysis(path: Path) -> Optional[Dict]:
+    if not path.exists():
+        print(f"⚠️ Timing analysis file not found: {path}")
+        return None
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            return json.load(handle)
+    except json.JSONDecodeError as exc:  # pragma: no cover - malformed JSON
+        print(f"❌ Failed to parse timing analysis: {exc}")
+        return None
+
+
+def _summarize_timing_analysis(data: Dict) -> Dict[str, object]:
+    if not data:
+        return {}
+    return {
+        "fastest_model": data.get("fastest_model", "unknown"),
+        "most_efficient_model": data.get("most_efficient_model", "unknown"),
+        "avg_training_time": float(data.get("avg_training_time", 0)),
+        "median_training_time": float(data.get("median_training_time", 0)),
+        "min_training_time": float(data.get("min_training_time", 0)),
+        "max_training_time": float(data.get("max_training_time", 0)),
+        "total_models_analyzed": int(data.get("total_models_analyzed", 0))
+    }
 
 
 def _load_dataset_results(dataset_name: str) -> Dict[str, Optional[pd.DataFrame]]:
@@ -325,6 +352,25 @@ def create_summary() -> pd.DataFrame:
             "Metric": "Training Configuration",
             "Value": f"Mode: {metadata['memory_mode']}, Method: {metadata['training_method']}",
         })
+    
+    # Process timing analysis
+    print("📊 Processing timing analysis...")
+    timing_data = _load_timing_analysis(TIMING_ANALYSIS_PATH)
+    if timing_data:
+        timing_summary = _summarize_timing_analysis(timing_data)
+        detailed_summary["timing_analysis"] = timing_summary
+        summary_rows.extend([
+            {
+                "Experiment": "Performance Analysis",
+                "Metric": "Fastest Model",
+                "Value": f"{timing_summary['fastest_model']} (min: {timing_summary['min_training_time']:.2f}s)"
+            },
+            {
+                "Experiment": "Performance Analysis", 
+                "Metric": "Training Time Stats",
+                "Value": f"Avg: {timing_summary['avg_training_time']:.1f}s, Median: {timing_summary['median_training_time']:.1f}s, Max: {timing_summary['max_training_time']:.1f}s"
+            }
+        ])
 
     # Generate final summary
     summary_df = pd.DataFrame(summary_rows)
