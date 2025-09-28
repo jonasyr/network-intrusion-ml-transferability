@@ -82,6 +82,7 @@ class PaperFigureGenerator:
             'primary': '#1f77b4',      # Blue - primary data
             'secondary': '#ff7f0e',    # Orange - secondary data
             'accent': '#2ca02c',       # Green - positive results
+            'success': '#2ca02c',      # Green - success/positive
             'warning': '#d62728',      # Red - negative/warning
             'neutral': '#7f7f7f',      # Gray - neutral
             'purple': '#9467bd',       # Purple - alternative
@@ -332,7 +333,13 @@ class PaperFigureGenerator:
         
         # Create figure with subplots
         fig, axes = plt.subplots(2, 2, figsize=(18, 14))
-        fig.suptitle('Machine Learning Models Performance Comparison\nNSL-KDD Dataset', 
+        if self._has_both_datasets():
+            dataset_title = "NSL-KDD & CIC-IDS-2017 Datasets"
+        elif self._has_nsl_data():
+            dataset_title = "NSL-KDD Dataset"
+        else:
+            dataset_title = "CIC-IDS-2017 Dataset"
+        fig.suptitle(f'Machine Learning Models Performance Comparison\n{dataset_title}', 
                      fontsize=14, fontweight='bold')
         
         # Sort by accuracy for consistent ordering (descending for better readability)
@@ -389,17 +396,22 @@ class PaperFigureGenerator:
         
         axes[0, 1].grid(True, alpha=0.3, axis='x')
         
-        # 3. Precision vs Recall scatter (improved)
-        scatter_colors = [category_colors.get(cat, self.colors['neutral']) for cat in all_results['category']]
-        scatter = axes[1, 0].scatter(all_results['recall'], all_results['precision'], 
-                                    c=scatter_colors, s=120, alpha=0.7, edgecolors='white', linewidth=1)
+        # 3. Precision vs Recall scatter (improved with statistical indicators)
+        # Create scatter plot with improved markers
+        for category in all_results['category'].unique():
+            cat_data = all_results[all_results['category'] == category]
+            axes[1, 0].scatter(cat_data['recall'], cat_data['precision'], 
+                               c=category_colors.get(category, self.colors['neutral']), 
+                               s=120, alpha=0.7, edgecolors='white', linewidth=1.5,
+                               label=category)
         
         # Add model name labels with better positioning to avoid overlaps
+        offset_text = 'offset points'
         texts = []
         for i, row in all_results.iterrows():
             text = axes[1, 0].annotate(row['display_name'], 
                                       (row['recall'], row['precision']),
-                                      xytext=(3, 3), textcoords='offset points',
+                                      xytext=(3, 3), textcoords=offset_text,
                                       fontsize=6, alpha=0.8, ha='left')
             texts.append(text)
         
@@ -417,11 +429,24 @@ class PaperFigureGenerator:
         axes[1, 0].set_xlim(max(0, min_recall - x_margin), min(1.05, max_recall + x_margin))
         axes[1, 0].set_ylim(max(0, min_precision - y_margin), min(1.05, max_precision + y_margin))
         
-        # Add diagonal line (perfect balance)
+        # Add diagonal line (perfect balance) and F1-score iso-lines
         lim_min = max(axes[1, 0].get_xlim()[0], axes[1, 0].get_ylim()[0])
         lim_max = min(axes[1, 0].get_xlim()[1], axes[1, 0].get_ylim()[1])
-        axes[1, 0].plot([lim_min, lim_max], [lim_min, lim_max], 'k--', alpha=0.3, linewidth=1)
+        axes[1, 0].plot([lim_min, lim_max], [lim_min, lim_max], 'k--', alpha=0.3, linewidth=1, label='Perfect Balance')
+        
+        # Add F1-score iso-lines for reference
+        f1_levels = [0.8, 0.9, 0.95]
+        x_line = np.linspace(0.01, 1, 100)
+        for f1 in f1_levels:
+            y_line = (f1 * x_line) / (2 * x_line - f1)
+            y_line = np.where(y_line > 0, y_line, np.nan)
+            axes[1, 0].plot(x_line, y_line, ':', alpha=0.4, linewidth=0.8, color='gray')
+            # Add F1 labels at end of lines
+            if not np.isnan(y_line[-1]) and y_line[-1] <= 1.0:
+                axes[1, 0].text(0.95, y_line[-1], f'F1={f1}', fontsize=7, alpha=0.6)
+        
         axes[1, 0].grid(True, alpha=0.3)
+        axes[1, 0].legend(fontsize=7, loc='lower left')
         
         # 4. ROC-AUC comparison (if available) or model distribution
         if 'roc_auc' in all_results.columns:
@@ -444,11 +469,11 @@ class PaperFigureGenerator:
         else:
             # Alternative: Model category distribution
             category_counts = all_results['category'].value_counts()
-            wedges, texts_pie, autotexts = axes[1, 1].pie(category_counts.values, 
-                                                          labels=category_counts.index, 
-                                                          colors=[category_colors.get(cat, self.colors['neutral']) for cat in category_counts.index],
-                                                          autopct='%1.1f%%',
-                                                          startangle=90)
+            _, _, autotexts = axes[1, 1].pie(category_counts.values, 
+                                             labels=category_counts.index, 
+                                             colors=[category_colors.get(cat, self.colors['neutral']) for cat in category_counts.index],
+                                             autopct='%1.1f%%',
+                                             startangle=90)
             axes[1, 1].set_title('Model Categories Distribution', fontweight='bold', fontsize=10)
             
             # Improve pie chart text
@@ -509,21 +534,21 @@ class PaperFigureGenerator:
         train_attack_dist = train_data['attack_category'].value_counts()
         colors_pie = plt.cm.Set3(np.linspace(0, 1, len(train_attack_dist)))
         
-        wedges, texts, autotexts = axes[0, 0].pie(train_attack_dist.values, 
-                                                 labels=train_attack_dist.index,
-                                                 autopct='%1.1f%%',
-                                                 colors=colors_pie,
-                                                 startangle=90)
+        _, _, _ = axes[0, 0].pie(train_attack_dist.values, 
+                               labels=train_attack_dist.index,
+                               autopct='%1.1f%%',
+                               colors=colors_pie,
+                               startangle=90)
         axes[0, 0].set_title('Training Set\nAttack Category Distribution', fontweight='bold')
         
         # 2. Test set attack distribution
         test_attack_dist = test_data['attack_category'].value_counts()
         
-        wedges2, texts2, autotexts2 = axes[0, 1].pie(test_attack_dist.values,
-                                                     labels=test_attack_dist.index,
-                                                     autopct='%1.1f%%',
-                                                     colors=colors_pie,
-                                                     startangle=90)
+        _, _, _ = axes[0, 1].pie(test_attack_dist.values,
+                               labels=test_attack_dist.index,
+                               autopct='%1.1f%%',
+                               colors=colors_pie,
+                               startangle=90)
         axes[0, 1].set_title('Test Set\nAttack Category Distribution', fontweight='bold')
         
         # 3. Detailed attack types (top 10)
@@ -623,35 +648,25 @@ class PaperFigureGenerator:
         attack_dist = cic_data['Label'].value_counts().head(10)
         colors_pie = plt.cm.Set3(np.linspace(0, 1, len(attack_dist)))
         
-        wedges, texts, autotexts = axes[0, 0].pie(attack_dist.values, 
-                                                 labels=attack_dist.index,
-                                                 autopct='%1.1f%%',
-                                                 colors=colors_pie,
-                                                 startangle=90)
+        _, _, _ = axes[0, 0].pie(attack_dist.values, 
+                               labels=attack_dist.index,
+                               autopct='%1.1f%%',
+                               colors=colors_pie,
+                               startangle=90)
         axes[0, 0].set_title('Top 10 Attack Types\nDistribution', fontweight='bold')
         
         # 2. Binary classification distribution (Normal vs Attack)
         binary_dist = cic_data['Label'].apply(lambda x: 'Normal' if x == 'BENIGN' else 'Attack').value_counts()
         
-        wedges2, texts2, autotexts2 = axes[0, 1].pie(binary_dist.values,
-                                                     labels=binary_dist.index,
-                                                     autopct='%1.1f%%',
-                                                     colors=[self.colors['success'], self.colors['primary']],
-                                                     startangle=90)
+        _, _, _ = axes[0, 1].pie(binary_dist.values,
+                               labels=binary_dist.index,
+                               autopct='%1.1f%%',
+                               colors=[self.colors['success'], self.colors['primary']],
+                               startangle=90)
         axes[0, 1].set_title('Binary Classification\nNormal vs Attack', fontweight='bold')
         
         # 3. Daily attack distribution (by file source)
-        # Map files to days
-        day_mapping = {
-            'Monday-WorkingHours.pcap_ISCX.csv': 'Monday',
-            'Tuesday-WorkingHours.pcap_ISCX.csv': 'Tuesday', 
-            'Wednesday-workingHours.pcap_ISCX.csv': 'Wednesday',
-            'Thursday-WorkingHours-Morning-WebAttacks.pcap_ISCX.csv': 'Thu-Morning',
-            'Thursday-WorkingHours-Afternoon-Infilteration.pcap_ISCX.csv': 'Thu-Afternoon',
-            'Friday-WorkingHours-Morning.pcap_ISCX.csv': 'Fri-Morning',
-            'Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv': 'Fri-DDoS',
-            'Friday-WorkingHours-Afternoon-PortScan.pcap_ISCX.csv': 'Fri-PortScan'
-        }
+        # Daily attack distribution analysis
         
         # Sample data for visualization (full dataset is too large to process efficiently)
         sample_size = min(50000, len(cic_data))
@@ -682,12 +697,19 @@ class PaperFigureGenerator:
         cic_sample['attack_category'] = cic_sample['Label'].apply(categorize_attack)
         category_dist = cic_sample['attack_category'].value_counts()
         
-        axes[1, 0].barh(range(len(category_dist)), category_dist.values, 
-                       color=self.colors['secondary'])
-        axes[1, 0].set_yticks(range(len(category_dist)))
-        axes[1, 0].set_yticklabels(category_dist.index)
-        axes[1, 0].set_title('Attack Categories\nDistribution', fontweight='bold')
-        axes[1, 0].set_xlabel('Number of Instances (Sample)')
+        # Sort categories by count for better visualization
+        sorted_categories = category_dist.sort_values(ascending=True)  # Ascending for horizontal bars
+        
+        # Use different colors for Normal vs Attack categories
+        bar_colors = [self.colors['success'] if cat == 'Normal' else self.colors['secondary'] 
+                     for cat in sorted_categories.index]
+        
+        axes[1, 0].barh(range(len(sorted_categories)), sorted_categories.values, 
+                       color=bar_colors, alpha=0.8, edgecolor='white', linewidth=0.5)
+        axes[1, 0].set_yticks(range(len(sorted_categories)))
+        axes[1, 0].set_yticklabels(sorted_categories.index)
+        axes[1, 0].set_title('Attack Categories\nDistribution (Sample)', fontweight='bold')
+        axes[1, 0].set_xlabel('Number of Instances')
         
         # Add value labels
         for i, v in enumerate(category_dist.values):
@@ -776,18 +798,22 @@ class PaperFigureGenerator:
                 axes[i].set_title(f'{dataset} Cross-Validation', fontweight='bold')
                 continue
                 
-            # Parse F1-Score (remove ± part)
-            f1_scores = df['F1-Score'].str.split(' ±').str[0].astype(float)
+            # Parse F1-Score and standard deviation
+            f1_parts = df['F1-Score'].str.split(' ±')
+            f1_scores = f1_parts.str[0].astype(float)
+            f1_stds = f1_parts.str[1].astype(float) if len(f1_parts.iloc[0]) > 1 else pd.Series([0] * len(f1_scores))
             
             # Sort by F1-Score in descending order (best first)
             sorted_indices = f1_scores.argsort()[::-1]
             sorted_models = df.iloc[sorted_indices]['Model'].str.replace('_', ' ').str.title()
             sorted_f1 = f1_scores.iloc[sorted_indices]
+            sorted_std = f1_stds.iloc[sorted_indices] if not f1_stds.isna().all() else pd.Series([0] * len(sorted_f1))
             
-            # Create horizontal bar plot with better colors
+            # Create horizontal bar plot with error bars
             y_pos = np.arange(len(sorted_models))
-            bars = axes[i].barh(y_pos, sorted_f1, 
-                               color=self.colors['primary'], alpha=0.8, edgecolor='white', linewidth=0.5)
+            axes[i].barh(y_pos, sorted_f1, xerr=sorted_std,
+                         color=self.colors['primary'], alpha=0.8, edgecolor='white', linewidth=0.5,
+                         capsize=3, error_kw={'linewidth': 1, 'alpha': 0.7})
             
             # Customize plot
             axes[i].set_yticks(y_pos)
@@ -850,9 +876,9 @@ class PaperFigureGenerator:
             x = np.arange(len(models))
             width = 0.35
             
-            bars1 = axes[0, 0].bar(x - width/2, nsl_cic_ratios, width, label='NSL→CIC', 
+            axes[0, 0].bar(x - width/2, nsl_cic_ratios, width, label='NSL→CIC', 
                           color=self.colors['primary'], alpha=0.8)
-            bars2 = axes[0, 0].bar(x + width/2, cic_nsl_ratios, width, label='CIC→NSL', 
+            axes[0, 0].bar(x + width/2, cic_nsl_ratios, width, label='CIC→NSL', 
                           color=self.colors['secondary'], alpha=0.8)
             
             # Add value labels
@@ -875,7 +901,7 @@ class PaperFigureGenerator:
             source_acc = nsl_to_cic['Source_Accuracy'].values
             target_acc = nsl_to_cic['Target_Accuracy'].values
             
-            scatter = axes[0, 1].scatter(source_acc, target_acc,
+            axes[0, 1].scatter(source_acc, target_acc,
                               c=self.colors['accent'], s=120, alpha=0.7, edgecolors='white')
             
             # Add diagonal line (no performance drop)
@@ -906,7 +932,7 @@ class PaperFigureGenerator:
             sorted_ratios = bidirectional['Avg_Transfer_Ratio'].iloc[sorted_idx]
             
             y_pos = np.arange(len(sorted_models))
-            bars = axes[1, 0].barh(y_pos, sorted_ratios,
+            axes[1, 0].barh(y_pos, sorted_ratios,
                            color=self.colors['accent'], alpha=0.8)
             axes[1, 0].set_yticks(y_pos)
             axes[1, 0].set_yticklabels(sorted_models, fontsize=8)
@@ -925,7 +951,7 @@ class PaperFigureGenerator:
             nsl_cic_ratios = bidirectional['NSL_to_CIC_Transfer_Ratio'].values
             cic_nsl_ratios = bidirectional['CIC_to_NSL_Transfer_Ratio'].values
             
-            scatter = axes[1, 1].scatter(nsl_cic_ratios, cic_nsl_ratios,
+            axes[1, 1].scatter(nsl_cic_ratios, cic_nsl_ratios,
                               c=self.colors['warning'], s=120, alpha=0.7, edgecolors='white')
             
             # Add diagonal line (symmetric transfer)
@@ -1008,7 +1034,7 @@ class PaperFigureGenerator:
         
         # 2. Configuration summary from harmonized data
         if harmonized_data:
-            config_text = f"Harmonized Evaluation Configuration:\n\n"
+            config_text = "Harmonized Evaluation Configuration:\n\n"
             config_text += f"Schema Version: {harmonized_data.get('schema_version', 'N/A')}\n"
             config_text += f"Max Samples: {harmonized_data.get('max_samples', 'N/A'):,}\n"
             config_text += f"Batch Size: {harmonized_data.get('batch_size', 'N/A'):,}\n"
@@ -1069,7 +1095,7 @@ class PaperFigureGenerator:
         else:
             plt.savefig(self.output_dir / "harmonized_evaluation_summary.png", dpi=300, bbox_inches='tight', facecolor='white')
         
-        print(f"📊 Harmonized evaluation summary saved successfully")
+        print("📊 Harmonized evaluation summary saved successfully")
         return fig
     
     def create_dataset_comparison_overview(self, save_path: Optional[str] = None) -> plt.Figure:
@@ -1208,7 +1234,12 @@ class PaperFigureGenerator:
         
         # Save to CSV and LaTeX
         if save_path is None:
-            dataset_prefix = "nsl_cic" if self._has_both_datasets() else ("nsl" if self._has_nsl_data() else "cic")
+            if self._has_both_datasets():
+                dataset_prefix = "nsl_cic"
+            elif self._has_nsl_data():
+                dataset_prefix = "nsl"
+            else:
+                dataset_prefix = "cic"
             save_path = self.output_dir / f"{dataset_prefix}_performance_summary_table"
         
         summary_table.to_csv(f"{save_path}.csv", index=False)
@@ -1395,7 +1426,7 @@ class PaperFigureGenerator:
             except Exception as e:
                 print(f"   ⚠️ Performance summary table failed: {e}")
             
-            print(f"\n📊 FIGURE GENERATION SUMMARY")
+            print("\n📊 FIGURE GENERATION SUMMARY")
             print(f"✅ Successfully generated: {success_count}/{total_figures} figures")
             print(f"📁 Output directory: {self.output_dir}")
             
