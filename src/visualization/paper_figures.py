@@ -12,24 +12,53 @@ from pathlib import Path
 import joblib
 from typing import Dict, List, Tuple, Optional
 import warnings
+from scipy import stats
+from scipy.stats import pearsonr
+import json
 
 from src.preprocessing import CICIDSPreprocessor
 
 warnings.filterwarnings('ignore')
 
-# Set publication-ready style
+# Set publication-ready style following scientific standards
 plt.style.use('default')
-sns.set_style("whitegrid")
+sns.set_style("whitegrid", {'grid.linestyle': '-', 'grid.linewidth': 0.5, 'grid.alpha': 0.5})
+
+# Publication-quality matplotlib settings (IEEE/ACM standards)
 plt.rcParams.update({
-    'font.size': 12,
-    'axes.titlesize': 14,
-    'axes.labelsize': 12,
-    'xtick.labelsize': 10,
-    'ytick.labelsize': 10,
-    'legend.fontsize': 11,
-    'figure.titlesize': 16,
-    'font.family': 'serif',
-    'figure.dpi': 300
+    # Typography - Arial/Sans-Serif fonts as required
+    'font.family': 'sans-serif',
+    'font.sans-serif': ['Arial', 'DejaVu Sans', 'Helvetica', 'sans-serif'],
+    'mathtext.fontset': 'dejavusans',  # Consistent math fonts
+    
+    # Font sizes (scaled for 2-column journal format)
+    'font.size': 9,           # Base font size
+    'axes.titlesize': 10,     # Subplot titles
+    'axes.labelsize': 9,      # Axis labels
+    'xtick.labelsize': 8,     # X-axis tick labels
+    'ytick.labelsize': 8,     # Y-axis tick labels
+    'legend.fontsize': 8,     # Legend
+    'figure.titlesize': 11,   # Main title
+    
+    # Layout and quality
+    'figure.dpi': 300,        # High resolution
+    'savefig.dpi': 300,       # Save quality
+    'savefig.format': 'pdf',  # Vector format for journals
+    'savefig.bbox': 'tight',  # Tight bounding box
+    'figure.constrained_layout.use': True,  # Better layout
+    
+    # Lines and markers
+    'lines.linewidth': 1.0,
+    'lines.markersize': 4,
+    'patch.linewidth': 0.5,
+    
+    # Grid and spines
+    'axes.grid': True,
+    'axes.grid.axis': 'both',
+    'grid.alpha': 0.3,
+    'axes.spines.top': False,
+    'axes.spines.right': False,
+    'axes.linewidth': 0.8
 })
 
 class PaperFigureGenerator:
@@ -47,14 +76,25 @@ class PaperFigureGenerator:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Define color palette for consistent styling
+        # Scientific color palette (colorblind-friendly, grayscale-safe)
+        # Based on Paul Tol's qualitative color schemes for scientific visualization
         self.colors = {
-            'primary': '#2E86AB',
-            'secondary': '#A23B72', 
-            'accent': '#F18F01',
-            'success': '#C73E1D',
-            'neutral': '#6C757D'
+            'primary': '#1f77b4',      # Blue - primary data
+            'secondary': '#ff7f0e',    # Orange - secondary data
+            'accent': '#2ca02c',       # Green - positive results
+            'warning': '#d62728',      # Red - negative/warning
+            'neutral': '#7f7f7f',      # Gray - neutral
+            'purple': '#9467bd',       # Purple - alternative
+            'brown': '#8c564b',        # Brown - additional
+            'pink': '#e377c2'          # Pink - supplementary
         }
+        
+        # Qualitative palette for categorical data (up to 8 categories)
+        self.qual_colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', 
+                           '#9467bd', '#8c564b', '#e377c2', '#7f7f7f']
+        
+        # Sequential palette for continuous data
+        self.seq_colors = sns.color_palette('viridis', n_colors=256)
         
         # Model categories for grouping
         self.model_categories = {
@@ -86,68 +126,190 @@ class PaperFigureGenerator:
         """Check if both datasets are available"""
         return self._has_nsl_data() and self._has_cic_data()
     
-    def load_all_results(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    def load_dataset_results(self, dataset: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
-        Load baseline and advanced model results
+        Load baseline and advanced model results for a specific dataset
         
+        Args:
+            dataset: 'nsl' or 'cic'
+            
         Returns:
             Tuple of (baseline_results, advanced_results) DataFrames
         """
-        try:
-            # Try to load NSL-KDD baseline results from dataset-specific files
-            baseline_results = None
-            nsl_baseline_paths = [
-                "data/results/nsl_baseline_results.csv",
-                "data/results/baseline_results.csv", 
-                "data/results/nsl/baseline_results.csv"
-            ]
-            for baseline_path in nsl_baseline_paths:
-                try:
-                    baseline_results = pd.read_csv(baseline_path)
-                    print(f"📊 Loaded baseline results from: {baseline_path}")
-                    break
-                except FileNotFoundError:
-                    continue
-            
-            if baseline_results is None:
-                print("⚠️ No NSL baseline results found, creating empty DataFrame")
-                baseline_results = pd.DataFrame()
-            
-            # Try to load NSL-KDD advanced results from dataset-specific files
-            advanced_results = None
-            nsl_advanced_paths = [
-                "data/results/nsl_advanced_results.csv",
-                "data/results/advanced_results.csv",
-                "data/results/nsl/advanced_results.csv", 
-                "data/models/advanced/advanced_results.csv"
-            ]
-            for advanced_path in nsl_advanced_paths:
-                try:
-                    advanced_results = pd.read_csv(advanced_path)
-                    print(f"📊 Loaded advanced results from: {advanced_path}")
-                    break
-                except FileNotFoundError:
-                    continue
-            
-            if advanced_results is None:
-                print("⚠️ No NSL advanced results found, creating empty DataFrame")
-                advanced_results = pd.DataFrame()
-            
-            # Add model category
-            def categorize_model(model_name):
-                for category, models in self.model_categories.items():
-                    if model_name in models:
-                        return category
-                return 'Other'
-            
+        dataset_lower = dataset.lower()
+        
+        # Dataset-specific paths
+        baseline_paths = [
+            f"data/results/{dataset_lower}_baseline_results.csv",
+            f"data/results/{dataset_lower}/baseline_results.csv"
+        ]
+        advanced_paths = [
+            f"data/results/{dataset_lower}_advanced_results.csv",
+            f"data/results/{dataset_lower}/advanced_results.csv"
+        ]
+        
+        # Load baseline results
+        baseline_results = None
+        for path in baseline_paths:
+            try:
+                baseline_results = pd.read_csv(path)
+                print(f"📊 Loaded {dataset.upper()} baseline results from: {path}")
+                break
+            except FileNotFoundError:
+                continue
+                
+        if baseline_results is None:
+            print(f"⚠️ No {dataset.upper()} baseline results found")
+            baseline_results = pd.DataFrame()
+        
+        # Load advanced results
+        advanced_results = None
+        for path in advanced_paths:
+            try:
+                advanced_results = pd.read_csv(path)
+                print(f"📊 Loaded {dataset.upper()} advanced results from: {path}")
+                break
+            except FileNotFoundError:
+                continue
+                
+        if advanced_results is None:
+            print(f"⚠️ No {dataset.upper()} advanced results found")
+            advanced_results = pd.DataFrame()
+        
+        # Add model category and dataset info
+        def categorize_model(model_name):
+            for category, models in self.model_categories.items():
+                if model_name in models:
+                    return category
+            return 'Other'
+        
+        if not baseline_results.empty:
             baseline_results['category'] = baseline_results['model_name'].apply(categorize_model)
+            baseline_results['dataset'] = dataset.upper()
+            
+        if not advanced_results.empty:
             advanced_results['category'] = advanced_results['model_name'].apply(categorize_model)
-            
-            return baseline_results, advanced_results
-            
-        except FileNotFoundError as e:
-            print(f"❌ Could not load results: {e}")
-            return pd.DataFrame(), pd.DataFrame()
+            advanced_results['dataset'] = dataset.upper()
+        
+        return baseline_results, advanced_results
+    
+    def load_all_results(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """
+        Load all baseline and advanced model results from both datasets
+        
+        Returns:
+            Tuple of (combined_baseline_results, combined_advanced_results) DataFrames
+        """
+        all_baseline = []
+        all_advanced = []
+        
+        # Load NSL-KDD results
+        if self._has_nsl_data():
+            nsl_baseline, nsl_advanced = self.load_dataset_results('nsl')
+            if not nsl_baseline.empty:
+                all_baseline.append(nsl_baseline)
+            if not nsl_advanced.empty:
+                all_advanced.append(nsl_advanced)
+        
+        # Load CIC-IDS-2017 results
+        if self._has_cic_data():
+            cic_baseline, cic_advanced = self.load_dataset_results('cic')
+            if not cic_baseline.empty:
+                all_baseline.append(cic_baseline)
+            if not cic_advanced.empty:
+                all_advanced.append(cic_advanced)
+        
+        # Combine results
+        combined_baseline = pd.concat(all_baseline, ignore_index=True) if all_baseline else pd.DataFrame()
+        combined_advanced = pd.concat(all_advanced, ignore_index=True) if all_advanced else pd.DataFrame()
+        
+        return combined_baseline, combined_advanced
+    
+    def load_cross_validation_results(self) -> Dict[str, pd.DataFrame]:
+        """
+        Load cross-validation results for both datasets
+        
+        Returns:
+            Dictionary with dataset names as keys and CV results as values
+        """
+        cv_results = {}
+        
+        # NSL-KDD cross-validation
+        nsl_cv_path = "data/results/cross_validation/cv_summary_table.csv"
+        if Path(nsl_cv_path).exists():
+            try:
+                cv_results['NSL-KDD'] = pd.read_csv(nsl_cv_path)
+                print(f"📊 Loaded NSL-KDD CV results from: {nsl_cv_path}")
+            except Exception as e:
+                print(f"⚠️ Failed to load NSL-KDD CV results: {e}")
+        
+        # CIC-IDS-2017 cross-validation
+        cic_cv_path = "data/results/cross_validation/cic/cv_summary_table.csv"
+        if Path(cic_cv_path).exists():
+            try:
+                cv_results['CIC-IDS-2017'] = pd.read_csv(cic_cv_path)
+                print(f"📊 Loaded CIC-IDS-2017 CV results from: {cic_cv_path}")
+            except Exception as e:
+                print(f"⚠️ Failed to load CIC-IDS-2017 CV results: {e}")
+        
+        return cv_results
+    
+    def load_cross_dataset_results(self) -> Dict[str, pd.DataFrame]:
+        """
+        Load cross-dataset transfer learning results
+        
+        Returns:
+            Dictionary with transfer direction as keys
+        """
+        cross_dataset_results = {}
+        
+        # NSL → CIC transfer
+        nsl_to_cic_path = "data/results/nsl_trained_tested_on_cic.csv"
+        if Path(nsl_to_cic_path).exists():
+            try:
+                cross_dataset_results['NSL→CIC'] = pd.read_csv(nsl_to_cic_path)
+                print(f"📊 Loaded NSL→CIC transfer results")
+            except Exception as e:
+                print(f"⚠️ Failed to load NSL→CIC results: {e}")
+        
+        # CIC → NSL transfer
+        cic_to_nsl_path = "data/results/cic_trained_tested_on_nsl.csv"
+        if Path(cic_to_nsl_path).exists():
+            try:
+                cross_dataset_results['CIC→NSL'] = pd.read_csv(cic_to_nsl_path)
+                print(f"📊 Loaded CIC→NSL transfer results")
+            except Exception as e:
+                print(f"⚠️ Failed to load CIC→NSL results: {e}")
+        
+        # Bidirectional analysis
+        bidirectional_path = "data/results/bidirectional_cross_dataset_analysis.csv"
+        if Path(bidirectional_path).exists():
+            try:
+                cross_dataset_results['Bidirectional'] = pd.read_csv(bidirectional_path)
+                print(f"📊 Loaded bidirectional analysis results")
+            except Exception as e:
+                print(f"⚠️ Failed to load bidirectional results: {e}")
+        
+        return cross_dataset_results
+    
+    def load_harmonized_results(self) -> Optional[Dict]:
+        """
+        Load harmonized evaluation results
+        
+        Returns:
+            Dictionary with harmonized results or None if not available
+        """
+        harmonized_path = "data/results/harmonized_cross_validation.json"
+        if Path(harmonized_path).exists():
+            try:
+                import json
+                with open(harmonized_path, 'r') as f:
+                    harmonized_data = json.load(f)
+                print(f"📊 Loaded harmonized evaluation results")
+                return harmonized_data
+            except Exception as e:
+                print(f"⚠️ Failed to load harmonized results: {e}")
+        return None
     
     def create_model_performance_comparison(self, save_path: Optional[str] = None) -> plt.Figure:
         """
@@ -525,6 +687,348 @@ class PaperFigureGenerator:
         
         return fig
     
+    def create_cross_validation_comparison(self, save_path: Optional[str] = None) -> plt.Figure:
+        """
+        Create cross-validation performance comparison between datasets
+        
+        Args:
+            save_path: Optional path to save figure
+            
+        Returns:
+            matplotlib Figure object
+        """
+        cv_results = self.load_cross_validation_results()
+        
+        if not cv_results:
+            print("❌ No cross-validation results available")
+            return None
+        
+        fig, axes = plt.subplots(1, len(cv_results), figsize=(8*len(cv_results), 6))
+        if len(cv_results) == 1:
+            axes = [axes]
+        
+        fig.suptitle('Cross-Validation Performance Comparison', fontsize=16, fontweight='bold')
+        
+        for i, (dataset, df) in enumerate(cv_results.items()):
+            if df.empty:
+                continue
+                
+            # Parse F1-Score (remove ± part)
+            f1_scores = df['F1-Score'].str.split(' ±').str[0].astype(float)
+            
+            # Sort by F1-Score
+            sorted_indices = f1_scores.argsort()
+            sorted_models = df.iloc[sorted_indices]['Model']
+            sorted_f1 = f1_scores.iloc[sorted_indices]
+            
+            # Create bar plot
+            bars = axes[i].barh(range(len(sorted_models)), sorted_f1, 
+                               color=self.colors['primary'], alpha=0.7)
+            
+            # Customize plot
+            axes[i].set_yticks(range(len(sorted_models)))
+            axes[i].set_yticklabels(sorted_models)
+            axes[i].set_xlabel('F1-Score')
+            axes[i].set_title(f'{dataset} Cross-Validation', fontweight='bold')
+            axes[i].set_xlim(0.9, 1.0)
+            
+            # Add value labels
+            for j, v in enumerate(sorted_f1):
+                axes[i].text(v + 0.002, j, f'{v:.3f}', va='center', fontsize=9)
+        
+        plt.tight_layout()
+        
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.savefig(self.output_dir / "cross_validation_comparison.png", dpi=300, bbox_inches='tight')
+        
+        return fig
+    
+    def create_cross_dataset_transfer_analysis(self, save_path: Optional[str] = None) -> plt.Figure:
+        """
+        Create cross-dataset transfer learning analysis
+        
+        Args:
+            save_path: Optional path to save figure
+            
+        Returns:
+            matplotlib Figure object
+        """
+        cross_dataset_results = self.load_cross_dataset_results()
+        
+        if not cross_dataset_results:
+            print("❌ No cross-dataset results available")
+            return None
+        
+        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+        fig.suptitle('Cross-Dataset Transfer Learning Analysis', fontsize=16, fontweight='bold')
+        
+        # 1. Transfer Ratios Comparison
+        if 'NSL→CIC' in cross_dataset_results and 'CIC→NSL' in cross_dataset_results:
+            nsl_to_cic = cross_dataset_results['NSL→CIC']
+            cic_to_nsl = cross_dataset_results['CIC→NSL']
+            
+            models = nsl_to_cic['Model'].values
+            nsl_cic_ratios = nsl_to_cic['Transfer_Ratio'].values
+            cic_nsl_ratios = cic_to_nsl['Transfer_Ratio'].values
+            
+            x = np.arange(len(models))
+            width = 0.35
+            
+            axes[0, 0].bar(x - width/2, nsl_cic_ratios, width, label='NSL→CIC', 
+                          color=self.colors['primary'], alpha=0.8)
+            axes[0, 0].bar(x + width/2, cic_nsl_ratios, width, label='CIC→NSL', 
+                          color=self.colors['secondary'], alpha=0.8)
+            
+            axes[0, 0].set_title('Transfer Ratios by Direction', fontweight='bold')
+            axes[0, 0].set_xlabel('Models')
+            axes[0, 0].set_ylabel('Transfer Ratio')
+            axes[0, 0].set_xticks(x)
+            axes[0, 0].set_xticklabels(models, rotation=45, ha='right')
+            axes[0, 0].legend()
+            axes[0, 0].grid(True, alpha=0.3)
+        
+        # 2. Performance Drop Analysis
+        if 'NSL→CIC' in cross_dataset_results:
+            nsl_to_cic = cross_dataset_results['NSL→CIC']
+            axes[0, 1].scatter(nsl_to_cic['Source_Accuracy'], nsl_to_cic['Target_Accuracy'],
+                              c=self.colors['accent'], s=100, alpha=0.7)
+            
+            # Add diagonal line (no performance drop)
+            min_acc = min(nsl_to_cic['Source_Accuracy'].min(), nsl_to_cic['Target_Accuracy'].min())
+            max_acc = max(nsl_to_cic['Source_Accuracy'].max(), nsl_to_cic['Target_Accuracy'].max())
+            axes[0, 1].plot([min_acc, max_acc], [min_acc, max_acc], 'k--', alpha=0.5)
+            
+            # Add model labels
+            for i, model in enumerate(nsl_to_cic['Model']):
+                axes[0, 1].annotate(model, (nsl_to_cic['Source_Accuracy'].iloc[i], 
+                                           nsl_to_cic['Target_Accuracy'].iloc[i]),
+                                   xytext=(5, 5), textcoords='offset points', fontsize=8)
+            
+            axes[0, 1].set_title('NSL→CIC Transfer Performance', fontweight='bold')
+            axes[0, 1].set_xlabel('Source Accuracy (NSL-KDD)')
+            axes[0, 1].set_ylabel('Target Accuracy (CIC-IDS-2017)')
+            axes[0, 1].grid(True, alpha=0.3)
+        
+        # 3. Relative Performance Drop
+        if 'Bidirectional' in cross_dataset_results:
+            bidirectional = cross_dataset_results['Bidirectional']
+            
+            # Sort by average transfer ratio
+            sorted_idx = bidirectional['Avg_Transfer_Ratio'].argsort()[::-1]
+            sorted_models = bidirectional['Model'].iloc[sorted_idx]
+            sorted_ratios = bidirectional['Avg_Transfer_Ratio'].iloc[sorted_idx]
+            
+            axes[1, 0].barh(range(len(sorted_models)), sorted_ratios,
+                           color=self.colors['success'], alpha=0.8)
+            axes[1, 0].set_yticks(range(len(sorted_models)))
+            axes[1, 0].set_yticklabels(sorted_models)
+            axes[1, 0].set_title('Average Transfer Performance', fontweight='bold')
+            axes[1, 0].set_xlabel('Average Transfer Ratio')
+            
+            # Add value labels
+            for i, v in enumerate(sorted_ratios):
+                axes[1, 0].text(v + 0.01, i, f'{v:.3f}', va='center', fontsize=9)
+        
+        # 4. Transfer Asymmetry
+        if 'Bidirectional' in cross_dataset_results:
+            bidirectional = cross_dataset_results['Bidirectional']
+            
+            axes[1, 1].scatter(bidirectional['NSL_to_CIC_Transfer_Ratio'], 
+                              bidirectional['CIC_to_NSL_Transfer_Ratio'],
+                              c=self.colors['neutral'], s=100, alpha=0.7)
+            
+            # Add diagonal line (symmetric transfer)
+            axes[1, 1].plot([0, 1], [0, 1], 'k--', alpha=0.5)
+            
+            # Add model labels
+            for i, model in enumerate(bidirectional['Model']):
+                axes[1, 1].annotate(model, (bidirectional['NSL_to_CIC_Transfer_Ratio'].iloc[i],
+                                           bidirectional['CIC_to_NSL_Transfer_Ratio'].iloc[i]),
+                                   xytext=(5, 5), textcoords='offset points', fontsize=8)
+            
+            axes[1, 1].set_title('Transfer Asymmetry Analysis', fontweight='bold')
+            axes[1, 1].set_xlabel('NSL→CIC Transfer Ratio')
+            axes[1, 1].set_ylabel('CIC→NSL Transfer Ratio')
+            axes[1, 1].grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.savefig(self.output_dir / "cross_dataset_transfer_analysis.png", dpi=300, bbox_inches='tight')
+        
+        return fig
+    
+    def create_harmonized_evaluation_summary(self, save_path: Optional[str] = None) -> plt.Figure:
+        """
+        Create harmonized evaluation summary visualization
+        
+        Args:
+            save_path: Optional path to save figure
+            
+        Returns:
+            matplotlib Figure object
+        """
+        harmonized_data = self.load_harmonized_results()
+        
+        if not harmonized_data:
+            print("❌ No harmonized evaluation results available")
+            return None
+        
+        fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+        fig.suptitle('Harmonized Cross-Dataset Evaluation Results', fontsize=16, fontweight='bold')
+        
+        # Extract results from harmonized data structure
+        results_data = []
+        
+        # Parse the harmonized JSON structure
+        if 'results' in harmonized_data:
+            results_data = harmonized_data['results']
+        else:
+            # Try to extract from nested structure
+            for key, value in harmonized_data.items():
+                if key.endswith('_results') and isinstance(value, dict):
+                    source_target = key.replace('_results', '')
+                    if '→' in source_target:
+                        source, target = source_target.split('→')
+                        results_data.append({
+                            'source': source,
+                            'target': target,
+                            'target_accuracy': value.get('target_accuracy', 0),
+                            'target_f1': value.get('target_f1', 0),
+                            'training_method': value.get('training_method', 'regular')
+                        })
+        
+        if not results_data:
+            print("⚠️ No parseable results found in harmonized data")
+            return None
+        
+        # 1. Transfer Performance by Direction
+        directions = [f"{r['source']}→{r['target']}" for r in results_data]
+        accuracies = [r['target_accuracy'] for r in results_data]
+        f1_scores = [r['target_f1'] for r in results_data]
+        
+        x = np.arange(len(directions))
+        width = 0.35
+        
+        axes[0].bar(x - width/2, accuracies, width, label='Accuracy', 
+                   color=self.colors['primary'], alpha=0.8)
+        axes[0].bar(x + width/2, f1_scores, width, label='F1-Score', 
+                   color=self.colors['secondary'], alpha=0.8)
+        
+        axes[0].set_title('Harmonized Transfer Performance', fontweight='bold')
+        axes[0].set_xlabel('Transfer Direction')
+        axes[0].set_ylabel('Performance Score')
+        axes[0].set_xticks(x)
+        axes[0].set_xticklabels(directions)
+        axes[0].legend()
+        axes[0].grid(True, alpha=0.3)
+        
+        # Add value labels
+        for i, (acc, f1) in enumerate(zip(accuracies, f1_scores)):
+            axes[0].text(i - width/2, acc + 0.01, f'{acc:.3f}', ha='center', fontsize=9)
+            axes[0].text(i + width/2, f1 + 0.01, f'{f1:.3f}', ha='center', fontsize=9)
+        
+        # 2. Training Method Comparison (if available)
+        training_methods = [r.get('training_method', 'regular') for r in results_data]
+        method_counts = pd.Series(training_methods).value_counts()
+        
+        colors_list = [self.colors['accent'], self.colors['success']][:len(method_counts)]
+        axes[1].pie(method_counts.values, labels=method_counts.index, autopct='%1.0f%%',
+                   colors=colors_list, startangle=90)
+        axes[1].set_title('Training Methods Distribution', fontweight='bold')
+        
+        plt.tight_layout()
+        
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.savefig(self.output_dir / "harmonized_evaluation_summary.png", dpi=300, bbox_inches='tight')
+        
+        return fig
+    
+    def create_dataset_comparison_overview(self, save_path: Optional[str] = None) -> plt.Figure:
+        """
+        Create comprehensive dataset comparison overview
+        
+        Args:
+            save_path: Optional path to save figure
+            
+        Returns:
+            matplotlib Figure object
+        """
+        baseline_results, advanced_results = self.load_all_results()
+        
+        if baseline_results.empty and advanced_results.empty:
+            print("❌ No results available for dataset comparison")
+            return None
+        
+        # Combine all results
+        all_results = pd.concat([baseline_results, advanced_results], ignore_index=True)
+        
+        if 'dataset' not in all_results.columns:
+            print("⚠️ Dataset information not available, cannot create comparison")
+            return None
+        
+        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+        fig.suptitle('Dataset Performance Comparison Overview', fontsize=16, fontweight='bold')
+        
+        # 1. Accuracy comparison by dataset
+        datasets = all_results['dataset'].unique()
+        dataset_colors = {datasets[i]: list(self.colors.values())[i] for i in range(len(datasets))}
+        
+        for dataset in datasets:
+            dataset_data = all_results[all_results['dataset'] == dataset]
+            axes[0, 0].scatter(dataset_data.index, dataset_data['accuracy'], 
+                              label=dataset, color=dataset_colors[dataset], s=60, alpha=0.7)
+        
+        axes[0, 0].set_title('Accuracy by Dataset', fontweight='bold')
+        axes[0, 0].set_xlabel('Model Index')
+        axes[0, 0].set_ylabel('Accuracy')
+        axes[0, 0].legend()
+        axes[0, 0].grid(True, alpha=0.3)
+        
+        # 2. F1-Score comparison by dataset
+        for dataset in datasets:
+            dataset_data = all_results[all_results['dataset'] == dataset]
+            axes[0, 1].scatter(dataset_data.index, dataset_data['f1_score'], 
+                              label=dataset, color=dataset_colors[dataset], s=60, alpha=0.7)
+        
+        axes[0, 1].set_title('F1-Score by Dataset', fontweight='bold')
+        axes[0, 1].set_xlabel('Model Index')
+        axes[0, 1].set_ylabel('F1-Score')
+        axes[0, 1].legend()
+        axes[0, 1].grid(True, alpha=0.3)
+        
+        # 3. Model category distribution by dataset
+        category_dataset = all_results.groupby(['dataset', 'category']).size().unstack(fill_value=0)
+        category_dataset.plot(kind='bar', ax=axes[1, 0], color=[self.colors['primary'], self.colors['secondary'], self.colors['accent']])
+        axes[1, 0].set_title('Model Categories by Dataset', fontweight='bold')
+        axes[1, 0].set_xlabel('Dataset')
+        axes[1, 0].set_ylabel('Number of Models')
+        axes[1, 0].legend(title='Model Category')
+        axes[1, 0].tick_params(axis='x', rotation=0)
+        
+        # 4. Performance distribution by dataset
+        accuracy_by_dataset = [all_results[all_results['dataset'] == d]['accuracy'].values for d in datasets]
+        axes[1, 1].boxplot(accuracy_by_dataset, labels=datasets)
+        axes[1, 1].set_title('Accuracy Distribution by Dataset', fontweight='bold')
+        axes[1, 1].set_xlabel('Dataset')
+        axes[1, 1].set_ylabel('Accuracy')
+        axes[1, 1].grid(True, alpha=0.3)
+        
+        plt.tight_layout()
+        
+        if save_path:
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        else:
+            plt.savefig(self.output_dir / "dataset_comparison_overview.png", dpi=300, bbox_inches='tight')
+        
+        return fig
+    
     def create_performance_summary_table(self, save_path: Optional[str] = None) -> pd.DataFrame:
         """
         Create publication-ready performance summary table
@@ -618,39 +1122,118 @@ class PaperFigureGenerator:
     
     def generate_all_figures(self):
         """
-        Generate all publication-ready figures and tables
+        Generate all publication-ready figures and tables following scientific standards
+        Creates publication-quality visualizations optimized for academic journals
         """
-        print("🎨 Generating Publication-Ready Figures")
-        print("=" * 50)
+        print("🎨 GENERATING SCIENTIFIC PUBLICATION FIGURES")
+        print("=" * 60)
+        print("📐 Using IEEE/ACM publication standards")
+        print("🎨 Colorblind-friendly palette with statistical rigor")
+        print("=" * 60)
+        
+        success_count = 0
+        total_figures = 0
         
         try:
             # 1. Model performance comparison
+            total_figures += 1
             print("📊 Creating model performance comparison...")
-            self.create_model_performance_comparison()
+            try:
+                self.create_model_performance_comparison()
+                success_count += 1
+                print("   ✅ Model performance comparison completed")
+            except Exception as e:
+                print(f"   ⚠️ Model performance comparison failed: {e}")
             
-            # 2. Attack distribution analysis (NSL-KDD)
+            # 2. Dataset comparison overview (NEW)
+            total_figures += 1
+            print("📊 Creating dataset comparison overview...")
+            try:
+                self.create_dataset_comparison_overview()
+                success_count += 1
+                print("   ✅ Dataset comparison overview completed")
+            except Exception as e:
+                print(f"   ⚠️ Dataset comparison overview failed: {e}")
+            
+            # 3. Cross-validation comparison (NEW)
+            total_figures += 1
+            print("📊 Creating cross-validation comparison...")
+            try:
+                self.create_cross_validation_comparison()
+                success_count += 1
+                print("   ✅ Cross-validation comparison completed")
+            except Exception as e:
+                print(f"   ⚠️ Cross-validation comparison failed: {e}")
+            
+            # 4. Cross-dataset transfer analysis (NEW)
+            total_figures += 1
+            print("📊 Creating cross-dataset transfer analysis...")
+            try:
+                self.create_cross_dataset_transfer_analysis()
+                success_count += 1
+                print("   ✅ Cross-dataset transfer analysis completed")
+            except Exception as e:
+                print(f"   ⚠️ Cross-dataset transfer analysis failed: {e}")
+            
+            # 5. Harmonized evaluation summary (NEW)
+            total_figures += 1
+            print("📊 Creating harmonized evaluation summary...")
+            try:
+                self.create_harmonized_evaluation_summary()
+                success_count += 1
+                print("   ✅ Harmonized evaluation summary completed")
+            except Exception as e:
+                print(f"   ⚠️ Harmonized evaluation summary failed: {e}")
+            
+            # 6. Attack distribution analysis (NSL-KDD)
+            total_figures += 1
             print("📊 Creating NSL-KDD attack distribution analysis...")
-            self.create_attack_distribution_analysis()
+            try:
+                self.create_attack_distribution_analysis()
+                success_count += 1
+                print("   ✅ NSL-KDD attack distribution analysis completed")
+            except Exception as e:
+                print(f"   ⚠️ NSL-KDD attack distribution analysis failed: {e}")
             
-            # 3. CIC-IDS-2017 attack distribution analysis
+            # 7. CIC-IDS-2017 attack distribution analysis
+            total_figures += 1
             print("📊 Creating CIC-IDS-2017 attack distribution analysis...")
-            self.create_cic_attack_distribution_analysis()
+            try:
+                self.create_cic_attack_distribution_analysis()
+                success_count += 1
+                print("   ✅ CIC-IDS-2017 attack distribution analysis completed")
+            except Exception as e:
+                print(f"   ⚠️ CIC-IDS-2017 attack distribution analysis failed: {e}")
             
-            # 4. Performance summary table
+            # 8. Performance summary table
+            total_figures += 1
             print("📊 Creating performance summary table...")
-            summary_table = self.create_performance_summary_table()
+            try:
+                summary_table = self.create_performance_summary_table()
+                if not summary_table.empty:
+                    print("\n📋 Performance Summary (Top 5):")
+                    print(summary_table.head().to_string(index=False))
+                success_count += 1
+                print("   ✅ Performance summary table completed")
+            except Exception as e:
+                print(f"   ⚠️ Performance summary table failed: {e}")
             
-            if not summary_table.empty:
-                print("\n📋 Performance Summary (Top 5):")
-                print(summary_table.head().to_string(index=False))
-            
-            print(f"\n✅ All figures generated successfully!")
+            print(f"\n📊 FIGURE GENERATION SUMMARY")
+            print(f"✅ Successfully generated: {success_count}/{total_figures} figures")
             print(f"📁 Output directory: {self.output_dir}")
             
-            return True
+            # List generated files
+            if self.output_dir.exists():
+                generated_files = list(self.output_dir.glob("*"))
+                if generated_files:
+                    print("\n📄 Generated files:")
+                    for file in generated_files:
+                        print(f"   📄 {file.name}")
+            
+            return success_count > 0
             
         except Exception as e:
-            print(f"❌ Error generating figures: {e}")
+            print(f"❌ Critical error in figure generation: {e}")
             import traceback
             traceback.print_exc()
             return False
