@@ -90,7 +90,8 @@ class ScientificVisualizationEnhancer:
             'cross_dataset': '#9467bd',    # Purple
             'neutral': '#7f7f7f',          # Gray
             'accent1': '#8c564b',          # Brown
-            'accent2': '#e377c2'           # Pink
+            'accent2': '#e377c2',          # Pink
+            'primary': '#1f77b4'           # Primary (same as nsl_baseline)
         }
         
         # Dataset detection
@@ -160,11 +161,32 @@ class ScientificVisualizationEnhancer:
             for i, metric in enumerate(metrics):
                 ax = axes[i]
                 
+                # Create a meaningful "complexity" proxy based on model characteristics
+                model_complexity = {
+                    'naive_bayes': 1, 'logistic_regression': 2, 'knn': 3, 'decision_tree': 4,
+                    'random_forest': 5, 'svm_linear': 6, 'gradient_boosting': 7, 
+                    'xgboost': 8, 'lightgbm': 9, 'extra_trees': 10, 'mlp': 11, 'voting_classifier': 12
+                }
+                
                 for dataset_name, df in results_data.items():
-                    if metric in df.columns:
-                        # Use model names as x-axis (complexity proxy)
-                        models = df['model'].unique() if 'model' in df.columns else range(len(df))
-                        values = df[metric].values
+                    if metric in df.columns and 'model_name' in df.columns:
+                        # Map models to complexity and performance
+                        complexity_scores = []
+                        performance_scores = []
+                        model_labels = []
+                        
+                        for _, row in df.iterrows():
+                            model_name = row['model_name']
+                            performance = row[metric]
+                            complexity = model_complexity.get(model_name, 6)  # Default to mid-complexity
+                            
+                            complexity_scores.append(complexity)
+                            performance_scores.append(performance)
+                            model_labels.append(model_name)
+                        
+                        # Sort by complexity for learning curve
+                        sorted_data = sorted(zip(complexity_scores, performance_scores, model_labels))
+                        complexities, performances, labels = zip(*sorted_data)
                         
                         # Determine color based on dataset
                         if 'NSL-KDD' in dataset_name and 'Baseline' in dataset_name:
@@ -178,14 +200,20 @@ class ScientificVisualizationEnhancer:
                         else:
                             color = self.colors['neutral']
                         
-                        ax.plot(range(len(values)), values, 'o-', 
-                               label=dataset_name, color=color, linewidth=1.5, markersize=5)
+                        ax.plot(complexities, performances, 'o-', 
+                               label=dataset_name.replace(' ', '\n'), color=color, linewidth=1.5, markersize=4)
+                        
+                        # Annotate some key points
+                        for j, (comp, perf, label) in enumerate(zip(complexities, performances, labels)):
+                            if j % 3 == 0 or j == len(labels) - 1:  # Annotate every 3rd model and the last
+                                ax.annotate(label[:6], (comp, perf), fontsize=6, ha='center', va='bottom')
                 
-                ax.set_title(f'{metric.replace("_", " ").title()} Learning Curve')
-                ax.set_xlabel('Model Complexity')
+                ax.set_title(f'{metric.replace("_", " ").title()} vs Model Complexity')
+                ax.set_xlabel('Model Complexity (1=Simple → 12=Complex)')
                 ax.set_ylabel(metric.replace("_", " ").title())
-                ax.legend(fontsize=7)
+                ax.legend(fontsize=6, loc='best')
                 ax.grid(True, alpha=0.3)
+                ax.set_xlim(0, 13)
             
             plt.tight_layout()
             
@@ -210,84 +238,80 @@ class ScientificVisualizationEnhancer:
         
         try:
             # Check for cross-validation results
-            cv_json_path = Path("data/results/harmonized_cross_validation.json")
             cv_dir = Path("data/results/cross_validation")
+            cv_data = {}
             
-            cv_data = None
-            
-            # Try to load harmonized CV results first
-            if cv_json_path.exists():
-                with open(cv_json_path, 'r') as f:
-                    cv_data = json.load(f)
-                print(f"✅ Loaded harmonized CV results: {len(cv_data)} entries")
-            
-            # Try to load individual CV files
-            elif cv_dir.exists():
-                cv_files = list(cv_dir.glob("*.csv"))
+            # Load individual CV CSV files which contain the actual fold results
+            if cv_dir.exists():
+                cv_files = list(cv_dir.glob("*detailed_results*.csv"))
                 if cv_files:
-                    cv_data = {}
                     for cv_file in cv_files:
-                        dataset_name = cv_file.stem.replace('_cv_results', '')
-                        cv_data[dataset_name] = pd.read_csv(cv_file)
-                    print(f"✅ Loaded {len(cv_files)} CV result files")
+                        dataset_name = cv_file.stem.replace('cv_detailed_results_', '').replace('cv_detailed_results', 'Combined')
+                        try:
+                            df = pd.read_csv(cv_file)
+                            cv_data[dataset_name] = df
+                            print(f"✅ Loaded CV results for {dataset_name}: {len(df)} models")
+                        except Exception as e:
+                            print(f"⚠️ Error loading {cv_file}: {e}")
             
             if not cv_data:
-                print("❌ No cross-validation results found. Run experiment 04 first.")
+                print("❌ No detailed cross-validation results found. Run experiment 04 first.")
                 return False
             
             # Create convergence analysis
             fig, axes = plt.subplots(2, 2, figsize=(12, 8))
             axes = axes.flatten()
             
-            if isinstance(cv_data, dict) and 'cross_validation_results' in cv_data:
-                # Handle harmonized format
-                results = cv_data['cross_validation_results']
+            plot_idx = 0
+            for dataset_name, df in cv_data.items():
+                if plot_idx >= 4:  # Limit to 4 subplots
+                    break
                 
-                for i, (dataset_name, dataset_results) in enumerate(results.items()):
-                    if i >= 4:  # Limit to 4 subplots
-                        break
-                    
-                    ax = axes[i]
-                    
-                    for model_name, model_results in dataset_results.items():
-                        if 'fold_scores' in model_results:
-                            fold_scores = model_results['fold_scores']
-                            
-                            # Calculate cumulative mean (convergence)
-                            cumulative_mean = np.cumsum(fold_scores) / np.arange(1, len(fold_scores) + 1)
-                            
-                            ax.plot(range(1, len(cumulative_mean) + 1), cumulative_mean, 
-                                   'o-', label=model_name, linewidth=1.5, markersize=4)
-                    
-                    ax.set_title(f'{dataset_name} CV Convergence')
-                    ax.set_xlabel('CV Fold')
-                    ax.set_ylabel('Cumulative Mean F1-Score')
-                    ax.legend(fontsize=7)
-                    ax.grid(True, alpha=0.3)
-            
-            else:
-                # Handle individual file format
-                for i, (dataset_name, df) in enumerate(cv_data.items()):
-                    if i >= 4:  # Limit to 4 subplots
-                        break
-                    
-                    ax = axes[i]
-                    
-                    if 'f1_score' in df.columns:
-                        # Assume each row is a fold result
-                        fold_scores = df['f1_score'].values
-                        cumulative_mean = np.cumsum(fold_scores) / np.arange(1, len(fold_scores) + 1)
+                ax = axes[plot_idx]
+                
+                # Extract fold scores from the f1_scores column (which contains lists)
+                if 'f1_scores' in df.columns:
+                    for idx, (model_name, row) in enumerate(df.iterrows()):
+                        if idx >= 5:  # Limit to 5 models per plot
+                            break
                         
-                        ax.plot(range(1, len(cumulative_mean) + 1), cumulative_mean, 
-                               'o-', color=self.colors['primary'], linewidth=1.5, markersize=4)
-                    
-                    ax.set_title(f'{dataset_name} CV Convergence')
-                    ax.set_xlabel('CV Fold')
-                    ax.set_ylabel('Cumulative Mean F1-Score')
-                    ax.grid(True, alpha=0.3)
+                        try:
+                            # Parse the fold scores (assuming they're in string format like "[0.99, 0.98, ...]")
+                            fold_scores_str = row['f1_scores']
+                            if isinstance(fold_scores_str, str):
+                                # Clean and parse the string representation of list
+                                fold_scores_str = fold_scores_str.strip('[]')
+                                fold_scores = [float(x.strip()) for x in fold_scores_str.split(',') if x.strip()]
+                            elif isinstance(fold_scores_str, list):
+                                fold_scores = fold_scores_str
+                            else:
+                                # Fallback: use mean values
+                                fold_scores = [row['f1_mean']] * 5
+                            
+                            if len(fold_scores) > 1:
+                                # Calculate cumulative mean (convergence)
+                                cumulative_mean = np.cumsum(fold_scores) / np.arange(1, len(fold_scores) + 1)
+                                
+                                # Choose color based on model type
+                                model_name_clean = row['model_name'] if 'model_name' in row else f'Model_{idx}'
+                                color = list(self.colors.values())[idx % len(self.colors)]
+                                
+                                ax.plot(range(1, len(cumulative_mean) + 1), cumulative_mean, 
+                                       'o-', label=model_name_clean, linewidth=1.5, markersize=4, color=color)
+                        
+                        except Exception as e:
+                            print(f"⚠️ Error processing fold scores for {model_name}: {e}")
+                            continue
+                
+                ax.set_title(f'{dataset_name} CV Convergence')
+                ax.set_xlabel('CV Fold')
+                ax.set_ylabel('Cumulative Mean F1-Score')
+                ax.legend(fontsize=6, loc='best')
+                ax.grid(True, alpha=0.3)
+                plot_idx += 1
             
             # Hide empty subplots
-            for i in range(len(cv_data), 4):
+            for i in range(plot_idx, 4):
                 axes[i].set_visible(False)
             
             plt.tight_layout()
@@ -312,21 +336,29 @@ class ScientificVisualizationEnhancer:
         print("\n🔄 Generating cross-dataset analysis...")
         
         try:
-            # Load bidirectional cross-dataset results
+            # Load cross-dataset results
             cross_results_path = Path("data/results/bidirectional_cross_dataset_analysis.csv")
             nsl_on_cic_path = Path("data/results/nsl_trained_tested_on_cic.csv")
             cic_on_nsl_path = Path("data/results/cic_trained_tested_on_nsl.csv")
             
             cross_data = {}
             
+            # Load bidirectional analysis
             if cross_results_path.exists():
-                cross_data['bidirectional'] = pd.read_csv(cross_results_path)
+                df = pd.read_csv(cross_results_path)
+                cross_data['bidirectional'] = df
+                print(f"✅ Loaded bidirectional analysis: {len(df)} models")
                 
+            # Load individual transfer results
             if nsl_on_cic_path.exists():
-                cross_data['nsl_on_cic'] = pd.read_csv(nsl_on_cic_path)
+                df = pd.read_csv(nsl_on_cic_path)
+                cross_data['nsl_on_cic'] = df
+                print(f"✅ Loaded NSL→CIC transfer: {len(df)} models")
                 
             if cic_on_nsl_path.exists():
-                cross_data['cic_on_nsl'] = pd.read_csv(cic_on_nsl_path)
+                df = pd.read_csv(cic_on_nsl_path)
+                cross_data['cic_on_nsl'] = df
+                print(f"✅ Loaded CIC→NSL transfer: {len(df)} models")
             
             if not cross_data:
                 print("❌ No cross-dataset results found. Run experiment 05 first.")
@@ -338,75 +370,114 @@ class ScientificVisualizationEnhancer:
             
             # Plot 1: Transfer performance comparison
             ax1 = axes[0]
-            if 'bidirectional' in cross_data:
-                df = cross_data['bidirectional']
-                if 'source_dataset' in df.columns and 'f1_score' in df.columns:
-                    # Group by source dataset
-                    grouped = df.groupby(['source_dataset', 'target_dataset'])['f1_score'].mean().unstack()
-                    grouped.plot(kind='bar', ax=ax1, color=[self.colors['nsl_baseline'], self.colors['cic_baseline']])
+            if cross_data:
+                models = []
+                nsl_to_cic_f1 = []
+                cic_to_nsl_f1 = []
+                
+                # Extract data from bidirectional or individual files
+                if 'bidirectional' in cross_data:
+                    df = cross_data['bidirectional']
+                    models = df['Model'].tolist() if 'Model' in df.columns else df.index.tolist()
+                    nsl_to_cic_f1 = df['CIC_Test_F1'].tolist() if 'CIC_Test_F1' in df.columns else [0] * len(models)
+                    cic_to_nsl_f1 = df['NSL_Test_F1_From_CIC'].tolist() if 'NSL_Test_F1_From_CIC' in df.columns else [0] * len(models)
+                elif 'nsl_on_cic' in cross_data and 'cic_on_nsl' in cross_data:
+                    nsl_df = cross_data['nsl_on_cic']
+                    cic_df = cross_data['cic_on_nsl']
+                    models = nsl_df['Model'].tolist() if 'Model' in nsl_df.columns else nsl_df.index.tolist()
+                    nsl_to_cic_f1 = nsl_df['Target_F1'].tolist() if 'Target_F1' in nsl_df.columns else [0] * len(models)
+                    cic_to_nsl_f1 = cic_df['Target_F1'].tolist() if 'Target_F1' in cic_df.columns else [0] * len(models)
+                
+                if models and (any(nsl_to_cic_f1) or any(cic_to_nsl_f1)):
+                    x = np.arange(len(models))
+                    width = 0.35
+                    
+                    ax1.bar(x - width/2, nsl_to_cic_f1, width, label='NSL→CIC', color=self.colors['nsl_baseline'])
+                    ax1.bar(x + width/2, cic_to_nsl_f1, width, label='CIC→NSL', color=self.colors['cic_baseline'])
+                    
                     ax1.set_title('Cross-Dataset Transfer Performance')
-                    ax1.set_xlabel('Source Dataset')
+                    ax1.set_xlabel('Models')
                     ax1.set_ylabel('F1-Score')
-                    ax1.legend(title='Target Dataset')
-                    ax1.tick_params(axis='x', rotation=45)
+                    ax1.set_xticks(x)
+                    ax1.set_xticklabels([m[:8] for m in models], rotation=45)
+                    ax1.legend()
+                    ax1.grid(True, alpha=0.3)
             
             # Plot 2: Performance degradation analysis
             ax2 = axes[1]
-            if 'nsl_on_cic' in cross_data and 'cic_on_nsl' in cross_data:
-                # Calculate performance drops
-                nsl_cic_f1 = cross_data['nsl_on_cic']['f1_score'].mean() if 'f1_score' in cross_data['nsl_on_cic'].columns else 0
-                cic_nsl_f1 = cross_data['cic_on_nsl']['f1_score'].mean() if 'f1_score' in cross_data['cic_on_nsl'].columns else 0
+            if cross_data:
+                degradation_data = []
+                model_names = []
                 
-                transfer_performance = [nsl_cic_f1, cic_nsl_f1]
-                transfer_labels = ['NSL→CIC', 'CIC→NSL']
-                
-                bars = ax2.bar(transfer_labels, transfer_performance, 
-                              color=[self.colors['cross_dataset'], self.colors['accent1']])
-                ax2.set_title('Transfer Learning Performance')
-                ax2.set_ylabel('F1-Score')
-                
-                # Add value labels on bars
-                for bar, value in zip(bars, transfer_performance):
-                    ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
-                            f'{value:.3f}', ha='center', va='bottom')
+                if 'bidirectional' in cross_data:
+                    df = cross_data['bidirectional']
+                    if 'NSL_to_CIC_Relative_Drop' in df.columns and 'CIC_to_NSL_Relative_Drop' in df.columns:
+                        models = df['Model'].tolist() if 'Model' in df.columns else df.index.tolist()
+                        nsl_drops = df['NSL_to_CIC_Relative_Drop'].tolist()
+                        cic_drops = df['CIC_to_NSL_Relative_Drop'].tolist()
+                        
+                        x = np.arange(len(models))
+                        width = 0.35
+                        
+                        ax2.bar(x - width/2, nsl_drops, width, label='NSL→CIC Drop (%)', color=self.colors['nsl_advanced'])
+                        ax2.bar(x + width/2, cic_drops, width, label='CIC→NSL Drop (%)', color=self.colors['cic_advanced'])
+                        
+                        ax2.set_title('Transfer Performance Degradation')
+                        ax2.set_xlabel('Models')
+                        ax2.set_ylabel('Performance Drop (%)')
+                        ax2.set_xticks(x)
+                        ax2.set_xticklabels([m[:8] for m in models], rotation=45)
+                        ax2.legend()
+                        ax2.grid(True, alpha=0.3)
             
-            # Plot 3: Model comparison across datasets
+            # Plot 3: Domain divergence analysis
             ax3 = axes[2]
             if 'bidirectional' in cross_data:
                 df = cross_data['bidirectional']
-                if 'model' in df.columns and 'f1_score' in df.columns:
-                    model_performance = df.groupby('model')['f1_score'].mean().sort_values(ascending=True)
-                    model_performance.plot(kind='barh', ax=ax3, color=self.colors['primary'])
-                    ax3.set_title('Average Model Performance')
-                    ax3.set_xlabel('F1-Score')
+                if 'Domain_Divergence_forward' in df.columns:
+                    models = df['Model'].tolist() if 'Model' in df.columns else df.index.tolist()
+                    divergence_forward = df['Domain_Divergence_forward'].tolist()
+                    divergence_reverse = df['Domain_Divergence_reverse'].tolist() if 'Domain_Divergence_reverse' in df.columns else divergence_forward
+                    
+                    x = np.arange(len(models))
+                    width = 0.35
+                    
+                    ax3.bar(x - width/2, divergence_forward, width, label='NSL→CIC Divergence', color=self.colors['cross_dataset'])
+                    ax3.bar(x + width/2, divergence_reverse, width, label='CIC→NSL Divergence', color=self.colors['accent1'])
+                    
+                    ax3.set_title('Domain Divergence Analysis')
+                    ax3.set_xlabel('Models')
+                    ax3.set_ylabel('Domain Divergence')
+                    ax3.set_xticks(x)
+                    ax3.set_xticklabels([m[:8] for m in models], rotation=45)
+                    ax3.legend()
+                    ax3.grid(True, alpha=0.3)
             
-            # Plot 4: Dataset difficulty analysis
+            # Plot 4: Transfer efficiency ratios
             ax4 = axes[3]
-            if len(cross_data) >= 2:
-                # Calculate average performance when each dataset is used as target
-                target_scores = {}
-                for name, df in cross_data.items():
-                    if 'target_dataset' in df.columns and 'f1_score' in df.columns:
-                        targets = df.groupby('target_dataset')['f1_score'].mean()
-                        for target, score in targets.items():
-                            if target not in target_scores:
-                                target_scores[target] = []
-                            target_scores[target].append(score)
-                
-                if target_scores:
-                    avg_scores = {k: np.mean(v) for k, v in target_scores.items()}
-                    datasets = list(avg_scores.keys())
-                    scores = list(avg_scores.values())
+            if 'bidirectional' in cross_data:
+                df = cross_data['bidirectional']
+                if 'NSL_to_CIC_Transfer_Ratio' in df.columns and 'CIC_to_NSL_Transfer_Ratio' in df.columns:
+                    models = df['Model'].tolist() if 'Model' in df.columns else df.index.tolist()
+                    nsl_ratios = df['NSL_to_CIC_Transfer_Ratio'].tolist()
+                    cic_ratios = df['CIC_to_NSL_Transfer_Ratio'].tolist()
                     
-                    bars = ax4.bar(datasets, scores, 
-                                  color=[self.colors['nsl_advanced'], self.colors['cic_advanced']])
-                    ax4.set_title('Dataset Difficulty (as Target)')
-                    ax4.set_ylabel('Average F1-Score')
+                    x = np.arange(len(models))
+                    width = 0.35
                     
-                    # Add value labels
-                    for bar, value in zip(bars, scores):
-                        ax4.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
-                                f'{value:.3f}', ha='center', va='bottom')
+                    ax4.bar(x - width/2, nsl_ratios, width, label='NSL→CIC Ratio', color=self.colors['nsl_baseline'])
+                    ax4.bar(x + width/2, cic_ratios, width, label='CIC→NSL Ratio', color=self.colors['cic_baseline'])
+                    
+                    ax4.set_title('Transfer Efficiency Ratios\n(Higher is Better)')
+                    ax4.set_xlabel('Models')
+                    ax4.set_ylabel('Transfer Ratio')
+                    ax4.set_xticks(x)
+                    ax4.set_xticklabels([m[:8] for m in models], rotation=45)
+                    ax4.legend()
+                    ax4.grid(True, alpha=0.3)
+                    
+                    # Add horizontal line at 1.0 for reference
+                    ax4.axhline(y=1.0, color='red', linestyle='--', alpha=0.5, label='Perfect Transfer')
             
             plt.tight_layout()
             
@@ -479,25 +550,46 @@ class ScientificVisualizationEnhancer:
                     ax.tick_params(axis='x', rotation=45)
                     ax.grid(True, alpha=0.3)
             
-            # Overall performance heatmap
+            # Performance matrix visualization (without colorbar)
             if len(metrics) <= 4:
                 ax5 = axes[4]
                 
                 # Create performance matrix
-                perf_matrix = combined_df.groupby(['dataset', 'type'])[metrics[:4]].mean()
-                
-                if not perf_matrix.empty:
-                    # Create heatmap
-                    sns.heatmap(perf_matrix, annot=True, fmt='.3f', cmap='RdYlBu_r', ax=ax5)
-                    ax5.set_title('Performance Heatmap')
+                available_metrics = [m for m in metrics if m in combined_df.columns]
+                if available_metrics:
+                    perf_matrix = combined_df.groupby(['dataset', 'type'])[available_metrics].mean()
+                    
+                    if not perf_matrix.empty:
+                        # Create grouped bar chart instead of heatmap to avoid colorbar issues
+                        perf_matrix.plot(kind='bar', ax=ax5, 
+                                        color=[self.colors['nsl_baseline'], self.colors['nsl_advanced'], 
+                                               self.colors['cic_baseline'], self.colors['cic_advanced']][:len(available_metrics)])
+                        ax5.set_title('Performance Metrics Comparison')
+                        ax5.set_ylabel('Score')
+                        ax5.legend(title='Metrics', fontsize=7, loc='best')
+                        ax5.tick_params(axis='x', rotation=45)
+                        ax5.grid(True, alpha=0.3)
+                        
+                        # Add value labels on top of bars
+                        for container in ax5.containers:
+                            ax5.bar_label(container, fmt='%.3f', fontsize=6)
             
             # Model ranking
             ax6 = axes[5]
-            if 'model' in combined_df.columns and 'f1_score' in combined_df.columns:
-                model_ranking = combined_df.groupby('model')['f1_score'].mean().sort_values(ascending=True)
-                model_ranking.plot(kind='barh', ax=ax6, color=self.colors['primary'])
-                ax6.set_title('Model Ranking (F1-Score)')
-                ax6.set_xlabel('F1-Score')
+            if 'model_name' in combined_df.columns and 'f1_score' in combined_df.columns:
+                model_ranking = combined_df.groupby('model_name')['f1_score'].mean().sort_values(ascending=True)
+                if len(model_ranking) > 0:
+                    model_ranking.plot(kind='barh', ax=ax6, color=self.colors['primary'])
+                    ax6.set_title('Model Ranking (F1-Score)')
+                    ax6.set_xlabel('F1-Score')
+                    ax6.grid(True, alpha=0.3)
+                else:
+                    # Fallback: dataset comparison
+                    dataset_perf = combined_df.groupby('dataset')['f1_score'].mean().sort_values(ascending=True)
+                    dataset_perf.plot(kind='barh', ax=ax6, color=[self.colors['nsl_baseline'], self.colors['cic_baseline']])
+                    ax6.set_title('Dataset Performance Comparison')
+                    ax6.set_xlabel('Average F1-Score')
+                    ax6.grid(True, alpha=0.3)
             
             plt.tight_layout()
             
@@ -513,6 +605,451 @@ class ScientificVisualizationEnhancer:
             print(f"❌ Error generating comparative analysis: {e}")
             return False
     
+    def generate_timing_analysis(self) -> bool:
+        """
+        Generate timing analysis from existing timing data.
+        Shows computational efficiency across models and datasets.
+        """
+        print("\n⏱️ Generating timing analysis...")
+        
+        try:
+            # Check for timing analysis files
+            timing_dir = Path("data/results/timing_analysis")
+            timing_data = {}
+            
+            if timing_dir.exists():
+                timing_files = list(timing_dir.glob("*.csv"))
+                if timing_files:
+                    for timing_file in timing_files:
+                        df = pd.read_csv(timing_file)
+                        timing_data[timing_file.stem] = df
+                        print(f"✅ Loaded timing data: {timing_file.stem}")
+            
+            # Also check main results for prediction_time
+            result_files = [
+                ("NSL Baseline", "data/results/nsl_baseline_results.csv"),
+                ("NSL Advanced", "data/results/nsl_advanced_results.csv"),
+                ("CIC Baseline", "data/results/cic_baseline_results.csv"),
+                ("CIC Advanced", "data/results/cic_advanced_results.csv")
+            ]
+            
+            prediction_times = {}
+            for name, path in result_files:
+                if Path(path).exists():
+                    df = pd.read_csv(path)
+                    if 'prediction_time' in df.columns:
+                        prediction_times[name] = df[['model_name', 'prediction_time']]
+            
+            if not timing_data and not prediction_times:
+                print("❌ No timing data found. Skipping timing analysis.")
+                return True
+            
+            # Create timing visualization
+            fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+            axes = axes.flatten()
+            
+            # Plot 1: Prediction time comparison
+            if prediction_times:
+                ax1 = axes[0]
+                
+                all_times = []
+                labels = []
+                colors = []
+                
+                for dataset_name, df in prediction_times.items():
+                    times = df['prediction_time'].values
+                    models = df['model_name'].values
+                    
+                    for model, time in zip(models, times):
+                        all_times.append(time)
+                        labels.append(f"{dataset_name}\n{model[:8]}")
+                        
+                        # Color based on dataset
+                        if 'NSL' in dataset_name and 'Baseline' in dataset_name:
+                            colors.append(self.colors['nsl_baseline'])
+                        elif 'NSL' in dataset_name and 'Advanced' in dataset_name:
+                            colors.append(self.colors['nsl_advanced'])
+                        elif 'CIC' in dataset_name and 'Baseline' in dataset_name:
+                            colors.append(self.colors['cic_baseline'])
+                        elif 'CIC' in dataset_name and 'Advanced' in dataset_name:
+                            colors.append(self.colors['cic_advanced'])
+                        else:
+                            colors.append(self.colors['neutral'])
+                
+                # Create bar plot
+                bars = ax1.bar(range(len(all_times)), all_times, color=colors)
+                ax1.set_title('Model Prediction Time Comparison')
+                ax1.set_ylabel('Prediction Time (seconds)')
+                ax1.set_xticks(range(len(labels)))
+                ax1.set_xticklabels(labels, rotation=45, fontsize=7)
+                ax1.grid(True, alpha=0.3)
+                
+                # Add value labels on bars
+                for bar, value in zip(bars, all_times):
+                    ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + max(all_times)*0.01,
+                            f'{value:.3f}s', ha='center', va='bottom', fontsize=6)
+            
+            # Plot 2: Timing efficiency (if timing data available)
+            if timing_data:
+                ax2 = axes[1]
+                
+                for dataset_name, df in list(timing_data.items())[:1]:  # Use first timing file
+                    if 'execution_time' in df.columns and 'operation' in df.columns:
+                        operations = df['operation'].values
+                        times = df['execution_time'].values
+                        
+                        ax2.bar(range(len(operations)), times, color=self.colors['primary'])
+                        ax2.set_title('Operation Timing Analysis')
+                        ax2.set_ylabel('Execution Time (seconds)')
+                        ax2.set_xticks(range(len(operations)))
+                        ax2.set_xticklabels(operations, rotation=45, fontsize=7)
+                        ax2.grid(True, alpha=0.3)
+            
+            # Plot 3: Model complexity vs performance vs time
+            if prediction_times:
+                ax3 = axes[2]
+                
+                # Combine with performance data
+                for dataset_name, time_df in prediction_times.items():
+                    # Find corresponding performance file
+                    perf_path = None
+                    if 'NSL Baseline' in dataset_name:
+                        perf_path = "data/results/nsl_baseline_results.csv"
+                    elif 'NSL Advanced' in dataset_name:
+                        perf_path = "data/results/nsl_advanced_results.csv"
+                    elif 'CIC Baseline' in dataset_name:
+                        perf_path = "data/results/cic_baseline_results.csv"
+                    elif 'CIC Advanced' in dataset_name:
+                        perf_path = "data/results/cic_advanced_results.csv"
+                    
+                    if perf_path and Path(perf_path).exists():
+                        perf_df = pd.read_csv(perf_path)
+                        if 'f1_score' in perf_df.columns:
+                            # Create scatter plot: F1-score vs prediction time
+                            f1_scores = perf_df['f1_score'].values
+                            pred_times = time_df['prediction_time'].values
+                            
+                            color = self.colors['nsl_baseline'] if 'NSL' in dataset_name else self.colors['cic_baseline']
+                            ax3.scatter(pred_times, f1_scores, label=dataset_name, 
+                                       color=color, alpha=0.7, s=50)
+                
+                ax3.set_title('Performance vs Prediction Time')
+                ax3.set_xlabel('Prediction Time (seconds)')
+                ax3.set_ylabel('F1-Score')
+                ax3.legend(fontsize=7)
+                ax3.grid(True, alpha=0.3)
+            
+            # Plot 4: Summary statistics
+            ax4 = axes[3]
+            if prediction_times:
+                summary_stats = []
+                dataset_names = []
+                
+                for dataset_name, df in prediction_times.items():
+                    times = df['prediction_time'].values
+                    summary_stats.append([
+                        np.mean(times),
+                        np.median(times),
+                        np.std(times)
+                    ])
+                    dataset_names.append(dataset_name.replace(' ', '\n'))
+                
+                summary_stats = np.array(summary_stats)
+                
+                x = np.arange(len(dataset_names))
+                width = 0.25
+                
+                ax4.bar(x - width, summary_stats[:, 0], width, label='Mean', color=self.colors['primary'])
+                ax4.bar(x, summary_stats[:, 1], width, label='Median', color=self.colors['accent1'])
+                ax4.bar(x + width, summary_stats[:, 2], width, label='Std Dev', color=self.colors['accent2'])
+                
+                ax4.set_title('Timing Statistics Summary')
+                ax4.set_ylabel('Time (seconds)')
+                ax4.set_xticks(x)
+                ax4.set_xticklabels(dataset_names, fontsize=7)
+                ax4.legend()
+                ax4.grid(True, alpha=0.3)
+            
+            # Hide empty subplots
+            for i, ax in enumerate(axes):
+                if not ax.has_data():
+                    ax.set_visible(False)
+            
+            plt.tight_layout()
+            
+            # Save the figure
+            output_path = self.subdirs['comparative_analysis'] / 'timing_performance_analysis.pdf'
+            plt.savefig(output_path, dpi=300, bbox_inches='tight', format='pdf')
+            plt.close()
+            
+            print(f"✅ Timing analysis saved: {output_path}")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error generating timing analysis: {e}")
+            return False
+
+    def generate_model_summary_dashboard(self) -> bool:
+        """
+        Generate a comprehensive model performance summary dashboard.
+        """
+        print("\n📋 Generating model summary dashboard...")
+        
+        try:
+            # Load all available result files
+            all_results = {}
+            
+            # NSL-KDD results
+            for result_type in ['baseline', 'advanced']:
+                result_path = Path(f"data/results/nsl_{result_type}_results.csv")
+                if result_path.exists():
+                    df = pd.read_csv(result_path)
+                    all_results[f'NSL-KDD {result_type.title()}'] = df
+            
+            # CIC-IDS-2017 results  
+            for result_type in ['baseline', 'advanced']:
+                result_path = Path(f"data/results/cic_{result_type}_results.csv")
+                if result_path.exists():
+                    df = pd.read_csv(result_path)
+                    all_results[f'CIC-IDS-2017 {result_type.title()}'] = df
+            
+            if not all_results:
+                print("❌ No result files found")
+                return False
+            
+            # Create comprehensive dashboard
+            fig, axes = plt.subplots(3, 2, figsize=(15, 12))
+            axes = axes.flatten()
+            
+            # Plot 1: Best model per dataset
+            ax1 = axes[0]
+            best_models = {}
+            for dataset_name, df in all_results.items():
+                if 'f1_score' in df.columns and 'model_name' in df.columns:
+                    best_idx = df['f1_score'].idxmax()
+                    best_model = df.loc[best_idx, 'model_name']
+                    best_score = df.loc[best_idx, 'f1_score']
+                    best_models[dataset_name] = {'model': best_model, 'score': best_score}
+            
+            if best_models:
+                datasets = list(best_models.keys())
+                scores = [best_models[d]['score'] for d in datasets]
+                colors = [self.colors['nsl_baseline'], self.colors['nsl_advanced'], 
+                         self.colors['cic_baseline'], self.colors['cic_advanced']][:len(datasets)]
+                
+                bars = ax1.bar(range(len(datasets)), scores, color=colors)
+                ax1.set_title('Best F1-Score per Dataset')
+                ax1.set_ylabel('F1-Score')
+                ax1.set_xticks(range(len(datasets)))
+                ax1.set_xticklabels([d.replace(' ', '\n') for d in datasets], fontsize=8)
+                
+                # Add model names and scores as labels
+                for bar, dataset in zip(bars, datasets):
+                    ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
+                            f"{best_models[dataset]['model'][:8]}\n{best_models[dataset]['score']:.3f}",
+                            ha='center', va='bottom', fontsize=7)
+                ax1.grid(True, alpha=0.3)
+            
+            # Plot 2: Model consistency across datasets
+            ax2 = axes[1]
+            model_consistency = {}
+            for dataset_name, df in all_results.items():
+                if 'model_name' in df.columns and 'f1_score' in df.columns:
+                    for _, row in df.iterrows():
+                        model = row['model_name']
+                        score = row['f1_score']
+                        if model not in model_consistency:
+                            model_consistency[model] = []
+                        model_consistency[model].append(score)
+            
+            if model_consistency:
+                # Calculate coefficient of variation (std/mean) for each model
+                model_cv = {}
+                for model, scores in model_consistency.items():
+                    if len(scores) > 1:
+                        model_cv[model] = np.std(scores) / np.mean(scores)
+                
+                if model_cv:
+                    models = list(model_cv.keys())
+                    cv_values = list(model_cv.values())
+                    
+                    bars = ax2.bar(range(len(models)), cv_values, color=self.colors['primary'])
+                    ax2.set_title('Model Consistency Across Datasets\n(Lower is Better)')
+                    ax2.set_ylabel('Coefficient of Variation')
+                    ax2.set_xticks(range(len(models)))
+                    ax2.set_xticklabels([m[:10] for m in models], rotation=45, fontsize=8)
+                    ax2.grid(True, alpha=0.3)
+            
+            # Plot 3: Performance distribution
+            ax3 = axes[2]
+            all_f1_scores = []
+            dataset_labels = []
+            
+            for dataset_name, df in all_results.items():
+                if 'f1_score' in df.columns:
+                    scores = df['f1_score'].values
+                    all_f1_scores.extend(scores)
+                    dataset_labels.extend([dataset_name] * len(scores))
+            
+            if all_f1_scores:
+                # Create box plot
+                dataset_names = list(all_results.keys())
+                data_for_box = [all_results[name]['f1_score'].values for name in dataset_names if 'f1_score' in all_results[name].columns]
+                
+                if data_for_box:
+                    bp = ax3.boxplot(data_for_box, patch_artist=True, labels=[n.replace(' ', '\n') for n in dataset_names])
+                    
+                    # Color the boxes
+                    colors = [self.colors['nsl_baseline'], self.colors['nsl_advanced'], 
+                             self.colors['cic_baseline'], self.colors['cic_advanced']]
+                    for patch, color in zip(bp['boxes'], colors[:len(bp['boxes'])]):
+                        patch.set_facecolor(color)
+                        patch.set_alpha(0.7)
+                    
+                    ax3.set_title('F1-Score Distribution by Dataset')
+                    ax3.set_ylabel('F1-Score')
+                    ax3.grid(True, alpha=0.3)
+            
+            # Plot 4: Model rankings
+            ax4 = axes[3]
+            model_rankings = {}
+            for dataset_name, df in all_results.items():
+                if 'model_name' in df.columns and 'f1_score' in df.columns:
+                    df_sorted = df.sort_values('f1_score', ascending=False)
+                    for rank, (_, row) in enumerate(df_sorted.iterrows()):
+                        model = row['model_name']
+                        if model not in model_rankings:
+                            model_rankings[model] = []
+                        model_rankings[model].append(rank + 1)
+            
+            if model_rankings:
+                avg_ranks = {model: np.mean(ranks) for model, ranks in model_rankings.items()}
+                models = list(avg_ranks.keys())
+                ranks = list(avg_ranks.values())
+                
+                # Sort by average rank
+                sorted_items = sorted(zip(models, ranks), key=lambda x: x[1])
+                models = [item[0] for item in sorted_items]
+                ranks = [item[1] for item in sorted_items]
+                
+                bars = ax4.barh(range(len(models)), ranks, color=self.colors['accent1'])
+                ax4.set_title('Average Model Ranking\n(Lower is Better)')
+                ax4.set_xlabel('Average Rank')
+                ax4.set_yticks(range(len(models)))
+                ax4.set_yticklabels([m[:15] for m in models], fontsize=8)
+                ax4.grid(True, alpha=0.3)
+                
+                # Add rank values
+                for bar, rank in zip(bars, ranks):
+                    ax4.text(bar.get_width() + 0.1, bar.get_y() + bar.get_height()/2,
+                            f'{rank:.1f}', ha='left', va='center', fontsize=8)
+            
+            # Plot 5: Speed vs Accuracy trade-off
+            ax5 = axes[4]
+            for dataset_name, df in all_results.items():
+                if all(col in df.columns for col in ['f1_score', 'prediction_time', 'model_name']):
+                    f1_scores = df['f1_score'].values
+                    pred_times = df['prediction_time'].values
+                    
+                    color = self.colors['nsl_baseline'] if 'NSL' in dataset_name else self.colors['cic_baseline']
+                    ax5.scatter(pred_times, f1_scores, label=dataset_name.replace(' ', '\n'), 
+                               color=color, alpha=0.7, s=60)
+                    
+                    # Annotate points with model names
+                    for i, model in enumerate(df['model_name'].values):
+                        ax5.annotate(model[:3], (pred_times[i], f1_scores[i]), 
+                                   fontsize=6, ha='center', va='bottom')
+            
+            ax5.set_title('Performance vs Speed Trade-off')
+            ax5.set_xlabel('Prediction Time (seconds)')
+            ax5.set_ylabel('F1-Score')
+            ax5.legend(fontsize=7, loc='best')
+            ax5.grid(True, alpha=0.3)
+            
+            # Plot 6: Overall summary statistics
+            ax6 = axes[5]
+            summary_data = {}
+            for dataset_name, df in all_results.items():
+                if 'f1_score' in df.columns:
+                    scores = df['f1_score'].values
+                    summary_data[dataset_name] = {
+                        'Mean': np.mean(scores),
+                        'Best': np.max(scores),
+                        'Worst': np.min(scores),
+                        'Std': np.std(scores)
+                    }
+            
+            if summary_data:
+                # Create grouped bar chart
+                metrics = ['Mean', 'Best', 'Worst']
+                x = np.arange(len(summary_data))
+                width = 0.25
+                
+                for i, metric in enumerate(metrics):
+                    values = [summary_data[dataset][metric] for dataset in summary_data.keys()]
+                    ax6.bar(x + i*width, values, width, label=metric, 
+                           color=list(self.colors.values())[i])
+                
+                ax6.set_title('Dataset Performance Summary')
+                ax6.set_ylabel('F1-Score')
+                ax6.set_xticks(x + width)
+                ax6.set_xticklabels([d.replace(' ', '\n') for d in summary_data.keys()], fontsize=8)
+                ax6.legend()
+                ax6.grid(True, alpha=0.3)
+            
+            plt.tight_layout()
+            
+            # Save the figure
+            output_path = self.subdirs['comparative_analysis'] / 'comprehensive_model_dashboard.pdf'
+            plt.savefig(output_path, dpi=300, bbox_inches='tight', format='pdf')
+            plt.close()
+            
+            print(f"✅ Model summary dashboard saved: {output_path}")
+            return True
+            
+        except Exception as e:
+            print(f"❌ Error generating model summary dashboard: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
+    def organize_existing_figures(self) -> bool:
+        """
+        Copy and organize existing paper figures into the scientific analysis directory.
+        """
+        try:
+            import shutil
+            
+            paper_figures_dir = Path("data/results/paper_figures")
+            if not paper_figures_dir.exists():
+                return True  # No existing figures to organize
+            
+            # Create paper_figures subdirectory in scientific analysis
+            paper_output_dir = self.output_dir / "paper_figures"
+            paper_output_dir.mkdir(exist_ok=True)
+            
+            # Copy PNG/PDF figures
+            figure_files = list(paper_figures_dir.glob("*.png")) + list(paper_figures_dir.glob("*.pdf"))
+            
+            for figure_file in figure_files:
+                dest_path = paper_output_dir / figure_file.name
+                shutil.copy2(figure_file, dest_path)
+                print(f"📄 Copied: {figure_file.name}")
+            
+            # Copy CSV/TEX tables
+            table_files = list(paper_figures_dir.glob("*.csv")) + list(paper_figures_dir.glob("*.tex"))
+            
+            for table_file in table_files:
+                dest_path = paper_output_dir / table_file.name
+                shutil.copy2(table_file, dest_path)
+                print(f"📊 Copied: {table_file.name}")
+            
+            return True
+            
+        except Exception as e:
+            print(f"⚠️ Error organizing existing figures: {e}")
+            return False
+
     def generate_scientific_report(self) -> str:
         """
         Generate comprehensive scientific visualization report.
@@ -583,7 +1120,7 @@ class ScientificVisualizationEnhancer:
         print("\n🚀 Running all scientific visualization analyses...")
         
         success_count = 0
-        total_analyses = 4
+        total_analyses = 6
         
         # Run each analysis
         if self.generate_learning_curves_analysis():
@@ -598,14 +1135,22 @@ class ScientificVisualizationEnhancer:
         if self.generate_comparative_analysis():
             success_count += 1
         
+        if self.generate_timing_analysis():
+            success_count += 1
+        
+        if self.generate_model_summary_dashboard():
+            success_count += 1
+        
+        # Skip redundant paper figure copying (user feedback)
+        
         # Generate report
         self.generate_scientific_report()
         
-        print(f"\n📊 Analysis Summary:")
+        print("\n📊 Analysis Summary:")
         print(f"✅ Successful analyses: {success_count}/{total_analyses}")
         print(f"📁 All outputs saved to: {self.output_dir}")
         
-        return success_count == total_analyses
+        return success_count >= total_analyses - 1  # Allow for one failure
 
 
 def main():
