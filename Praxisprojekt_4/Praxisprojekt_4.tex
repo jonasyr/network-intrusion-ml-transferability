@@ -263,9 +263,9 @@ giveninits=true % Nur Initialen für Vornamen
 \newcommand{\thesistype}{Art der Arbeit (Wissenschaftliche Arbeit)}
 \newcommand{\papertitle}{Inwieweit sind Machine-Learning-Modelle für Netzwerk-Anomalieerkennung zwischen verschiedenen Datensätzen übertragbar?}
 \newcommand{\authorname}{Jonas Weirauch}
-\newcommand{\matno}{Matrikelnummer}
+\newcommand{\matno}{10237021}
 \newcommand{\address}{Im Wiesengrund 19, 55286 Sulzheim}
-\newcommand{\advisor}{Betreuer:in, akademischer Titel}
+\newcommand{\advisor}{Dominic Lindner}
 \newcommand{\submissiondate}{30.09.2025}
 
 % ============================================================
@@ -385,12 +385,26 @@ giveninits=true % Nur Initialen für Vornamen
     Abschließend werden in der \textit{Diskussion} die praktischen Implikationen für IDS-Deployments erörtert. Die Erkenntnisse münden in konkrete Handlungsempfehlungen für die Modellauswahl sowie einen Ausblick auf zukünftige Forschungsrichtungen in Transfer Learning und Explainable AI für Cybersicherheitsanwendungen. Der wissenschaftliche Beitrag liegt in der erstmaligen systematischen Cross-Dataset-Evaluation von zwölf ML-Modellen unter realistischen Transferbedingungen und der empirischen Quantifizierung von Generalisierungslücken zwischen historischen und modernen IDS-Benchmarks.
 
 
-    \section{Theoretischer Hintergrund}
-    Relevante Modelle/Begriffe, z.\,B. Regularisierung, Bias/Varianz. Formeln werden gesetzt:
-    \begin{align}
-        \hat{R}(\theta) &= \frac{1}{N}\sum_{i=1}^{N}\ell\!\left(y_i,f_\theta(x_i)\right) + \lambda\lVert\theta\rVert_2^2,\\
-        \ell(y,\hat{y}) &= -\big[y\log\hat{y} + (1-y)\log(1-\hat{y})\big].
-    \end{align}
+    \section{Theoretische Fundierung}
+
+    \subsection{Grundlagen der Netzwerk-Anomalieerkennung und Intrusion Detection Systems}
+
+    Die Erkennung von Anomalien im Netzwerkverkehr stellt einen fundamentalen Baustein moderner Cybersicherheitsarchitekturen dar. Intrusion Detection Systems (IDS) fungieren als Frühwarnsysteme, die darauf ausgelegt sind, ungewöhnliche Muster im Netzwerkverkehr zu identifizieren, welche  auf potenzielle Sicherheitsbedrohungen hindeuten könnten \parencite{Ring2019}. Diese Systeme operieren kontinuierlich im Hintergrund und analysieren den gesamten Datenfluss einer Netzwerkinfrastruktur, um Angriffe wie Denial-of-Service (DoS), unbefugtes Eindringen, Datenexfiltration oder Malware-Aktivitäten zu erkennen \parencite{Vinayakumar2019}.
+
+    Die theoretische Grundlage der Anomalieerkennung basiert auf der systematischen Unterscheidung zwischen normalem und abnormalem Netzwerkverhalten. Dabei lassen sich drei fundamentale Kategorien von Anomalien differenzieren \parencite{Ring2019}. \textbf{Punktuelle Anomalien} bezeichnen einzelne Datenpunkte, die signifikant von der erwarteten Normalverteilung abweichen, wie beispielsweise ungewöhnlich hohe Banbreitennutzung durch einzelne Verbindungen. \textbf{Kontextuelle Anomalien} sind Datenpunkte, die nur unter Berücksichtigung ihres spezifischen Kontexts als anormal klassifiziert werden können. Ein hoher Datenverkehr während Nachtstunden könnte kontextuell anomal sein, obwohl derselbe Verkehr während der Geschäftszeiten normal erscheint. \textbf{Kollektive Anomalien} beziehen sich auf Gruppen von Datenpunkten, die gemeinsam ein ungewöhnliches Verhalten zeigen, obwohl einzelne Werte innerhalb normaler Parameter liegen könnten, wie etwa koordinierte Botnet-Aktivitäten \parencite{Ring2019}.
+
+    Die praktische Implementierung von IDS erfordert jedoch mehr als nur die technische Fähigkeit zur Mustererkennung. Moderne Netzwerkumgebungen sind durch hohe Dynamik, heterogene Infrastrukturen und kontinuierliche evolvierende Bedrohungslandschaften charakterisiert. \parencite{Gharib2016}. Dies führt zu dem Phänomen des \textbf{Concept Drift}, bei dem sich die statistische Verteilung der Netzwerkdaten über die Zeit verändert, was die Anpassungsfähigkeit und Generalisierungsfähigkeit der eingesetzten Detektionssysteme vor erhebliche Herausforderungen stellt \parencite{Ring2019}.
+
+
+    \subsection{Traditionelle versus Machine Learning-basierte Detektionsansätze}
+
+
+    \subsection{Machine Learning-Taxonomie für Anomalieerkennung}
+
+
+    \subsection{Transfer Learning und Cross-Dataset-Generalisierung}
+
+
 
     \section{Methodik}
     Design, Daten, Preprocessing, Metriken, Validierung.
