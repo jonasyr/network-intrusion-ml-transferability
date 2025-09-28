@@ -837,54 +837,64 @@ class PaperFigureGenerator:
             return None
         
         fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-        fig.suptitle('Cross-Dataset Transfer Learning Analysis', fontsize=16, fontweight='bold')
+        fig.suptitle('Cross-Dataset Transfer Learning Analysis', fontsize=14, fontweight='bold')
         
-        # 1. Transfer Ratios Comparison
-        if 'NSL→CIC' in cross_dataset_results and 'CIC→NSL' in cross_dataset_results:
-            nsl_to_cic = cross_dataset_results['NSL→CIC']
-            cic_to_nsl = cross_dataset_results['CIC→NSL']
+        # 1. Transfer Ratios Comparison using bidirectional data
+        if 'Bidirectional' in cross_dataset_results:
+            bidirectional = cross_dataset_results['Bidirectional']
             
-            models = nsl_to_cic['Model'].values
-            nsl_cic_ratios = nsl_to_cic['Transfer_Ratio'].values
-            cic_nsl_ratios = cic_to_nsl['Transfer_Ratio'].values
+            models = bidirectional['Model'].values
+            nsl_cic_ratios = bidirectional['NSL_to_CIC_Transfer_Ratio'].values
+            cic_nsl_ratios = bidirectional['CIC_to_NSL_Transfer_Ratio'].values
             
             x = np.arange(len(models))
             width = 0.35
             
-            axes[0, 0].bar(x - width/2, nsl_cic_ratios, width, label='NSL→CIC', 
+            bars1 = axes[0, 0].bar(x - width/2, nsl_cic_ratios, width, label='NSL→CIC', 
                           color=self.colors['primary'], alpha=0.8)
-            axes[0, 0].bar(x + width/2, cic_nsl_ratios, width, label='CIC→NSL', 
+            bars2 = axes[0, 0].bar(x + width/2, cic_nsl_ratios, width, label='CIC→NSL', 
                           color=self.colors['secondary'], alpha=0.8)
             
-            axes[0, 0].set_title('Transfer Ratios by Direction', fontweight='bold')
-            axes[0, 0].set_xlabel('Models')
-            axes[0, 0].set_ylabel('Transfer Ratio')
+            # Add value labels
+            for i, (v1, v2) in enumerate(zip(nsl_cic_ratios, cic_nsl_ratios)):
+                axes[0, 0].text(x[i] - width/2, v1 + 0.02, f'{v1:.2f}', ha='center', fontsize=8)
+                axes[0, 0].text(x[i] + width/2, v2 + 0.02, f'{v2:.2f}', ha='center', fontsize=8)
+            
+            axes[0, 0].set_title('Transfer Ratios by Direction', fontweight='bold', fontsize=10)
+            axes[0, 0].set_xlabel('Models', fontsize=9)
+            axes[0, 0].set_ylabel('Transfer Ratio', fontsize=9)
             axes[0, 0].set_xticks(x)
-            axes[0, 0].set_xticklabels(models, rotation=45, ha='right')
-            axes[0, 0].legend()
-            axes[0, 0].grid(True, alpha=0.3)
+            axes[0, 0].set_xticklabels(models, rotation=45, ha='right', fontsize=8)
+            axes[0, 0].legend(fontsize=8)
+            axes[0, 0].grid(True, alpha=0.3, axis='y')
+            axes[0, 0].set_ylim(0, 1.1)
         
         # 2. Performance Drop Analysis
         if 'NSL→CIC' in cross_dataset_results:
             nsl_to_cic = cross_dataset_results['NSL→CIC']
-            axes[0, 1].scatter(nsl_to_cic['Source_Accuracy'], nsl_to_cic['Target_Accuracy'],
-                              c=self.colors['accent'], s=100, alpha=0.7)
+            source_acc = nsl_to_cic['Source_Accuracy'].values
+            target_acc = nsl_to_cic['Target_Accuracy'].values
+            
+            scatter = axes[0, 1].scatter(source_acc, target_acc,
+                              c=self.colors['accent'], s=120, alpha=0.7, edgecolors='white')
             
             # Add diagonal line (no performance drop)
-            min_acc = min(nsl_to_cic['Source_Accuracy'].min(), nsl_to_cic['Target_Accuracy'].min())
-            max_acc = max(nsl_to_cic['Source_Accuracy'].max(), nsl_to_cic['Target_Accuracy'].max())
-            axes[0, 1].plot([min_acc, max_acc], [min_acc, max_acc], 'k--', alpha=0.5)
+            min_acc = min(source_acc.min(), target_acc.min())
+            max_acc = max(source_acc.max(), target_acc.max())
+            axes[0, 1].plot([min_acc, max_acc], [min_acc, max_acc], 'k--', alpha=0.5, label='Perfect Transfer')
             
-            # Add model labels
+            # Add model labels with better positioning
             for i, model in enumerate(nsl_to_cic['Model']):
-                axes[0, 1].annotate(model, (nsl_to_cic['Source_Accuracy'].iloc[i], 
-                                           nsl_to_cic['Target_Accuracy'].iloc[i]),
-                                   xytext=(5, 5), textcoords='offset points', fontsize=8)
+                axes[0, 1].annotate(model, (source_acc[i], target_acc[i]),
+                                   xytext=(3, 3), textcoords='offset points', fontsize=7, alpha=0.8)
             
-            axes[0, 1].set_title('NSL→CIC Transfer Performance', fontweight='bold')
-            axes[0, 1].set_xlabel('Source Accuracy (NSL-KDD)')
-            axes[0, 1].set_ylabel('Target Accuracy (CIC-IDS-2017)')
+            axes[0, 1].set_title('NSL→CIC Transfer Performance', fontweight='bold', fontsize=10)
+            axes[0, 1].set_xlabel('Source Accuracy (NSL-KDD)', fontsize=9)
+            axes[0, 1].set_ylabel('Target Accuracy (CIC-IDS-2017)', fontsize=9)
             axes[0, 1].grid(True, alpha=0.3)
+            axes[0, 1].legend(fontsize=8)
+            axes[0, 1].set_xlim(0, 1)
+            axes[0, 1].set_ylim(0, 1)
         
         # 3. Relative Performance Drop
         if 'Bidirectional' in cross_dataset_results:
@@ -895,45 +905,59 @@ class PaperFigureGenerator:
             sorted_models = bidirectional['Model'].iloc[sorted_idx]
             sorted_ratios = bidirectional['Avg_Transfer_Ratio'].iloc[sorted_idx]
             
-            axes[1, 0].barh(range(len(sorted_models)), sorted_ratios,
-                           color=self.colors['success'], alpha=0.8)
-            axes[1, 0].set_yticks(range(len(sorted_models)))
-            axes[1, 0].set_yticklabels(sorted_models)
-            axes[1, 0].set_title('Average Transfer Performance', fontweight='bold')
-            axes[1, 0].set_xlabel('Average Transfer Ratio')
+            y_pos = np.arange(len(sorted_models))
+            bars = axes[1, 0].barh(y_pos, sorted_ratios,
+                           color=self.colors['accent'], alpha=0.8)
+            axes[1, 0].set_yticks(y_pos)
+            axes[1, 0].set_yticklabels(sorted_models, fontsize=8)
+            axes[1, 0].set_title('Average Transfer Performance', fontweight='bold', fontsize=10)
+            axes[1, 0].set_xlabel('Average Transfer Ratio', fontsize=9)
+            axes[1, 0].grid(True, alpha=0.3, axis='x')
             
             # Add value labels
             for i, v in enumerate(sorted_ratios):
-                axes[1, 0].text(v + 0.01, i, f'{v:.3f}', va='center', fontsize=9)
+                axes[1, 0].text(v + 0.01, i, f'{v:.3f}', va='center', fontsize=8, fontweight='bold')
         
         # 4. Transfer Asymmetry
         if 'Bidirectional' in cross_dataset_results:
             bidirectional = cross_dataset_results['Bidirectional']
             
-            axes[1, 1].scatter(bidirectional['NSL_to_CIC_Transfer_Ratio'], 
-                              bidirectional['CIC_to_NSL_Transfer_Ratio'],
-                              c=self.colors['neutral'], s=100, alpha=0.7)
+            nsl_cic_ratios = bidirectional['NSL_to_CIC_Transfer_Ratio'].values
+            cic_nsl_ratios = bidirectional['CIC_to_NSL_Transfer_Ratio'].values
+            
+            scatter = axes[1, 1].scatter(nsl_cic_ratios, cic_nsl_ratios,
+                              c=self.colors['warning'], s=120, alpha=0.7, edgecolors='white')
             
             # Add diagonal line (symmetric transfer)
-            axes[1, 1].plot([0, 1], [0, 1], 'k--', alpha=0.5)
+            axes[1, 1].plot([0, 1], [0, 1], 'k--', alpha=0.5, label='Perfect Symmetry')
             
-            # Add model labels
+            # Add model labels with better positioning
             for i, model in enumerate(bidirectional['Model']):
-                axes[1, 1].annotate(model, (bidirectional['NSL_to_CIC_Transfer_Ratio'].iloc[i],
-                                           bidirectional['CIC_to_NSL_Transfer_Ratio'].iloc[i]),
-                                   xytext=(5, 5), textcoords='offset points', fontsize=8)
+                axes[1, 1].annotate(model, (nsl_cic_ratios[i], cic_nsl_ratios[i]),
+                                   xytext=(3, 3), textcoords='offset points', fontsize=7, alpha=0.8)
             
-            axes[1, 1].set_title('Transfer Asymmetry Analysis', fontweight='bold')
-            axes[1, 1].set_xlabel('NSL→CIC Transfer Ratio')
-            axes[1, 1].set_ylabel('CIC→NSL Transfer Ratio')
+            axes[1, 1].set_title('Transfer Asymmetry Analysis', fontweight='bold', fontsize=10)
+            axes[1, 1].set_xlabel('NSL→CIC Transfer Ratio', fontsize=9)
+            axes[1, 1].set_ylabel('CIC→NSL Transfer Ratio', fontsize=9)
             axes[1, 1].grid(True, alpha=0.3)
+            axes[1, 1].legend(fontsize=8)
+            axes[1, 1].set_xlim(0, 1.1)
+            axes[1, 1].set_ylim(0, 1.1)
+        else:
+            # Show message if no data available
+            axes[1, 0].text(0.5, 0.5, 'Cross-dataset analysis data not available', 
+                           ha='center', va='center', transform=axes[1, 0].transAxes,
+                           fontsize=12, style='italic')
+            axes[1, 1].text(0.5, 0.5, 'Transfer asymmetry data not available', 
+                           ha='center', va='center', transform=axes[1, 1].transAxes,
+                           fontsize=12, style='italic')
         
-        plt.tight_layout()
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         
         if save_path:
-            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
         else:
-            plt.savefig(self.output_dir / "cross_dataset_transfer_analysis.png", dpi=300, bbox_inches='tight')
+            plt.savefig(self.output_dir / "cross_dataset_transfer_analysis.png", dpi=300, bbox_inches='tight', facecolor='white')
         
         return fig
     
