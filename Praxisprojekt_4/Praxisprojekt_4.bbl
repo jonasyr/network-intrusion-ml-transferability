@@ -1,0 +1,1041 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nyt/apasortcite//global/global}
+    \entry{Belavagi2016}{article}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=4631ba87530c698cefc632e10ee83788}{%
+           family={Belavagi},
+           familyi={B\bibinitperiod},
+           given={M.\bibnamedelimi C.},
+           giveni={M\bibinitperiod\bibinitdelim C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=cdeedf43861a8992b6eaec43c145b50c}{%
+           family={Muniyal},
+           familyi={M\bibinitperiod},
+           given={B.},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{4e97aa3b49400d5702bf7be04ddad962}
+      \strng{fullhash}{4e97aa3b49400d5702bf7be04ddad962}
+      \strng{bibnamehash}{4e97aa3b49400d5702bf7be04ddad962}
+      \strng{authorbibnamehash}{4e97aa3b49400d5702bf7be04ddad962}
+      \strng{authornamehash}{4e97aa3b49400d5702bf7be04ddad962}
+      \strng{authorfullhash}{4e97aa3b49400d5702bf7be04ddad962}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Procedia Computer Science}
+      \field{title}{Performance Evaluation of Supervised Machine Learning Algorithms for Intrusion Detection}
+      \field{volume}{89}
+      \field{year}{2016}
+      \field{pages}{117\bibrangedash 123}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.1016/j.procs.2016.06.016
+      \endverb
+    \endentry
+    \entry{CICIDS2017}{misc}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=90053790b0371459a72e55d14a2cedfe}{%
+           family={{Canadian Institute for Cybersecurity}},
+           familyi={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{fullhash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{bibnamehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{authorbibnamehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{authornamehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{authorfullhash}{90053790b0371459a72e55d14a2cedfe}
+      \field{extraname}{1}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradate}{1}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{IDS 2017 | Datasets | Research | Canadian Institute for Cybersecurity | UNB}
+      \field{urlday}{29}
+      \field{urlmonth}{3}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.unb.ca/cic/datasets/ids-2017.html
+      \endverb
+      \verb{url}
+      \verb https://www.unb.ca/cic/datasets/ids-2017.html
+      \endverb
+    \endentry
+    \entry{NSLKDD2024}{misc}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=90053790b0371459a72e55d14a2cedfe}{%
+           family={{Canadian Institute for Cybersecurity}},
+           familyi={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{fullhash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{bibnamehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{authorbibnamehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{authornamehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{authorfullhash}{90053790b0371459a72e55d14a2cedfe}
+      \field{extraname}{2}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradate}{2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{NSL-KDD | Datasets | Research | Canadian Institute for Cybersecurity | UNB}
+      \field{urlday}{29}
+      \field{urlmonth}{3}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.unb.ca/cic/datasets/nsl.html
+      \endverb
+      \verb{url}
+      \verb https://www.unb.ca/cic/datasets/nsl.html
+      \endverb
+    \endentry
+    \entry{Gharib2016}{article}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=1a286841461d7b2aa2a748cc32adfd16}{%
+           family={Gharib},
+           familyi={G\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1b5d0a1deb4a36ae6ce34505e0ba6d9f}{%
+           family={Sharafaldin},
+           familyi={S\bibinitperiod},
+           given={I.},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4476bf63c12590ba4923b6a990728c4a}{%
+           family={Lashkari},
+           familyi={L\bibinitperiod},
+           given={A.\bibnamedelimi H.},
+           giveni={A\bibinitperiod\bibinitdelim H\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c15f7fdf79408185339d4551e562b81f}{%
+           family={Ghorbani},
+           familyi={G\bibinitperiod},
+           given={A.\bibnamedelimi A.},
+           giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{89eee4c3ab10238635b99f78af1e6065}
+      \strng{fullhash}{2c24cd0adcdb4611004fd1ba19486204}
+      \strng{bibnamehash}{2c24cd0adcdb4611004fd1ba19486204}
+      \strng{authorbibnamehash}{2c24cd0adcdb4611004fd1ba19486204}
+      \strng{authornamehash}{89eee4c3ab10238635b99f78af1e6065}
+      \strng{authorfullhash}{2c24cd0adcdb4611004fd1ba19486204}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{2016 International Conference on Information Science and Security (ICISS)}
+      \field{title}{An Evaluation Framework for Intrusion Detection Dataset}
+      \field{year}{2016}
+      \field{pages}{1\bibrangedash 6}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.1109/ICISSEC.2016.7885840
+      \endverb
+    \endentry
+    \entry{McHugh2000}{article}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=224c6420b84aca5a40944eb4d41af545}{%
+           family={McHugh},
+           familyi={M\bibinitperiod},
+           given={J.},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{224c6420b84aca5a40944eb4d41af545}
+      \strng{fullhash}{224c6420b84aca5a40944eb4d41af545}
+      \strng{bibnamehash}{224c6420b84aca5a40944eb4d41af545}
+      \strng{authorbibnamehash}{224c6420b84aca5a40944eb4d41af545}
+      \strng{authornamehash}{224c6420b84aca5a40944eb4d41af545}
+      \strng{authorfullhash}{224c6420b84aca5a40944eb4d41af545}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{ACM Transactions on Information and System Security}
+      \field{number}{4}
+      \field{title}{Testing Intrusion detection systems: A critique of the 1998 and 1999 DARPA intrusion detection system evaluations as performed by Lincoln Laboratory}
+      \field{volume}{3}
+      \field{year}{2000}
+      \field{pages}{262\bibrangedash 294}
+      \range{pages}{33}
+      \verb{doi}
+      \verb 10.1145/382912.382923
+      \endverb
+    \endentry
+    \entry{Mourouzis2021}{misc}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=2ee80e258af658ac15814c8789ddffc9}{%
+           family={Mourouzis},
+           familyi={M\bibinitperiod},
+           given={T.},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7cfbbcb3209c18be07b15ba414d577ae}{%
+           family={Avgousti},
+           familyi={A\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{5acb0ffb9038ac7c71cd4d925a16977c}
+      \strng{fullhash}{5acb0ffb9038ac7c71cd4d925a16977c}
+      \strng{bibnamehash}{5acb0ffb9038ac7c71cd4d925a16977c}
+      \strng{authorbibnamehash}{5acb0ffb9038ac7c71cd4d925a16977c}
+      \strng{authornamehash}{5acb0ffb9038ac7c71cd4d925a16977c}
+      \strng{authorfullhash}{5acb0ffb9038ac7c71cd4d925a16977c}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{arXiv preprint}
+      \field{title}{Intrusion Detection with Machine Learning Using Open-Sourced Datasets}
+      \field{year}{2021}
+      \verb{doi}
+      \verb 10.48550/ARXIV.2107.12621
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2107.12621
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2107.12621
+      \endverb
+    \endentry
+    \entry{Ring2019}{article}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=7361b9a0106d6a758684e3473c3d6e84}{%
+           family={Ring},
+           familyi={R\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=9e9e9c716237f224c4d2ac2518e3510c}{%
+           family={Wunderlich},
+           familyi={W\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e10b02779088e19771db1f7498b51814}{%
+           family={Scheuring},
+           familyi={S\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a32f7e8ad89d4830f17f54603ed7c061}{%
+           family={Landes},
+           familyi={L\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5ac6e515eecb51b424977d53e9e0f25e}{%
+           family={Hotho},
+           familyi={H\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{83bd87a34dbec865d6f0fd63f8f68cce}
+      \strng{fullhash}{bab771054e9c61cdbdc5ae164728450e}
+      \strng{bibnamehash}{bab771054e9c61cdbdc5ae164728450e}
+      \strng{authorbibnamehash}{bab771054e9c61cdbdc5ae164728450e}
+      \strng{authornamehash}{83bd87a34dbec865d6f0fd63f8f68cce}
+      \strng{authorfullhash}{bab771054e9c61cdbdc5ae164728450e}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Computers \& Security}
+      \field{title}{A Survey of Network-based Intrusion Detection Data Sets}
+      \field{volume}{86}
+      \field{year}{2019}
+      \field{pages}{147\bibrangedash 167}
+      \range{pages}{21}
+      \verb{doi}
+      \verb 10.1016/j.cose.2019.06.005
+      \endverb
+    \endentry
+    \entry{Sharafaldin2018}{article}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=1b5d0a1deb4a36ae6ce34505e0ba6d9f}{%
+           family={Sharafaldin},
+           familyi={S\bibinitperiod},
+           given={I.},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0b744383ad6c09caf6797cdf91e1afaa}{%
+           family={Habibi\bibnamedelima Lashkari},
+           familyi={H\bibinitperiod\bibinitdelim L\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c15f7fdf79408185339d4551e562b81f}{%
+           family={Ghorbani},
+           familyi={G\bibinitperiod},
+           given={A.\bibnamedelimi A.},
+           giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{1b0be39c180977f51c23452bf310c34c}
+      \strng{fullhash}{c270289a85a40672f8ac7537a3f41f98}
+      \strng{bibnamehash}{c270289a85a40672f8ac7537a3f41f98}
+      \strng{authorbibnamehash}{c270289a85a40672f8ac7537a3f41f98}
+      \strng{authornamehash}{1b0be39c180977f51c23452bf310c34c}
+      \strng{authorfullhash}{c270289a85a40672f8ac7537a3f41f98}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the 4th International Conference on Information Systems Security and Privacy}
+      \field{title}{Toward Generating a New Intrusion Detection Dataset and Intrusion Traffic Characterization}
+      \field{year}{2018}
+      \field{pages}{108\bibrangedash 116}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.5220/0006639801080116
+      \endverb
+    \endentry
+    \entry{Taman2024}{article}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=872cdbd3c06c24b381ed34fe0aec6a1b}{%
+           family={Taman},
+           familyi={T\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{872cdbd3c06c24b381ed34fe0aec6a1b}
+      \strng{fullhash}{872cdbd3c06c24b381ed34fe0aec6a1b}
+      \strng{bibnamehash}{872cdbd3c06c24b381ed34fe0aec6a1b}
+      \strng{authorbibnamehash}{872cdbd3c06c24b381ed34fe0aec6a1b}
+      \strng{authornamehash}{872cdbd3c06c24b381ed34fe0aec6a1b}
+      \strng{authorfullhash}{872cdbd3c06c24b381ed34fe0aec6a1b}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Arab Journal of Arts and Humanities}
+      \field{number}{30}
+      \field{title}{Impacts of Financial Cybercrime on Institutions and Companies}
+      \field{volume}{8}
+      \field{year}{2024}
+      \field{pages}{477\bibrangedash 488}
+      \range{pages}{12}
+      \verb{doi}
+      \verb 10.21608/ajahs.2024.341707
+      \endverb
+    \endentry
+    \entry{Tavallaee2009}{article}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=f0dac0844df885da6654f1543ea847c8}{%
+           family={Tavallaee},
+           familyi={T\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=051ea9d38cbefb376388f2d41170ed28}{%
+           family={Bagheri},
+           familyi={B\bibinitperiod},
+           given={E.},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ab361a4c3518e2c13bd5d8b87e314738}{%
+           family={Lu},
+           familyi={L\bibinitperiod},
+           given={W.},
+           giveni={W\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c15f7fdf79408185339d4551e562b81f}{%
+           family={Ghorbani},
+           familyi={G\bibinitperiod},
+           given={A.\bibnamedelimi A.},
+           giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{f3cda29d36f8f0dc5cd33e9a073814fc}
+      \strng{fullhash}{5abe073c0d132bede93659b2e5d06733}
+      \strng{bibnamehash}{5abe073c0d132bede93659b2e5d06733}
+      \strng{authorbibnamehash}{5abe073c0d132bede93659b2e5d06733}
+      \strng{authornamehash}{f3cda29d36f8f0dc5cd33e9a073814fc}
+      \strng{authorfullhash}{5abe073c0d132bede93659b2e5d06733}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2009 IEEE Symposium on Computational Intelligence for Security and Defense Applications}
+      \field{title}{A detailed analysis of the KDD CUP 99 data set}
+      \field{year}{2009}
+      \field{pages}{1\bibrangedash 6}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.1109/CISDA.2009.5356528
+      \endverb
+    \endentry
+    \entry{Vinayakumar2019}{article}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=6132de4a82b69e9c9a4b36edd1704420}{%
+           family={Vinayakumar},
+           familyi={V\bibinitperiod},
+           given={R.},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e40bf263a2de9e124bb4ae3c96ffe65d}{%
+           family={Alazab},
+           familyi={A\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1cd7ca3537ce0bd980cc06b59795ddf1}{%
+           family={Soman},
+           familyi={S\bibinitperiod},
+           given={K.\bibnamedelimi P.},
+           giveni={K\bibinitperiod\bibinitdelim P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d1bfaa9ab8cce5dcecd6e34a7112c17e}{%
+           family={Poornachandran},
+           familyi={P\bibinitperiod},
+           given={P.},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4ef54f372a0c956f6130e131cf2540f4}{%
+           family={Al-Nemrat},
+           familyi={A\bibinithyphendelim N\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ac8d4eefcf17a6f47c69f8d8dc5952d1}{%
+           family={Venkatraman},
+           familyi={V\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{a395f46d78914c5ea239a04983cea549}
+      \strng{fullhash}{bc355fe72207c0892d970940e0a2324f}
+      \strng{bibnamehash}{bc355fe72207c0892d970940e0a2324f}
+      \strng{authorbibnamehash}{bc355fe72207c0892d970940e0a2324f}
+      \strng{authornamehash}{a395f46d78914c5ea239a04983cea549}
+      \strng{authorfullhash}{bc355fe72207c0892d970940e0a2324f}
+      \field{sortinit}{V}
+      \field{sortinithash}{afb52128e5b4dc4b843768c0113d673b}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{Deep Learning Approach for Intelligent Intrusion Detection System}
+      \field{volume}{7}
+      \field{year}{2019}
+      \field{pages}{41525\bibrangedash 41550}
+      \range{pages}{26}
+      \verb{doi}
+      \verb 10.1109/ACCESS.2019.2895334
+      \endverb
+    \endentry
+    \entry{GlobalRisksReport2024}{report}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=9f6d16e0eaf271813481bd46be0c7a35}{%
+           family={{World Economic Forum}},
+           familyi={W\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {World Economic Forum}%
+      }
+      \strng{namehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{fullhash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{bibnamehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{authorbibnamehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{authornamehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{authorfullhash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Global Risks Report 2024}
+      \field{urlday}{29}
+      \field{urlmonth}{3}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.weforum.org/publications/global-risks-report-2024/
+      \endverb
+      \verb{url}
+      \verb https://www.weforum.org/publications/global-risks-report-2024/
+      \endverb
+    \endentry
+  \enddatalist
+  \datalist[entry]{nyt/global//global/global}
+    \entry{Belavagi2016}{article}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=4631ba87530c698cefc632e10ee83788}{%
+           family={Belavagi},
+           familyi={B\bibinitperiod},
+           given={M.\bibnamedelimi C.},
+           giveni={M\bibinitperiod\bibinitdelim C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=cdeedf43861a8992b6eaec43c145b50c}{%
+           family={Muniyal},
+           familyi={M\bibinitperiod},
+           given={B.},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{4e97aa3b49400d5702bf7be04ddad962}
+      \strng{fullhash}{4e97aa3b49400d5702bf7be04ddad962}
+      \strng{bibnamehash}{4e97aa3b49400d5702bf7be04ddad962}
+      \strng{authorbibnamehash}{4e97aa3b49400d5702bf7be04ddad962}
+      \strng{authornamehash}{4e97aa3b49400d5702bf7be04ddad962}
+      \strng{authorfullhash}{4e97aa3b49400d5702bf7be04ddad962}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Procedia Computer Science}
+      \field{title}{Performance Evaluation of Supervised Machine Learning Algorithms for Intrusion Detection}
+      \field{volume}{89}
+      \field{year}{2016}
+      \field{pages}{117\bibrangedash 123}
+      \range{pages}{7}
+      \verb{doi}
+      \verb 10.1016/j.procs.2016.06.016
+      \endverb
+    \endentry
+    \entry{CICIDS2017}{misc}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=90053790b0371459a72e55d14a2cedfe}{%
+           family={{Canadian Institute for Cybersecurity}},
+           familyi={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{fullhash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{bibnamehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{authorbibnamehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{authornamehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{authorfullhash}{90053790b0371459a72e55d14a2cedfe}
+      \field{extraname}{1}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradate}{1}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{IDS 2017 | Datasets | Research | Canadian Institute for Cybersecurity | UNB}
+      \field{urlday}{29}
+      \field{urlmonth}{3}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.unb.ca/cic/datasets/ids-2017.html
+      \endverb
+      \verb{url}
+      \verb https://www.unb.ca/cic/datasets/ids-2017.html
+      \endverb
+    \endentry
+    \entry{NSLKDD2024}{misc}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=90053790b0371459a72e55d14a2cedfe}{%
+           family={{Canadian Institute for Cybersecurity}},
+           familyi={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{fullhash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{bibnamehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{authorbibnamehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{authornamehash}{90053790b0371459a72e55d14a2cedfe}
+      \strng{authorfullhash}{90053790b0371459a72e55d14a2cedfe}
+      \field{extraname}{2}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradate}{2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{NSL-KDD | Datasets | Research | Canadian Institute for Cybersecurity | UNB}
+      \field{urlday}{29}
+      \field{urlmonth}{3}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.unb.ca/cic/datasets/nsl.html
+      \endverb
+      \verb{url}
+      \verb https://www.unb.ca/cic/datasets/nsl.html
+      \endverb
+    \endentry
+    \entry{Gharib2016}{article}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=1a286841461d7b2aa2a748cc32adfd16}{%
+           family={Gharib},
+           familyi={G\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1b5d0a1deb4a36ae6ce34505e0ba6d9f}{%
+           family={Sharafaldin},
+           familyi={S\bibinitperiod},
+           given={I.},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4476bf63c12590ba4923b6a990728c4a}{%
+           family={Lashkari},
+           familyi={L\bibinitperiod},
+           given={A.\bibnamedelimi H.},
+           giveni={A\bibinitperiod\bibinitdelim H\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c15f7fdf79408185339d4551e562b81f}{%
+           family={Ghorbani},
+           familyi={G\bibinitperiod},
+           given={A.\bibnamedelimi A.},
+           giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{89eee4c3ab10238635b99f78af1e6065}
+      \strng{fullhash}{2c24cd0adcdb4611004fd1ba19486204}
+      \strng{bibnamehash}{2c24cd0adcdb4611004fd1ba19486204}
+      \strng{authorbibnamehash}{2c24cd0adcdb4611004fd1ba19486204}
+      \strng{authornamehash}{89eee4c3ab10238635b99f78af1e6065}
+      \strng{authorfullhash}{2c24cd0adcdb4611004fd1ba19486204}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{2016 International Conference on Information Science and Security (ICISS)}
+      \field{title}{An Evaluation Framework for Intrusion Detection Dataset}
+      \field{year}{2016}
+      \field{pages}{1\bibrangedash 6}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.1109/ICISSEC.2016.7885840
+      \endverb
+    \endentry
+    \entry{McHugh2000}{article}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=224c6420b84aca5a40944eb4d41af545}{%
+           family={McHugh},
+           familyi={M\bibinitperiod},
+           given={J.},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{224c6420b84aca5a40944eb4d41af545}
+      \strng{fullhash}{224c6420b84aca5a40944eb4d41af545}
+      \strng{bibnamehash}{224c6420b84aca5a40944eb4d41af545}
+      \strng{authorbibnamehash}{224c6420b84aca5a40944eb4d41af545}
+      \strng{authornamehash}{224c6420b84aca5a40944eb4d41af545}
+      \strng{authorfullhash}{224c6420b84aca5a40944eb4d41af545}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{ACM Transactions on Information and System Security}
+      \field{number}{4}
+      \field{title}{Testing Intrusion detection systems: A critique of the 1998 and 1999 DARPA intrusion detection system evaluations as performed by Lincoln Laboratory}
+      \field{volume}{3}
+      \field{year}{2000}
+      \field{pages}{262\bibrangedash 294}
+      \range{pages}{33}
+      \verb{doi}
+      \verb 10.1145/382912.382923
+      \endverb
+    \endentry
+    \entry{Mourouzis2021}{misc}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=2ee80e258af658ac15814c8789ddffc9}{%
+           family={Mourouzis},
+           familyi={M\bibinitperiod},
+           given={T.},
+           giveni={T\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7cfbbcb3209c18be07b15ba414d577ae}{%
+           family={Avgousti},
+           familyi={A\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{5acb0ffb9038ac7c71cd4d925a16977c}
+      \strng{fullhash}{5acb0ffb9038ac7c71cd4d925a16977c}
+      \strng{bibnamehash}{5acb0ffb9038ac7c71cd4d925a16977c}
+      \strng{authorbibnamehash}{5acb0ffb9038ac7c71cd4d925a16977c}
+      \strng{authornamehash}{5acb0ffb9038ac7c71cd4d925a16977c}
+      \strng{authorfullhash}{5acb0ffb9038ac7c71cd4d925a16977c}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{arXiv preprint}
+      \field{title}{Intrusion Detection with Machine Learning Using Open-Sourced Datasets}
+      \field{year}{2021}
+      \verb{doi}
+      \verb 10.48550/ARXIV.2107.12621
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2107.12621
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2107.12621
+      \endverb
+    \endentry
+    \entry{Ring2019}{article}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=7361b9a0106d6a758684e3473c3d6e84}{%
+           family={Ring},
+           familyi={R\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=9e9e9c716237f224c4d2ac2518e3510c}{%
+           family={Wunderlich},
+           familyi={W\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e10b02779088e19771db1f7498b51814}{%
+           family={Scheuring},
+           familyi={S\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a32f7e8ad89d4830f17f54603ed7c061}{%
+           family={Landes},
+           familyi={L\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=5ac6e515eecb51b424977d53e9e0f25e}{%
+           family={Hotho},
+           familyi={H\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{83bd87a34dbec865d6f0fd63f8f68cce}
+      \strng{fullhash}{bab771054e9c61cdbdc5ae164728450e}
+      \strng{bibnamehash}{bab771054e9c61cdbdc5ae164728450e}
+      \strng{authorbibnamehash}{bab771054e9c61cdbdc5ae164728450e}
+      \strng{authornamehash}{83bd87a34dbec865d6f0fd63f8f68cce}
+      \strng{authorfullhash}{bab771054e9c61cdbdc5ae164728450e}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Computers \& Security}
+      \field{title}{A Survey of Network-based Intrusion Detection Data Sets}
+      \field{volume}{86}
+      \field{year}{2019}
+      \field{pages}{147\bibrangedash 167}
+      \range{pages}{21}
+      \verb{doi}
+      \verb 10.1016/j.cose.2019.06.005
+      \endverb
+    \endentry
+    \entry{Sharafaldin2018}{article}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=1b5d0a1deb4a36ae6ce34505e0ba6d9f}{%
+           family={Sharafaldin},
+           familyi={S\bibinitperiod},
+           given={I.},
+           giveni={I\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=0b744383ad6c09caf6797cdf91e1afaa}{%
+           family={Habibi\bibnamedelima Lashkari},
+           familyi={H\bibinitperiod\bibinitdelim L\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c15f7fdf79408185339d4551e562b81f}{%
+           family={Ghorbani},
+           familyi={G\bibinitperiod},
+           given={A.\bibnamedelimi A.},
+           giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{1b0be39c180977f51c23452bf310c34c}
+      \strng{fullhash}{c270289a85a40672f8ac7537a3f41f98}
+      \strng{bibnamehash}{c270289a85a40672f8ac7537a3f41f98}
+      \strng{authorbibnamehash}{c270289a85a40672f8ac7537a3f41f98}
+      \strng{authornamehash}{1b0be39c180977f51c23452bf310c34c}
+      \strng{authorfullhash}{c270289a85a40672f8ac7537a3f41f98}
+      \field{sortinit}{S}
+      \field{sortinithash}{b164b07b29984b41daf1e85279fbc5ab}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{Proceedings of the 4th International Conference on Information Systems Security and Privacy}
+      \field{title}{Toward Generating a New Intrusion Detection Dataset and Intrusion Traffic Characterization}
+      \field{year}{2018}
+      \field{pages}{108\bibrangedash 116}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.5220/0006639801080116
+      \endverb
+    \endentry
+    \entry{Taman2024}{article}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=872cdbd3c06c24b381ed34fe0aec6a1b}{%
+           family={Taman},
+           familyi={T\bibinitperiod},
+           given={D.},
+           giveni={D\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{872cdbd3c06c24b381ed34fe0aec6a1b}
+      \strng{fullhash}{872cdbd3c06c24b381ed34fe0aec6a1b}
+      \strng{bibnamehash}{872cdbd3c06c24b381ed34fe0aec6a1b}
+      \strng{authorbibnamehash}{872cdbd3c06c24b381ed34fe0aec6a1b}
+      \strng{authornamehash}{872cdbd3c06c24b381ed34fe0aec6a1b}
+      \strng{authorfullhash}{872cdbd3c06c24b381ed34fe0aec6a1b}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Arab Journal of Arts and Humanities}
+      \field{number}{30}
+      \field{title}{Impacts of Financial Cybercrime on Institutions and Companies}
+      \field{volume}{8}
+      \field{year}{2024}
+      \field{pages}{477\bibrangedash 488}
+      \range{pages}{12}
+      \verb{doi}
+      \verb 10.21608/ajahs.2024.341707
+      \endverb
+    \endentry
+    \entry{Tavallaee2009}{article}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=f0dac0844df885da6654f1543ea847c8}{%
+           family={Tavallaee},
+           familyi={T\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=051ea9d38cbefb376388f2d41170ed28}{%
+           family={Bagheri},
+           familyi={B\bibinitperiod},
+           given={E.},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ab361a4c3518e2c13bd5d8b87e314738}{%
+           family={Lu},
+           familyi={L\bibinitperiod},
+           given={W.},
+           giveni={W\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c15f7fdf79408185339d4551e562b81f}{%
+           family={Ghorbani},
+           familyi={G\bibinitperiod},
+           given={A.\bibnamedelimi A.},
+           giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{f3cda29d36f8f0dc5cd33e9a073814fc}
+      \strng{fullhash}{5abe073c0d132bede93659b2e5d06733}
+      \strng{bibnamehash}{5abe073c0d132bede93659b2e5d06733}
+      \strng{authorbibnamehash}{5abe073c0d132bede93659b2e5d06733}
+      \strng{authornamehash}{f3cda29d36f8f0dc5cd33e9a073814fc}
+      \strng{authorfullhash}{5abe073c0d132bede93659b2e5d06733}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2009 IEEE Symposium on Computational Intelligence for Security and Defense Applications}
+      \field{title}{A detailed analysis of the KDD CUP 99 data set}
+      \field{year}{2009}
+      \field{pages}{1\bibrangedash 6}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.1109/CISDA.2009.5356528
+      \endverb
+    \endentry
+    \entry{Vinayakumar2019}{article}{}
+      \name{author}{6}{}{%
+        {{un=0,uniquepart=base,hash=6132de4a82b69e9c9a4b36edd1704420}{%
+           family={Vinayakumar},
+           familyi={V\bibinitperiod},
+           given={R.},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=e40bf263a2de9e124bb4ae3c96ffe65d}{%
+           family={Alazab},
+           familyi={A\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=1cd7ca3537ce0bd980cc06b59795ddf1}{%
+           family={Soman},
+           familyi={S\bibinitperiod},
+           given={K.\bibnamedelimi P.},
+           giveni={K\bibinitperiod\bibinitdelim P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=d1bfaa9ab8cce5dcecd6e34a7112c17e}{%
+           family={Poornachandran},
+           familyi={P\bibinitperiod},
+           given={P.},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=4ef54f372a0c956f6130e131cf2540f4}{%
+           family={Al-Nemrat},
+           familyi={A\bibinithyphendelim N\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ac8d4eefcf17a6f47c69f8d8dc5952d1}{%
+           family={Venkatraman},
+           familyi={V\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{a395f46d78914c5ea239a04983cea549}
+      \strng{fullhash}{bc355fe72207c0892d970940e0a2324f}
+      \strng{bibnamehash}{bc355fe72207c0892d970940e0a2324f}
+      \strng{authorbibnamehash}{bc355fe72207c0892d970940e0a2324f}
+      \strng{authornamehash}{a395f46d78914c5ea239a04983cea549}
+      \strng{authorfullhash}{bc355fe72207c0892d970940e0a2324f}
+      \field{sortinit}{V}
+      \field{sortinithash}{afb52128e5b4dc4b843768c0113d673b}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{IEEE Access}
+      \field{title}{Deep Learning Approach for Intelligent Intrusion Detection System}
+      \field{volume}{7}
+      \field{year}{2019}
+      \field{pages}{41525\bibrangedash 41550}
+      \range{pages}{26}
+      \verb{doi}
+      \verb 10.1109/ACCESS.2019.2895334
+      \endverb
+    \endentry
+    \entry{GlobalRisksReport2024}{report}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=9f6d16e0eaf271813481bd46be0c7a35}{%
+           family={{World Economic Forum}},
+           familyi={W\bibinitperiod}}}%
+      }
+      \list{institution}{1}{%
+        {World Economic Forum}%
+      }
+      \strng{namehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{fullhash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{bibnamehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{authorbibnamehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{authornamehash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \strng{authorfullhash}{9f6d16e0eaf271813481bd46be0c7a35}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Global Risks Report 2024}
+      \field{urlday}{29}
+      \field{urlmonth}{3}
+      \field{urlyear}{2025}
+      \field{year}{2024}
+      \field{urldateera}{ce}
+      \verb{urlraw}
+      \verb https://www.weforum.org/publications/global-risks-report-2024/
+      \endverb
+      \verb{url}
+      \verb https://www.weforum.org/publications/global-risks-report-2024/
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

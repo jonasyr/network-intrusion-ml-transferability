@@ -1,0 +1,35 @@
+\begin{table}[htbp]
+\centering
+\caption{Machine Learning Models Performance Comparison on NSL-KDD Dataset}
+\label{tab:model_performance}
+\begin{tabular}{cllccccc}
+\toprule
+\textbf{Rank} & \textbf{Model} & \textbf{Category} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{ROC-AUC} \\
+\midrule
+1 & Lightgbm & Ensemble Methods & 0.9994 & 0.9994 & 0.9994 & 0.9994 & 1.0000 \\
+2 & Xgboost & Ensemble Methods & 0.9993 & 0.9993 & 0.9993 & 0.9993 & 1.0000 \\
+3 & Xgboost & Ensemble Methods & 0.9991 & 0.9991 & 0.9991 & 0.9991 & 1.0000 \\
+4 & Lightgbm & Ensemble Methods & 0.9990 & 0.9990 & 0.9990 & 0.9990 & 1.0000 \\
+5 & Voting Classifier & Ensemble Methods & 0.9990 & 0.9990 & 0.9990 & 0.9990 & 1.0000 \\
+6 & Decision Tree & Traditional ML & 0.9989 & 0.9989 & 0.9989 & 0.9989 & 0.9994 \\
+7 & Extra Trees & Ensemble Methods & 0.9989 & 0.9989 & 0.9989 & 0.9989 & 0.9999 \\
+8 & Random Forest & Traditional ML & 0.9987 & 0.9987 & 0.9987 & 0.9987 & 0.9999 \\
+9 & Gradient Boosting & Ensemble Methods & 0.9987 & 0.9987 & 0.9987 & 0.9987 & 0.9999 \\
+10 & Random Forest & Traditional ML & 0.9987 & 0.9987 & 0.9987 & 0.9987 & 1.0000 \\
+\midrule
+11 & Voting Classifier & Ensemble Methods & 0.9986 & 0.9986 & 0.9986 & 0.9986 & 1.0000 \\
+12 & Gradient Boosting & Ensemble Methods & 0.9985 & 0.9985 & 0.9985 & 0.9985 & 0.9999 \\
+13 & Extra Trees & Ensemble Methods & 0.9983 & 0.9983 & 0.9983 & 0.9983 & 0.9991 \\
+14 & Decision Tree & Traditional ML & 0.9973 & 0.9973 & 0.9973 & 0.9973 & 0.9989 \\
+15 & Mlp & Neural Networks & 0.9970 & 0.9970 & 0.9970 & 0.9970 & 0.9999 \\
+16 & Mlp & Neural Networks & 0.9965 & 0.9965 & 0.9965 & 0.9965 & 0.9998 \\
+17 & Knn & Traditional ML & 0.9963 & 0.9963 & 0.9963 & 0.9963 & 0.9996 \\
+18 & Logistic Regression & Traditional ML & 0.9532 & 0.9532 & 0.9532 & 0.9532 & 0.9918 \\
+19 & Logistic Regression & Traditional ML & 0.9464 & 0.9453 & 0.9464 & 0.9456 & 0.9817 \\
+20 & Naive Bayes & Traditional ML & 0.8862 & 0.8862 & 0.8862 & 0.8861 & 0.9529 \\
+\midrule
+21 & Naive Bayes & Traditional ML & 0.3770 & 0.8620 & 0.3770 & 0.3932 & 0.6584 \\
+22 & Svm Linear & Other & 0.2905 & 0.2848 & 0.2905 & 0.2805 & 0.3517 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,125 @@
+{
+  "nsl-kdd_baseline": {
+    "best_accuracy": {
+      "model": "random_forest",
+      "accuracy": 0.9986505258979956,
+      "f1": 0.9986504733504054
+    },
+    "best_f1": {
+      "model": "random_forest",
+      "accuracy": 0.9986505258979956,
+      "f1": 0.9986504733504054
+    }
+  },
+  "nsl-kdd_advanced": {
+    "best_accuracy": {
+      "model": "lightgbm",
+      "accuracy": 0.9993649533637626,
+      "precision": 0.999364989937233,
+      "recall": 0.9993649533637626
+    },
+    "best_auc": {
+      "model": "lightgbm",
+      "roc_auc": 0.9999946751086224,
+      "accuracy": 0.9993649533637626
+    }
+  },
+  "nsl-kdd_cross_validation": {
+    "best_model": "lightgbm",
+    "f1_score": "0.9992 \u00b1 0.0002",
+    "accuracy": "0.9992 \u00b1 0.0002"
+  },
+  "cic-ids-2017_baseline": {
+    "best_accuracy": {
+      "model": "decision_tree",
+      "accuracy": 0.998943451879486,
+      "f1": 0.9989438738874938
+    },
+    "best_f1": {
+      "model": "decision_tree",
+      "accuracy": 0.998943451879486,
+      "f1": 0.9989438738874938
+    }
+  },
+  "cic-ids-2017_advanced": {
+    "best_accuracy": {
+      "model": "xgboost",
+      "accuracy": 0.9991456413834664,
+      "precision": 0.9991471436704412,
+      "recall": 0.9991456413834664
+    },
+    "best_auc": {
+      "model": "xgboost",
+      "roc_auc": 0.9999781288635314,
+      "accuracy": 0.9991456413834664
+    }
+  },
+  "cic-ids-2017_cross_validation": {
+    "best_model": "xgboost_cic",
+    "f1_score": "0.9976 \u00b1 0.0001",
+    "accuracy": "0.9992 \u00b1 0.0000"
+  },
+  "cross_dataset": {
+    "nsl_to_cic": {
+      "best_model": "XGBoost",
+      "transfer_ratio": 0.9907,
+      "relative_drop": 0.93,
+      "source_accuracy": 0.8349,
+      "target_accuracy": 0.8272,
+      "direction": "NSL\u2192CIC"
+    },
+    "cic_to_nsl": {
+      "best_model": "LightGBM",
+      "transfer_ratio": 0.4405,
+      "relative_drop": 55.95,
+      "source_accuracy": 0.978,
+      "target_accuracy": 0.4308,
+      "direction": "CIC\u2192NSL"
+    }
+  },
+  "cross_dataset_summary": {
+    "mean_transfer_ratio": 0.6133500000000001,
+    "mean_generalization_gap": 0.3619666666666666,
+    "mean_relative_drop": 38.665,
+    "best_model": "XGBoost",
+    "best_avg_transfer_ratio": 0.71465,
+    "transfer_asymmetry": 0.5521
+  },
+  "harmonized_evaluation": [
+    {
+      "source": "NSL-KDD",
+      "target": "CIC-IDS-2017",
+      "cv_f1_mean": 0.9344020661265767,
+      "cv_f1_std": 0.0009189943917038056,
+      "target_accuracy": 0.50971,
+      "target_f1": 0.5711136576362221,
+      "threshold_tuned_f1": 0.5711136576362221,
+      "training_method": "regular"
+    },
+    {
+      "source": "CIC-IDS-2017",
+      "target": "NSL-KDD",
+      "cv_f1_mean": -1.0,
+      "cv_f1_std": -1.0,
+      "target_accuracy": 0.22302,
+      "target_f1": 0.10763753301940968,
+      "threshold_tuned_f1": 0.10763753301940968,
+      "training_method": "regular"
+    }
+  ],
+  "harmonized_metadata": {
+    "schema_version": "1.0",
+    "memory_mode": "full_dataset",
+    "training_method": "incremental_full_dataset",
+    "max_samples": 100000
+  },
+  "timing_analysis": {
+    "fastest_model": "XGBoost",
+    "most_efficient_model": "XGBoost",
+    "avg_training_time": 23.447777777777777,
+    "median_training_time": 4.06,
+    "min_training_time": 0.38,
+    "max_training_time": 183.48,
+    "total_models_analyzed": 9
+  }
+}

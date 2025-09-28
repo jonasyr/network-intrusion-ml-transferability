@@ -12,7 +12,7 @@ from .memory_utils import (
 
 __all__ = [
     "get_system_memory_gb",
-    "get_available_memory_gb", 
+    "get_available_memory_gb",
     "should_use_full_dataset",
     "get_optimal_sample_size",
     "optimize_memory_usage",

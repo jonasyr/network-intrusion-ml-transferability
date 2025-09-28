@@ -1,0 +1,10 @@
+Model,Training_Time_s,Source,Accuracy,Efficiency
+Random Forest,4.06,cross_dataset_evaluation_fixed,0.805,0.19778869778869784
+XGBoost,0.38,cross_dataset_evaluation_fixed,0.8073,2.07
+LightGBM,0.58,cross_dataset_evaluation_fixed,0.8141,1.3798305084745763
+Random Forest (NSL→CIC),4.06,forward_transfer,0.805,0.19778869778869784
+XGBoost (NSL→CIC),0.38,forward_transfer,0.8073,2.07
+LightGBM (NSL→CIC),0.58,forward_transfer,0.8141,1.3798305084745763
+Random Forest (CIC→NSL),183.48,reverse_transfer,0.9914,0.005403019238105619
+XGBoost (CIC→NSL),9.36,reverse_transfer,0.9882,0.10546424759871932
+LightGBM (CIC→NSL),8.15,reverse_transfer,0.9846,0.12066176470588236

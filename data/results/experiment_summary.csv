@@ -1,0 +1,20 @@
+Experiment,Metric,Value
+NSL-KDD Baseline,Best Accuracy,random_forest (acc=0.9987)
+NSL-KDD Baseline,Best F1,random_forest (F1=0.9987)
+NSL-KDD Advanced,Best Accuracy,lightgbm (acc=0.9994)
+NSL-KDD Advanced,Best ROC-AUC,lightgbm (AUC=1.0000)
+NSL-KDD Cross-Validation,Best F1,lightgbm (F1=0.9992 ± 0.0002)
+CIC-IDS-2017 Baseline,Best Accuracy,decision_tree (acc=0.9989)
+CIC-IDS-2017 Baseline,Best F1,decision_tree (F1=0.9989)
+CIC-IDS-2017 Advanced,Best Accuracy,xgboost (acc=0.9991)
+CIC-IDS-2017 Advanced,Best ROC-AUC,xgboost (AUC=1.0000)
+CIC-IDS-2017 Cross-Validation,Best F1,xgboost_cic (F1=0.9976 ± 0.0001)
+Cross-Dataset Transfer,Best Transfer (NSL→CIC),"XGBoost (ratio=0.991, Δ=0.93%)"
+Cross-Dataset Transfer,Best Transfer (CIC→NSL),"LightGBM (ratio=0.441, Δ=55.95%)"
+Cross-Dataset Analysis,Mean Transfer Ratio,0.613
+Cross-Dataset Analysis,Best Model Overall,XGBoost (avg ratio=0.715)
+Harmonized Evaluation,NSL-KDD→CIC-IDS-2017 Target F1,0.5711 (CV F1=0.9344) (regular training)
+Harmonized Evaluation,CIC-IDS-2017→NSL-KDD Target F1,0.1076 (CV F1=-1.0000) (regular training)
+Harmonized Evaluation,Training Configuration,"Mode: full_dataset, Method: incremental_full_dataset"
+Performance Analysis,Fastest Model,XGBoost (min: 0.38s)
+Performance Analysis,Training Time Stats,"Avg: 23.4s, Median: 4.1s, Max: 183.5s"

@@ -50,7 +50,9 @@ def train_nsl_kdd_advanced() -> bool:
 
         print("🔄 Preprocessing NSL-KDD data (SMOTE for balance)...")
         preprocessor = NSLKDDPreprocessor(balance_method="smote")
-        X_train, X_val, y_train, y_val = preprocessor.fit_transform(train_data, target_type="binary")
+        X_train, X_val, y_train, y_val = preprocessor.fit_transform(
+            train_data, target_type="binary"
+        )
         X_test, y_test = preprocessor.transform(test_data, target_type="binary")
 
         print("\n🤖 Initialising advanced models for NSL-KDD...")
@@ -59,7 +61,9 @@ def train_nsl_kdd_advanced() -> bool:
         print(f"✅ Models available: {available_models}")
 
         train_results = advanced_models.train_all(X_train, y_train)
-        failed_models = [name for name, result in train_results.items() if result.status != "success"]
+        failed_models = [
+            name for name, result in train_results.items() if result.status != "success"
+        ]
         if failed_models:
             print(f"⚠️ Models failed to train: {failed_models}")
 
@@ -121,9 +125,9 @@ def train_cic_advanced() -> bool:
     # FORCE FULL DATASET FOR SCIENTIFIC PAPER - Override memory configuration
     print("🔬 SCIENTIFIC MODE: Forcing full dataset usage for publication accuracy")
     use_full = True
-    
+
     title = "🚀 CIC-IDS-2017 Advanced Training (FULL DATASET - Scientific Mode)"
-    
+
     _print_separator(title)
 
     try:
@@ -143,7 +147,7 @@ def train_cic_advanced() -> bool:
             else:
                 print("📁 Loading CIC-IDS-2017 sample dataset...")
                 cic_data = preprocessor.load_data(use_full_dataset=False)
-                
+
         if cic_data is None:
             print("❌ CIC-IDS-2017 data could not be loaded.")
             return False
@@ -151,7 +155,7 @@ def train_cic_advanced() -> bool:
         with MemoryMonitor("Feature Preparation"):
             print("🔄 Preparing CIC-IDS-2017 features and labels...")
             X_full, y_full = preprocessor.fit_transform(cic_data)
-            
+
             # Free up memory from raw data
             del cic_data
             optimize_memory_usage()
@@ -163,24 +167,26 @@ def train_cic_advanced() -> bool:
         # Create train/validation/test splits (60/20/20)
         with MemoryMonitor("Dataset Splitting"):
             X_train, X_temp, y_train, y_temp = train_test_split(
-                X_sample, y_sample,
+                X_sample,
+                y_sample,
                 test_size=0.4,
                 random_state=42,
                 stratify=y_sample,
             )
             X_val, X_test, y_val, y_test = train_test_split(
-                X_temp, y_temp,
+                X_temp,
+                y_temp,
                 test_size=0.5,
                 random_state=42,
                 stratify=y_temp,
             )
-            
+
             # Free up memory from intermediate datasets
             del X_sample, y_sample, X_temp, y_temp
             if not use_full:
                 del X_full, y_full
             optimize_memory_usage()
-            
+
             print(f"📊 Final dataset sizes:")
             print(f"   Training: {X_train.shape}")
             print(f"   Validation: {X_val.shape}")
@@ -191,20 +197,28 @@ def train_cic_advanced() -> bool:
             advanced_models = AdvancedModels(random_state=42)
             available_models = list(advanced_models.models.keys())
             print(f"✅ Models available: {available_models}")
-            
+
             # SCIENTIFIC MODE: Using full model configurations
             print("💪 Using full model configurations for scientific accuracy")
 
             train_results = advanced_models.train_all(X_train, y_train)
-            failed_models = [name for name, result in train_results.items() if result.status != "success"]
+            failed_models = [
+                name
+                for name, result in train_results.items()
+                if result.status != "success"
+            ]
             if failed_models:
                 print(f"⚠️ Models failed to train: {failed_models}")
 
         with MemoryMonitor("Model Evaluation"):
             print("\n📊 Validation performance on CIC-IDS-2017")
-            val_results = advanced_models.evaluate_all(X_val, y_val, dataset="validation")
+            val_results = advanced_models.evaluate_all(
+                X_val, y_val, dataset="validation"
+            )
             if val_results.empty:
-                print("❌ No validation results available for CIC-IDS-2017 advanced models.")
+                print(
+                    "❌ No validation results available for CIC-IDS-2017 advanced models."
+                )
                 return False
 
         summary_cols = [
