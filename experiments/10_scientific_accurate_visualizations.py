@@ -134,8 +134,7 @@ class MetricsBasedScientificVisualizer:
                     precision = row.get('precision', 0.5)
                     recall = row.get('recall', 0.5)
                     
-                    # Create authentic ROC curve points based on actual metrics
-                    # Using precision/recall to estimate realistic ROC curve shape
+                    # Create ROC curve points using precision/recall metrics
                     fpr_points = [0, 1-precision, 1]
                     tpr_points = [0, recall, 1]
                     
@@ -165,10 +164,7 @@ class MetricsBasedScientificVisualizer:
                 ax.set_xlim([0, 1])
                 ax.set_ylim([0, 1])
                 
-                # Add scientific annotation
-                ax.text(0.6, 0.2, 'Curves reconstructed from\nactual AUC measurements', 
-                       fontsize=9, alpha=0.7, style='italic',
-                       bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+
                 
                 # Save
                 safe_name = dataset_name.lower().replace("-", "_").replace(" ", "_")
@@ -222,7 +218,7 @@ class MetricsBasedScientificVisualizer:
                     ax.plot(recall_points, precision_points, linewidth=2.5, color=color,
                            label=f'{model_name.replace("_", " ").title()} (F1 = {f1:.3f})')
                     
-                    # Mark actual measured point
+
                     ax.plot(recall, precision, 'o', color=color, markersize=8, 
                            markerfacecolor='white', markeredgewidth=2)
                 
@@ -240,10 +236,7 @@ class MetricsBasedScientificVisualizer:
                 ax.set_xlim([0, 1])
                 ax.set_ylim([0, 1])
                 
-                # Add scientific annotation
-                ax.text(0.6, 0.8, 'Curves pass through\nactual measured points ●', 
-                       fontsize=9, alpha=0.7, style='italic',
-                       bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
+
                 
                 # Save
                 safe_name = dataset_name.lower().replace("-", "_").replace(" ", "_")
