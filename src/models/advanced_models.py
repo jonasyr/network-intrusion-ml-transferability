@@ -10,7 +10,11 @@ import numpy as np
 import pandas as pd
 
 from sklearn.base import BaseEstimator
-from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier, VotingClassifier
+from sklearn.ensemble import (
+    ExtraTreesClassifier,
+    GradientBoostingClassifier,
+    VotingClassifier,
+)
 from sklearn.metrics import (
     accuracy_score,
     f1_score,
@@ -160,7 +164,9 @@ class AdvancedModels:
             for name, estimator in voting_estimators:
                 # Re-create estimators to prevent shared fitted state between
                 # the standalone model and the voting ensemble.
-                voting_estimators_for_vc.append((name, self._clone_estimator(estimator)))
+                voting_estimators_for_vc.append(
+                    (name, self._clone_estimator(estimator))
+                )
 
             models["voting_classifier"] = VotingClassifier(
                 estimators=voting_estimators_for_vc,
@@ -205,7 +211,9 @@ class AdvancedModels:
         """Train a single advanced model."""
 
         if model_name not in self.models:
-            raise ValueError(f"Model {model_name} not available. Choices: {list(self.models)}")
+            raise ValueError(
+                f"Model {model_name} not available. Choices: {list(self.models)}"
+            )
 
         model = self.models[model_name]
         if verbose:
@@ -254,13 +262,18 @@ class AdvancedModels:
 
         results: Dict[str, TrainingResult] = {}
         for model_name in to_train:
-            results[model_name] = self.train_model(model_name, X_train, y_train, verbose=verbose)
-            
+            results[model_name] = self.train_model(
+                model_name, X_train, y_train, verbose=verbose
+            )
+
             # IMMEDIATE SAVE after each successful advanced model to prevent data loss
             if results[model_name].status == "success":
                 try:
                     import joblib
-                    temp_model_path = Path("data/models/temp_advanced") / f"{model_name}_temp.joblib"
+
+                    temp_model_path = (
+                        Path("data/models/temp_advanced") / f"{model_name}_temp.joblib"
+                    )
                     temp_model_path.parent.mkdir(parents=True, exist_ok=True)
                     joblib.dump(self.trained_models[model_name], temp_model_path)
                     if verbose:
@@ -307,7 +320,9 @@ class AdvancedModels:
                 if y_proba.ndim == 2 and y_proba.shape[1] == 2:
                     roc_auc = roc_auc_score(y_test, y_proba[:, 1])
                 else:
-                    roc_auc = roc_auc_score(y_test, y_proba, multi_class="ovr", average=average)
+                    roc_auc = roc_auc_score(
+                        y_test, y_proba, multi_class="ovr", average=average
+                    )
         except Exception:
             roc_auc = None
 
@@ -356,7 +371,7 @@ class AdvancedModels:
                     f"Acc={metrics['accuracy']:.3f} | Prec={metrics['precision']:.3f} | "
                     f"Rec={metrics['recall']:.3f}"
                 )
-                
+
                 # IMMEDIATE INCREMENTAL SAVE after each advanced model evaluation
                 try:
                     current_results_df = pd.DataFrame(self.results)
@@ -376,9 +391,15 @@ class AdvancedModels:
     # ------------------------------------------------------------------
     # Persistence helpers
     # ------------------------------------------------------------------
-    def save_models(self, output_dir: str | Path, results_dir: Optional[str | Path] = None, results_filename: str = "advanced_results.csv", dataset_suffix: str = "") -> None:
+    def save_models(
+        self,
+        output_dir: str | Path,
+        results_dir: Optional[str | Path] = None,
+        results_filename: str = "advanced_results.csv",
+        dataset_suffix: str = "",
+    ) -> None:
         """Persist trained models and aggregated results to disk.
-        
+
         Args:
             output_dir: Directory to save models
             results_dir: Directory to save results (defaults to output_dir)
@@ -388,7 +409,7 @@ class AdvancedModels:
 
         models_path = Path(output_dir)
         models_path.mkdir(parents=True, exist_ok=True)
-        
+
         # Use separate results directory if provided, otherwise same as models
         results_path = Path(results_dir) if results_dir else models_path
         results_path.mkdir(parents=True, exist_ok=True)
@@ -403,22 +424,26 @@ class AdvancedModels:
 
         if self.results:
             results_df = pd.DataFrame(self.results)
-            
-            # Determine dataset from suffix or results_path  
+
+            # Determine dataset from suffix or results_path
             dataset_name = "nsl"  # default
             if "cic" in dataset_suffix.lower():
                 dataset_name = "cic"
             elif "cic" in str(results_path).lower():
                 dataset_name = "cic"
-            
+
             # Always save to data/results with dataset-specific name
             results_output_dir = Path("data/results")
             results_output_dir.mkdir(parents=True, exist_ok=True)
-            
-            dataset_results_file = results_output_dir / f"{dataset_name}_advanced_results.csv"
+
+            dataset_results_file = (
+                results_output_dir / f"{dataset_name}_advanced_results.csv"
+            )
             results_df.to_csv(dataset_results_file, index=False)
-            print(f"💾 Saved {dataset_name.upper()} advanced results to {dataset_results_file}")
-            
+            print(
+                f"💾 Saved {dataset_name.upper()} advanced results to {dataset_results_file}"
+            )
+
             # NO MORE DUPLICATE SAVES - only dataset-specific naming from now on!
 
     # ------------------------------------------------------------------
@@ -426,7 +451,9 @@ class AdvancedModels:
     # ------------------------------------------------------------------
     def get_best_model(self, metric: str = "f1_score") -> tuple[str, BaseEstimator]:
         if not self.results:
-            raise ValueError("No evaluation results available. Run `evaluate_all` first.")
+            raise ValueError(
+                "No evaluation results available. Run `evaluate_all` first."
+            )
 
         results_df = pd.DataFrame(self.results)
         best_row = results_df.loc[results_df[metric].idxmax()]

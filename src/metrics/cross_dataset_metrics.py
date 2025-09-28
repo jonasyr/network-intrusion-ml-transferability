@@ -11,7 +11,9 @@ def _validate_accuracy(value: float, name: str) -> None:
         raise ValueError(f"{name} must be between 0 and 1. Received {value}.")
 
 
-def calculate_generalization_gap(source_accuracy: float, target_accuracy: float) -> float:
+def calculate_generalization_gap(
+    source_accuracy: float, target_accuracy: float
+) -> float:
     """Return the non-negative generalization gap."""
 
     _validate_accuracy(source_accuracy, "source_accuracy")

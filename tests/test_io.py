@@ -7,7 +7,11 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from src.preprocessing.harmonization import normalize_headers, read_csv_any, write_parquet
+from src.preprocessing.harmonization import (
+    normalize_headers,
+    read_csv_any,
+    write_parquet,
+)
 
 
 def test_normalize_headers_removes_extra_spaces() -> None:

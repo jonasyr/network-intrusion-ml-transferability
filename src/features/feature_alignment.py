@@ -31,28 +31,37 @@ class FeatureAligner:
         # structural differences between the datasets.
         self.feature_mappings: Dict[str, Dict[str, object]] = {
             "duration": {
-                "nsl_name": "duration", 
-                "cic_name": ["Flow_Duration", "Flow Duration"]  # Handle both formats
+                "nsl_name": "duration",
+                "cic_name": ["Flow_Duration", "Flow Duration"],  # Handle both formats
             },
             "forward_bytes": {
                 "nsl_name": "src_bytes",
-                "cic_name": ["Total_Length_of_Fwd_Packets", "Total Length of Fwd Packets"],
+                "cic_name": [
+                    "Total_Length_of_Fwd_Packets",
+                    "Total Length of Fwd Packets",
+                ],
             },
             "backward_bytes": {
                 "nsl_name": "dst_bytes",
-                "cic_name": ["Total_Length_of_Bwd_Packets", "Total Length of Bwd Packets"],
+                "cic_name": [
+                    "Total_Length_of_Bwd_Packets",
+                    "Total Length of Bwd Packets",
+                ],
             },
             "total_bytes": {
-                "nsl_name": "total_bytes", 
-                "cic_name": ["total_bytes", "total bytes"]  # Handle both formats
+                "nsl_name": "total_bytes",
+                "cic_name": ["total_bytes", "total bytes"],  # Handle both formats
             },
             "bytes_per_second": {
                 "nsl_name": "bytes_per_second",
-                "cic_name": ["bytes_per_second", "bytes per second"],  # Handle both formats
+                "cic_name": [
+                    "bytes_per_second",
+                    "bytes per second",
+                ],  # Handle both formats
             },
             "byte_ratio": {
-                "nsl_name": "byte_ratio", 
-                "cic_name": ["byte_ratio", "byte ratio"]  # Handle both formats
+                "nsl_name": "byte_ratio",
+                "cic_name": ["byte_ratio", "byte ratio"],  # Handle both formats
             },
         }
 
@@ -102,18 +111,18 @@ class FeatureAligner:
         for semantic_key, mapping in self.feature_mappings.items():
             nsl_name = mapping["nsl_name"]
             cic_names = mapping["cic_name"]
-            
+
             # Handle both single name and list of possible names
             if isinstance(cic_names, str):
                 cic_names = [cic_names]
-            
+
             # Find first matching CIC name
             matched_cic_name = None
             for cic_name in cic_names:
                 if cic_name in cic_df.columns:
                     matched_cic_name = cic_name
                     break
-            
+
             if nsl_name in nsl_df.columns and matched_cic_name is not None:
                 selected_nsl.append(nsl_name)
                 selected_cic.append(matched_cic_name)
@@ -216,11 +225,11 @@ class FeatureAligner:
         """Project a dataset to the selected feature subset."""
 
         df = self._to_dataframe(data, feature_names)
-        missing = [feature for feature in selected_features if feature not in df.columns]
+        missing = [
+            feature for feature in selected_features if feature not in df.columns
+        ]
         if missing:
-            raise ValueError(
-                "Missing expected features: " + ", ".join(missing)
-            )
+            raise ValueError("Missing expected features: " + ", ".join(missing))
         return df[list(selected_features)].to_numpy(dtype=float)
 
     def estimate_domain_divergence(

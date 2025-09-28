@@ -56,16 +56,16 @@ def train_nsl_kdd_baseline() -> bool:
         X_test, y_test = preprocessor.transform(test_data)
 
         print("\n🤖 Training ALL baseline models on NSL-KDD...")
-        
+
         # Check memory safe mode
         memory_safe = os.getenv("MEMORY_SAFE_MODE", "").lower() in ("1", "true", "yes")
         if memory_safe:
             print("   ⚡ MEMORY SAFE MODE: Excluding SVM to prevent segfaults")
-            exclude_models = ['svm_linear']  # Exclude memory-intensive SVM
+            exclude_models = ["svm_linear"]  # Exclude memory-intensive SVM
         else:
             print("   🔬 SCIENTIFIC MODE: Training ALL models including SVM and KNN")
             exclude_models = []  # NO MODEL EXCLUSIONS for scientific paper
-            
+
         baseline = BaselineModels()
         baseline.train_all(X_train, y_train, exclude_models=exclude_models)
 
@@ -76,10 +76,16 @@ def train_nsl_kdd_baseline() -> bool:
             return False
 
         print("\n🏆 NSL-KDD validation leaderboard:")
-        print(val_results[["model_name", "accuracy", "f1_score", "precision", "recall"]].round(3))
+        print(
+            val_results[
+                ["model_name", "accuracy", "f1_score", "precision", "recall"]
+            ].round(3)
+        )
 
         best_model_name = val_results.iloc[0]["model_name"]
-        print(f"\n🎯 Evaluating best NSL-KDD model ({best_model_name}) on the official test set...")
+        print(
+            f"\n🎯 Evaluating best NSL-KDD model ({best_model_name}) on the official test set..."
+        )
         test_metrics = baseline.evaluate_model(best_model_name, X_test, y_test)
         for metric in ["accuracy", "f1_score", "precision", "recall"]:
             value = test_metrics.get(metric, float("nan"))
@@ -88,9 +94,11 @@ def train_nsl_kdd_baseline() -> bool:
         print("\n💾 Persisting NSL-KDD baseline artefacts...")
         models_dir = PROJECT_ROOT / "data" / "models" / "baseline"
         results_dir = PROJECT_ROOT / "data" / "results" / "nsl"
-        baseline.save_models(str(models_dir), results_dir=str(results_dir), dataset_suffix="_nsl")
+        baseline.save_models(
+            str(models_dir), results_dir=str(results_dir), dataset_suffix="_nsl"
+        )
         preprocessor.save(str(models_dir / "nsl_preprocessor.pkl"))
-        
+
         # Also save main baseline results for summary generation
         # Results are now saved with dataset-specific naming via save_models() method
         # No need for additional generic baseline_results.csv file
@@ -109,9 +117,9 @@ def train_cic_baseline() -> bool:
     # FORCE FULL DATASET FOR SCIENTIFIC PAPER - Override memory configuration
     print("🔬 SCIENTIFIC MODE: Forcing full dataset usage for publication accuracy")
     use_full = True
-    
+
     title = "🚀 CIC-IDS-2017 Baseline Training (FULL DATASET - Scientific Mode)"
-    
+
     _print_separator(title)
 
     try:
@@ -131,7 +139,7 @@ def train_cic_baseline() -> bool:
             else:
                 print("📁 Loading CIC-IDS-2017 sample dataset...")
                 cic_data = preprocessor.load_data(use_full_dataset=False)
-                
+
         if cic_data is None:
             print("❌ CIC-IDS-2017 data could not be loaded.")
             return False
@@ -139,7 +147,7 @@ def train_cic_baseline() -> bool:
         with MemoryMonitor("Feature Preparation"):
             print("🔄 Preparing CIC-IDS-2017 features and labels...")
             X_full, y_full = preprocessor.fit_transform(cic_data)
-            
+
             # Free up memory from raw data
             del cic_data
             optimize_memory_usage()
@@ -147,28 +155,30 @@ def train_cic_baseline() -> bool:
         # SCIENTIFIC MODE: Always use FULL dataset
         print("💪 Using FULL dataset for scientific accuracy")
         X_sample, y_sample = X_full, y_full
-        
+
         # Split into train/val/test (60/20/20)
         with MemoryMonitor("Dataset Splitting"):
             X_train, X_temp, y_train, y_temp = train_test_split(
-                X_sample, y_sample,
+                X_sample,
+                y_sample,
                 test_size=0.4,
                 random_state=42,
                 stratify=y_sample,
             )
             X_val, X_test, y_val, y_test = train_test_split(
-                X_temp, y_temp,
+                X_temp,
+                y_temp,
                 test_size=0.5,
                 random_state=42,
                 stratify=y_temp,
             )
-            
+
             # Free up memory from intermediate datasets
             del X_sample, y_sample, X_temp, y_temp
             if not use_full:
                 del X_full, y_full
             optimize_memory_usage()
-            
+
             print(f"📊 Final dataset sizes:")
             print(f"   Training: {X_train.shape}")
             print(f"   Validation: {X_val.shape}")
@@ -176,18 +186,24 @@ def train_cic_baseline() -> bool:
 
         with MemoryMonitor("Model Training"):
             print("\n🤖 Training ALL baseline models on CIC-IDS-2017...")
-            
+
             # Check memory safe mode
-            memory_safe = os.getenv("MEMORY_SAFE_MODE", "").lower() in ("1", "true", "yes")
+            memory_safe = os.getenv("MEMORY_SAFE_MODE", "").lower() in (
+                "1",
+                "true",
+                "yes",
+            )
             if memory_safe:
                 print("   ⚡ MEMORY SAFE MODE: Excluding SVM to prevent segfaults")
-                exclude_models = ['svm_linear']  # Exclude memory-intensive SVM
+                exclude_models = ["svm_linear"]  # Exclude memory-intensive SVM
             else:
-                print("   🔬 SCIENTIFIC MODE: Training ALL models including SVM and KNN")
+                print(
+                    "   🔬 SCIENTIFIC MODE: Training ALL models including SVM and KNN"
+                )
                 exclude_models = []  # NO MODEL EXCLUSIONS for scientific paper
-                
+
             baseline = BaselineModels()
-            
+
             baseline.train_all(X_train, y_train, exclude_models=exclude_models)
 
         print("\n📊 Validation performance on CIC-IDS-2017...")
@@ -197,10 +213,16 @@ def train_cic_baseline() -> bool:
             return False
 
         print("\n🏆 CIC-IDS-2017 validation leaderboard:")
-        print(val_results[["model_name", "accuracy", "f1_score", "precision", "recall"]].round(3))
+        print(
+            val_results[
+                ["model_name", "accuracy", "f1_score", "precision", "recall"]
+            ].round(3)
+        )
 
         best_model_name = val_results.iloc[0]["model_name"]
-        print(f"\n🎯 Evaluating best CIC baseline model ({best_model_name}) on the hold-out test split...")
+        print(
+            f"\n🎯 Evaluating best CIC baseline model ({best_model_name}) on the hold-out test split..."
+        )
         test_metrics = baseline.evaluate_model(best_model_name, X_test, y_test)
         for metric in ["accuracy", "f1_score", "precision", "recall"]:
             value = test_metrics.get(metric, float("nan"))
@@ -209,7 +231,9 @@ def train_cic_baseline() -> bool:
         print("\n💾 Persisting CIC-IDS-2017 baseline artefacts...")
         cic_models_dir = PROJECT_ROOT / "data" / "models" / "cic_baseline"
         results_dir = PROJECT_ROOT / "data" / "results" / "cic"
-        baseline.save_models(str(cic_models_dir), results_dir=str(results_dir), dataset_suffix="_cic")
+        baseline.save_models(
+            str(cic_models_dir), results_dir=str(results_dir), dataset_suffix="_cic"
+        )
 
         print("✅ CIC-IDS-2017 baseline training complete!")
         return True

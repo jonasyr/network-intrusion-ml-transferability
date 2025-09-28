@@ -313,7 +313,9 @@ class CICSchema(BaseModel):
     Total_Length_of_Fwd_Packets: Optional[float] = Field(default=None, ge=0)
     Total_Length_of_Bwd_Packets: Optional[float] = Field(default=None, ge=0)
     Flow_Bytes_per_s: Optional[float] = Field(default=None, ge=0, alias="Flow_Bytes/s")
-    Flow_Packets_per_s: Optional[float] = Field(default=None, ge=0, alias="Flow_Packets/s")
+    Flow_Packets_per_s: Optional[float] = Field(
+        default=None, ge=0, alias="Flow_Packets/s"
+    )
     Label: str
 
     class Config:
@@ -404,7 +406,9 @@ def write_parquet(df: pd.DataFrame, path: str | Path) -> None:
     try:
         df.to_parquet(file_path, index=False)
     except Exception as exc:  # pragma: no cover - depends on optional engines
-        raise RuntimeError("Parquet support requires `pyarrow` or `fastparquet`.") from exc
+        raise RuntimeError(
+            "Parquet support requires `pyarrow` or `fastparquet`."
+        ) from exc
 
 
 def _value_or_none(value: Any) -> Any:
@@ -498,20 +502,43 @@ def ensure_cic_tcp_flag_cols(df: pd.DataFrame) -> pd.DataFrame:
     """Ensure TCP flag counter columns exist for CIC-IDS-2017 data."""
 
     result = df.copy()
-    for column in ("SYN_Flag_Count", "ACK_Flag_Count", "FIN_Flag_Count", "RST_Flag_Count"):
+    for column in (
+        "SYN_Flag_Count",
+        "ACK_Flag_Count",
+        "FIN_Flag_Count",
+        "RST_Flag_Count",
+    ):
         if column not in result.columns:
             result[column] = 0
-        result[column] = pd.to_numeric(result[column], errors="coerce").fillna(0).astype(int)
+        result[column] = (
+            pd.to_numeric(result[column], errors="coerce").fillna(0).astype(int)
+        )
     return result
 
 
 def derive_cic_connection_state(df: pd.DataFrame) -> pd.Series:
     """Derive harmonized connection state identifiers from CIC TCP flags."""
 
-    syn = pd.to_numeric(df.get("SYN_Flag_Count", 0), errors="coerce").fillna(0).astype(int)
-    ack = pd.to_numeric(df.get("ACK_Flag_Count", 0), errors="coerce").fillna(0).astype(int)
-    fin = pd.to_numeric(df.get("FIN_Flag_Count", 0), errors="coerce").fillna(0).astype(int)
-    rst = pd.to_numeric(df.get("RST_Flag_Count", 0), errors="coerce").fillna(0).astype(int)
+    syn = (
+        pd.to_numeric(df.get("SYN_Flag_Count", 0), errors="coerce")
+        .fillna(0)
+        .astype(int)
+    )
+    ack = (
+        pd.to_numeric(df.get("ACK_Flag_Count", 0), errors="coerce")
+        .fillna(0)
+        .astype(int)
+    )
+    fin = (
+        pd.to_numeric(df.get("FIN_Flag_Count", 0), errors="coerce")
+        .fillna(0)
+        .astype(int)
+    )
+    rst = (
+        pd.to_numeric(df.get("RST_Flag_Count", 0), errors="coerce")
+        .fillna(0)
+        .astype(int)
+    )
 
     state = pd.Series(0, index=df.index, dtype=int)
     state.loc[(syn > 0) & (ack == 0) & (rst == 0)] = 1
@@ -575,8 +602,12 @@ def _compute_summary(df: pd.DataFrame) -> Dict[str, Any]:
     numeric = df.select_dtypes(include=["number"])
     numeric_stats = {
         column: {
-            "min": None if numeric[column].dropna().empty else float(numeric[column].min()),
-            "max": None if numeric[column].dropna().empty else float(numeric[column].max()),
+            "min": (
+                None if numeric[column].dropna().empty else float(numeric[column].min())
+            ),
+            "max": (
+                None if numeric[column].dropna().empty else float(numeric[column].max())
+            ),
         }
         for column in numeric.columns
     }
@@ -687,8 +718,14 @@ def to_common_from_cic(df: pd.DataFrame) -> pd.DataFrame:
     fwd_bytes = fwd_bytes_series.astype(int)
     bwd_bytes = bwd_bytes_series.astype(int)
 
-    fwd_packets = pd.to_numeric(base["Total_Fwd_Packets"], errors="coerce").fillna(0).astype(int)
-    bwd_packets = pd.to_numeric(base["Total_Backward_Packets"], errors="coerce").fillna(0).astype(int)
+    fwd_packets = (
+        pd.to_numeric(base["Total_Fwd_Packets"], errors="coerce").fillna(0).astype(int)
+    )
+    bwd_packets = (
+        pd.to_numeric(base["Total_Backward_Packets"], errors="coerce")
+        .fillna(0)
+        .astype(int)
+    )
 
     flow_bytes = base.get("Flow_Bytes/s", np.nan)
     flow_bytes = pd.to_numeric(flow_bytes, errors="coerce")
@@ -697,15 +734,23 @@ def to_common_from_cic(df: pd.DataFrame) -> pd.DataFrame:
     )
     flow_bytes_per_s = flow_bytes.fillna(derived_flow_bytes)
 
-    protocol_column = base["Protocol"] if "Protocol" in base.columns else pd.Series(
-        ["UNKNOWN"] * len(base), index=base.index
+    protocol_column = (
+        base["Protocol"]
+        if "Protocol" in base.columns
+        else pd.Series(["UNKNOWN"] * len(base), index=base.index)
     )
     protocol = map_protocols(protocol_column)
 
     connection_state = derive_cic_connection_state(base)
-    urgent_count = pd.to_numeric(base.get("URG_Flag_Count", 0), errors="coerce").fillna(0.0)
-    connection_rate = pd.to_numeric(base.get("Flow_Packets/s", 0), errors="coerce").fillna(0.0)
-    service_rate = pd.to_numeric(base.get("Fwd_Packets/s", 0), errors="coerce").fillna(0.0)
+    urgent_count = pd.to_numeric(base.get("URG_Flag_Count", 0), errors="coerce").fillna(
+        0.0
+    )
+    connection_rate = pd.to_numeric(
+        base.get("Flow_Packets/s", 0), errors="coerce"
+    ).fillna(0.0)
+    service_rate = pd.to_numeric(base.get("Fwd_Packets/s", 0), errors="coerce").fillna(
+        0.0
+    )
 
     total_packets = (fwd_packets + bwd_packets).astype(float)
     rst_counts = pd.to_numeric(base["RST_Flag_Count"], errors="coerce").fillna(0.0)
@@ -714,11 +759,15 @@ def to_common_from_cic(df: pd.DataFrame) -> pd.DataFrame:
 
     land = derive_land_flag(base)
 
-    label_series = base["Label"] if "Label" in base.columns else pd.Series(
-        ["unknown"] * len(base), index=base.index
+    label_series = (
+        base["Label"]
+        if "Label" in base.columns
+        else pd.Series(["unknown"] * len(base), index=base.index)
     )
     normalized_labels = normalize_labels(label_series)
-    label_binary = (~normalized_labels.str.contains("benign", case=False)).astype(np.int8)
+    label_binary = (~normalized_labels.str.contains("benign", case=False)).astype(
+        np.int8
+    )
 
     common = pd.DataFrame(
         {
@@ -749,7 +798,9 @@ def to_union_from_nsl(df: pd.DataFrame) -> pd.DataFrame:
     """Create the union schema dataframe for NSL-KDD data."""
 
     base = df.copy()
-    mapping: Dict[str, pd.Series] = {column: base[column] for column in NSL_CANONICAL_COLUMNS}
+    mapping: Dict[str, pd.Series] = {
+        column: base[column] for column in NSL_CANONICAL_COLUMNS
+    }
     mapping["label_kdd"] = base["label_kdd"]
     mapping["difficulty"] = base["difficulty"] if "difficulty" in base.columns else ""
 
@@ -778,7 +829,9 @@ def to_union_from_cic(df: pd.DataFrame) -> pd.DataFrame:
         raise KeyError("CIC dataset must contain a 'Label' column")
 
     label_series = base["Label"].astype(str)
-    label_binary = (~normalize_labels(label_series).str.contains("benign")).astype(np.int8)
+    label_binary = (~normalize_labels(label_series).str.contains("benign")).astype(
+        np.int8
+    )
     label_multiclass = normalize_labels(label_series)
 
     mapping["label_cic"] = label_series
@@ -829,7 +882,9 @@ def validate_cic(df: pd.DataFrame) -> None:
 # Harmonization pipelines
 
 
-def harmonize_nsl(path_csv: str | Path) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+def harmonize_nsl(
+    path_csv: str | Path,
+) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
     """Load and harmonize NSL-KDD data into union and common schemas."""
 
     raw = read_csv_any(path_csv)
@@ -843,7 +898,9 @@ def harmonize_nsl(path_csv: str | Path) -> Tuple[pd.DataFrame, pd.DataFrame, Dic
     return union_df, common_df, summary
 
 
-def harmonize_cic(path_csv: str | Path) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+def harmonize_cic(
+    path_csv: str | Path,
+) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
     """Load and harmonize CIC-IDS-2017 data into union and common schemas."""
 
     raw = read_csv_any(path_csv)
@@ -863,4 +920,3 @@ class HarmonizationResult:
     union: pd.DataFrame
     common: pd.DataFrame
     summary: Dict[str, Any]
-

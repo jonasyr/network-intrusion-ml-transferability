@@ -47,7 +47,7 @@ RANDOM_STATE = 42
 RESULTS_DIR = project_root / "data/results"
 # Output paths
 FORWARD_RESULTS_PATH = RESULTS_DIR / "nsl_trained_tested_on_cic.csv"  # NSL→CIC
-REVERSE_RESULTS_PATH = RESULTS_DIR / "cic_trained_tested_on_nsl.csv"   # CIC→NSL  
+REVERSE_RESULTS_PATH = RESULTS_DIR / "cic_trained_tested_on_nsl.csv"  # CIC→NSL
 BIDIRECTIONAL_RESULTS_PATH = RESULTS_DIR / "bidirectional_cross_dataset_analysis.csv"
 FORWARD_INCREMENTAL_PATH = RESULTS_DIR / "nsl_trained_tested_on_cic_incremental.csv"
 REVERSE_INCREMENTAL_PATH = RESULTS_DIR / "cic_trained_tested_on_nsl_incremental.csv"
@@ -88,7 +88,7 @@ def _build_model_suite() -> Dict[str, object]:
             max_depth=25,
             random_state=RANDOM_STATE,
             n_jobs=-1,
-            class_weight='balanced',  # Handle class imbalance
+            class_weight="balanced",  # Handle class imbalance
         )
     }
 
@@ -117,7 +117,7 @@ def _build_model_suite() -> Dict[str, object]:
             colsample_bytree=0.8,
             random_state=RANDOM_STATE,
             n_jobs=-1,
-            class_weight='balanced',  # Handle class imbalance
+            class_weight="balanced",  # Handle class imbalance
         )
     else:
         print("   ⚠️ LightGBM not available – skipping")
@@ -133,9 +133,9 @@ def _evaluate_model(
     target_label: str,
 ) -> Dict[str, float]:
     print(f"\n🤖 Training {model_name} on aligned {source_label} features…")
-    
+
     # Calculate class weights for XGBoost
-    if model_name == "XGBoost" and hasattr(model, 'scale_pos_weight'):
+    if model_name == "XGBoost" and hasattr(model, "scale_pos_weight"):
         unique, counts = np.unique(bundle.train_labels, return_counts=True)
         if len(unique) == 2:
             neg_count = counts[unique == 0][0] if len(counts[unique == 0]) > 0 else 1
@@ -143,7 +143,7 @@ def _evaluate_model(
             scale_pos_weight = neg_count / pos_count
             model.set_params(scale_pos_weight=scale_pos_weight)
             print(f"   ⚖️ Set scale_pos_weight={scale_pos_weight:.2f} for class balance")
-    
+
     start_time = time.time()
     model.fit(bundle.train_features, bundle.train_labels)
     training_time = time.time() - start_time
@@ -152,19 +152,29 @@ def _evaluate_model(
     print(f"   📊 Evaluating on {source_label} hold-out split…")
     y_pred_source = model.predict(bundle.source_eval_features)
     source_accuracy = accuracy_score(bundle.source_eval_labels, y_pred_source)
-    source_precision = precision_score(bundle.source_eval_labels, y_pred_source, zero_division=0)
-    source_recall = recall_score(bundle.source_eval_labels, y_pred_source, zero_division=0)
+    source_precision = precision_score(
+        bundle.source_eval_labels, y_pred_source, zero_division=0
+    )
+    source_recall = recall_score(
+        bundle.source_eval_labels, y_pred_source, zero_division=0
+    )
     source_f1 = f1_score(bundle.source_eval_labels, y_pred_source, zero_division=0)
 
     print(f"   🔄 Evaluating on {target_label} dataset…")
     y_pred_target = model.predict(bundle.target_eval_features)
     target_accuracy = accuracy_score(bundle.target_eval_labels, y_pred_target)
-    target_precision = precision_score(bundle.target_eval_labels, y_pred_target, zero_division=0)
-    target_recall = recall_score(bundle.target_eval_labels, y_pred_target, zero_division=0)
+    target_precision = precision_score(
+        bundle.target_eval_labels, y_pred_target, zero_division=0
+    )
+    target_recall = recall_score(
+        bundle.target_eval_labels, y_pred_target, zero_division=0
+    )
     target_f1 = f1_score(bundle.target_eval_labels, y_pred_target, zero_division=0)
 
     gap = calculate_generalization_gap(source_accuracy, target_accuracy)
-    relative_drop = calculate_relative_performance_drop(source_accuracy, target_accuracy)
+    relative_drop = calculate_relative_performance_drop(
+        source_accuracy, target_accuracy
+    )
     transfer_ratio = calculate_transfer_ratio(source_accuracy, target_accuracy)
 
     print(f"      Source accuracy: {_format_percentage(source_accuracy)}")
@@ -204,13 +214,17 @@ def _align_nsl_to_cic() -> DatasetBundle:
     print("\n📁 Loading datasets…")
     nsl_train = analyzer.load_data("KDDTrain+.txt")
     nsl_test = analyzer.load_data("KDDTest+.txt")
-    cic_data = cic_preprocessor.load_data(use_full_dataset=True)  # FULL DATASET FOR SCIENTIFIC PAPER
+    cic_data = cic_preprocessor.load_data(
+        use_full_dataset=True
+    )  # FULL DATASET FOR SCIENTIFIC PAPER
 
     if nsl_train is None or nsl_test is None or cic_data is None:
         raise RuntimeError("Failed to load one or more datasets")
 
     print("\n🔄 Preprocessing datasets…")
-    X_nsl_train, X_nsl_val, y_nsl_train, y_nsl_val = nsl_preprocessor.fit_transform(nsl_train)
+    X_nsl_train, X_nsl_val, y_nsl_train, y_nsl_val = nsl_preprocessor.fit_transform(
+        nsl_train
+    )
     X_nsl_test, y_nsl_test = nsl_preprocessor.transform(nsl_test)
     X_cic, y_cic = cic_preprocessor.fit_transform(cic_data)
 
@@ -286,7 +300,9 @@ def _align_cic_to_nsl() -> DatasetBundle:
     cic_preprocessor = CICIDSPreprocessor()
 
     print("\n📁 Loading datasets…")
-    cic_data = cic_preprocessor.load_data(use_full_dataset=True)  # FULL DATASET FOR SCIENTIFIC PAPER
+    cic_data = cic_preprocessor.load_data(
+        use_full_dataset=True
+    )  # FULL DATASET FOR SCIENTIFIC PAPER
     nsl_train = analyzer.load_data("KDDTrain+.txt")
     nsl_test = analyzer.load_data("KDDTest+.txt")
 
@@ -379,7 +395,7 @@ def _save_incremental_result(
     """Save individual model result incrementally to prevent data loss."""
     # Create directory if it doesn't exist
     incremental_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Check if file exists and read existing data
     if incremental_path.exists():
         try:
@@ -391,10 +407,12 @@ def _save_incremental_result(
             new_df = pd.DataFrame([result])
     else:
         new_df = pd.DataFrame([result])
-    
+
     # Save updated data
     new_df.to_csv(incremental_path, index=False)
-    print(f"💾 Saved {result['Model']} ({source_label}→{target_label}) to {incremental_path.name}")
+    print(
+        f"💾 Saved {result['Model']} ({source_label}→{target_label}) to {incremental_path.name}"
+    )
 
 
 def _save_incremental_result(
@@ -406,7 +424,7 @@ def _save_incremental_result(
     """Save individual model result incrementally to prevent data loss."""
     # Create directory if it doesn't exist
     incremental_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
     # Check if file exists and read existing data
     if incremental_path.exists():
         try:
@@ -418,41 +436,45 @@ def _save_incremental_result(
             new_df = pd.DataFrame([result])
     else:
         new_df = pd.DataFrame([result])
-    
+
     # Save updated data
     new_df.to_csv(incremental_path, index=False)
-    print(f"💾 Saved {result['Model']} ({source_label}→{target_label}) to {incremental_path.name}")
+    print(
+        f"💾 Saved {result['Model']} ({source_label}→{target_label}) to {incremental_path.name}"
+    )
 
 
 def _recover_from_incremental(incremental_path: Path) -> Tuple[pd.DataFrame, bool]:
     """Recover results from incremental save file if it exists.
-    
+
     Returns:
         Tuple of (recovered_dataframe, is_complete)
         is_complete is True only if ALL expected models are present
     """
     if not incremental_path.exists():
         return pd.DataFrame(), False
-        
+
     try:
         recovered_df = pd.read_csv(incremental_path)
         if recovered_df.empty:
             return pd.DataFrame(), False
-            
+
         expected_models = set(_get_expected_models())
-        recovered_models = set(recovered_df['Model'].tolist())
+        recovered_models = set(recovered_df["Model"].tolist())
         missing_models = expected_models - recovered_models
-        
+
         is_complete = len(missing_models) == 0
-        
-        print(f"📥 Recovered {len(recovered_df)} model results from {incremental_path.name}")
+
+        print(
+            f"📥 Recovered {len(recovered_df)} model results from {incremental_path.name}"
+        )
         if missing_models:
             print(f"   ⚠️  Missing models: {', '.join(sorted(missing_models))}")
         else:
             print(f"   ✅ All {len(expected_models)} expected models present")
-            
+
         return recovered_df, is_complete
-        
+
     except Exception as e:
         print(f"⚠️  Could not recover from {incremental_path.name}: {e}")
         return pd.DataFrame(), False
@@ -466,17 +488,17 @@ def _run_direction(
 ) -> pd.DataFrame:
     models = _build_model_suite()
     results: List[Dict[str, float]] = []
-    
+
     # Determine incremental save path based on direction
     if source_label == "NSL-KDD":
         incremental_path = FORWARD_INCREMENTAL_PATH
     else:
         incremental_path = REVERSE_INCREMENTAL_PATH
-    
+
     # If we have recovered results, use them and only train missing models
     if recovered_df is not None and not recovered_df.empty:
-        results = recovered_df.to_dict('records')
-        recovered_models = set(recovered_df['Model'].tolist())
+        results = recovered_df.to_dict("records")
+        recovered_models = set(recovered_df["Model"].tolist())
         print(f"🔄 Continuing from {len(recovered_models)} recovered models...")
     else:
         recovered_models = set()
@@ -488,17 +510,23 @@ def _run_direction(
     # Train only missing models
     for model_name, model in models.items():
         if model_name in recovered_models:
-            print(f"✅ Skipping {model_name} ({source_label}→{target_label}) - already completed")
+            print(
+                f"✅ Skipping {model_name} ({source_label}→{target_label}) - already completed"
+            )
             continue
-            
+
         print(f"\n🔄 Training {model_name} ({source_label}→{target_label})...")
         try:
-            metrics = _evaluate_model(model_name, model, bundle, source_label, target_label)
+            metrics = _evaluate_model(
+                model_name, model, bundle, source_label, target_label
+            )
             results.append(metrics)
-            
+
             # Save result incrementally
-            _save_incremental_result(metrics, incremental_path, source_label, target_label)
-            
+            _save_incremental_result(
+                metrics, incremental_path, source_label, target_label
+            )
+
         except Exception as e:
             print(f"❌ {model_name} failed: {e}")
             # Continue with other models even if one fails
@@ -510,7 +538,9 @@ def _run_direction(
     return pd.DataFrame(results)
 
 
-def _create_bidirectional_summary(forward_df: pd.DataFrame, reverse_df: pd.DataFrame) -> pd.DataFrame:
+def _create_bidirectional_summary(
+    forward_df: pd.DataFrame, reverse_df: pd.DataFrame
+) -> pd.DataFrame:
     if forward_df.empty or reverse_df.empty:
         return pd.DataFrame()
 
@@ -540,9 +570,7 @@ def _create_bidirectional_summary(forward_df: pd.DataFrame, reverse_df: pd.DataF
 
     combined = forward.merge(reverse, on="Model", suffixes=("_forward", "_reverse"))
 
-    combined["Avg_Gap"] = (
-        combined["NSL_to_CIC_Gap"] + combined["CIC_to_NSL_Gap"]
-    ) / 2
+    combined["Avg_Gap"] = (combined["NSL_to_CIC_Gap"] + combined["CIC_to_NSL_Gap"]) / 2
     combined["Avg_Relative_Drop"] = (
         combined["NSL_to_CIC_Relative_Drop"] + combined["CIC_to_NSL_Relative_Drop"]
     ) / 2
@@ -558,9 +586,13 @@ def _create_bidirectional_summary(forward_df: pd.DataFrame, reverse_df: pd.DataF
 
 def run_cross_dataset_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     print("🔍 Checking for previous incomplete runs...")
-    existing_forward, forward_complete = _recover_from_incremental(FORWARD_INCREMENTAL_PATH)
-    existing_reverse, reverse_complete = _recover_from_incremental(REVERSE_INCREMENTAL_PATH)
-    
+    existing_forward, forward_complete = _recover_from_incremental(
+        FORWARD_INCREMENTAL_PATH
+    )
+    existing_reverse, reverse_complete = _recover_from_incremental(
+        REVERSE_INCREMENTAL_PATH
+    )
+
     # NSL-KDD → CIC-IDS-2017 evaluation
     if forward_complete:
         print(f"\n✅ Using complete NSL→CIC results ({len(existing_forward)} models)")
@@ -569,8 +601,12 @@ def run_cross_dataset_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFra
         try:
             forward_bundle = _align_nsl_to_cic()
             if not existing_forward.empty:
-                print(f"\n🔄 Resuming NSL→CIC evaluation with {len(existing_forward)} recovered models")
-            forward_results = _run_direction(forward_bundle, "NSL-KDD", "CIC-IDS-2017", existing_forward)
+                print(
+                    f"\n🔄 Resuming NSL→CIC evaluation with {len(existing_forward)} recovered models"
+                )
+            forward_results = _run_direction(
+                forward_bundle, "NSL-KDD", "CIC-IDS-2017", existing_forward
+            )
         except Exception as exc:  # pragma: no cover - runtime failures
             print(f"❌ NSL→CIC evaluation failed: {exc}")
             # Try to recover partial results
@@ -592,8 +628,12 @@ def run_cross_dataset_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFra
         try:
             reverse_bundle = _align_cic_to_nsl()
             if not existing_reverse.empty:
-                print(f"\n🔄 Resuming CIC→NSL evaluation with {len(existing_reverse)} recovered models")
-            reverse_results = _run_direction(reverse_bundle, "CIC-IDS-2017", "NSL-KDD", existing_reverse)
+                print(
+                    f"\n🔄 Resuming CIC→NSL evaluation with {len(existing_reverse)} recovered models"
+                )
+            reverse_results = _run_direction(
+                reverse_bundle, "CIC-IDS-2017", "NSL-KDD", existing_reverse
+            )
         except Exception as exc:  # pragma: no cover - runtime failures
             print(f"❌ CIC→NSL evaluation failed: {exc}")
             # Try to recover partial results
@@ -616,7 +656,9 @@ def run_cross_dataset_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFra
         print("=" * 80)
         print(summary_df.round(4).to_string(index=False))
 
-        best_transfer = summary_df.sort_values("Avg_Transfer_Ratio", ascending=False).iloc[0]
+        best_transfer = summary_df.sort_values(
+            "Avg_Transfer_Ratio", ascending=False
+        ).iloc[0]
         print("\n🔍 Key Insights")
         print(
             f"   • Best average transfer: {best_transfer['Model']} (ratio {best_transfer['Avg_Transfer_Ratio']:.3f})"
@@ -630,7 +672,7 @@ def run_cross_dataset_pipeline() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFra
             f"{summary_df.sort_values('Transfer_Asymmetry').iloc[0]['Model']}"
         )
         print(f"\n💾 Combined results saved to {BIDIRECTIONAL_RESULTS_PATH}")
-        
+
         # Clean up incremental files on successful completion
         for incremental_path in [FORWARD_INCREMENTAL_PATH, REVERSE_INCREMENTAL_PATH]:
             if incremental_path.exists():
