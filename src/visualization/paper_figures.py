@@ -570,7 +570,7 @@ class PaperFigureGenerator:
         axes[1, 0].set_yticks(range(len(train_attack_types)))
         axes[1, 0].set_yticklabels(train_attack_types.index)
         axes[1, 0].set_title('Top 10 Attack Types\n(Training Set)', fontweight='bold')
-        axes[1, 0].set_xlabel('Number of Instances')
+        axes[1, 0].set_xlabel('Number of Instances', fontsize=9)
         
         # Add value labels
         for i, v in enumerate(train_attack_types.values):
@@ -724,43 +724,25 @@ class PaperFigureGenerator:
         axes[1, 0].set_yticks(range(len(sorted_categories)))
         axes[1, 0].set_yticklabels(sorted_categories.index)
         axes[1, 0].set_title('Attack Categories\nDistribution (Full Dataset)', fontweight='bold')
-        axes[1, 0].set_xlabel('Number of Instances')
+        axes[1, 0].set_xlabel('Number of Instances (in millions)')
         
-        # Add value labels with better overlap prevention
-        max_val = max(sorted_categories.values)
-        
+        # Clean, simple labels - always at the end of each bar
         for i, (bar, val) in enumerate(zip(bars, sorted_categories.values)):
-            width = bar.get_width()
-            
-            # Smart label formatting to prevent overlap
+            # Simple formatting - no decimals for cleaner look
             if val >= 1000000:
-                label_text = f'{val/1000000:.1f}M'
-            elif val >= 10000:
-                label_text = f'{val/1000:.0f}K'
+                label_text = f'{int(val/1000000)}M'
             elif val >= 1000:
-                label_text = f'{val/1000:.1f}K'
+                label_text = f'{int(val/1000)}K'
             else:
-                label_text = f'{val}'
+                label_text = str(val)
             
-            # Always place labels outside bars with sufficient spacing
-            x_pos = width + max_val * 0.02
-            
-            # Prevent labels from going off the chart
-            if x_pos + len(label_text) * max_val * 0.01 > max_val * 1.15:
-                x_pos = width * 0.98
-                color = 'white'
-                ha = 'right'
-            else:
-                color = 'black'
-                ha = 'left'
-            
-            axes[1, 0].text(x_pos, i, label_text, va='center', ha=ha,
-                           fontsize=7, fontweight='bold', color=color)
+            # Always place at the very end of the bar with small padding
+            axes[1, 0].text(bar.get_width() + bar.get_width() * 0.01, i, label_text, 
+                           va='center', ha='left', fontsize=9, 
+                           fontweight='bold', color='black')
         
-        # Add value labels
-        for i, v in enumerate(category_dist.values):
-            axes[1, 0].text(v + max(category_dist.values) * 0.01, i, 
-                           f'{v:,}', va='center', fontsize=9)
+        # Adjust x-axis to fit labels
+        axes[1, 0].margins(x=0.15)
         
         # 4. Dataset statistics table
         normal_count = (cic_data['Label'] == 'BENIGN').sum()
