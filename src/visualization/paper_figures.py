@@ -726,27 +726,36 @@ class PaperFigureGenerator:
         axes[1, 0].set_title('Attack Categories\nDistribution (Full Dataset)', fontweight='bold')
         axes[1, 0].set_xlabel('Number of Instances')
         
-        # Add value labels on bars with smart positioning to avoid overlap
+        # Add value labels with better overlap prevention
         max_val = max(sorted_categories.values)
+        
         for i, (bar, val) in enumerate(zip(bars, sorted_categories.values)):
             width = bar.get_width()
-            # Use percentage for very large values to avoid overlap
-            if val > 100000:
-                label_text = f'{val/1000000:.1f}M'
-            elif val > 1000:
-                label_text = f'{val/1000:.0f}K'
-            else:
-                label_text = f'{val:,}'
             
-            # Position labels smartly based on bar width
-            if width > max_val * 0.5:
-                # Place inside bar for very long bars
-                axes[1, 0].text(width * 0.95, i, label_text, va='center', ha='right', 
-                               fontsize=7, fontweight='bold', color='white')
+            # Smart label formatting to prevent overlap
+            if val >= 1000000:
+                label_text = f'{val/1000000:.1f}M'
+            elif val >= 10000:
+                label_text = f'{val/1000:.0f}K'
+            elif val >= 1000:
+                label_text = f'{val/1000:.1f}K'
             else:
-                # Place outside bar for shorter bars
-                axes[1, 0].text(width + max_val * 0.01, i, label_text, va='center', ha='left', 
-                               fontsize=7, fontweight='bold')
+                label_text = f'{val}'
+            
+            # Always place labels outside bars with sufficient spacing
+            x_pos = width + max_val * 0.02
+            
+            # Prevent labels from going off the chart
+            if x_pos + len(label_text) * max_val * 0.01 > max_val * 1.15:
+                x_pos = width * 0.98
+                color = 'white'
+                ha = 'right'
+            else:
+                color = 'black'
+                ha = 'left'
+            
+            axes[1, 0].text(x_pos, i, label_text, va='center', ha=ha,
+                           fontsize=7, fontweight='bold', color=color)
         
         # Add value labels
         for i, v in enumerate(category_dist.values):
@@ -812,71 +821,76 @@ class PaperFigureGenerator:
         """
         cv_results = self.load_cross_validation_results()
         
-        # Always create subplot layout for consistency, add placeholder for missing data
-        available_datasets = ['NSL-KDD', 'CIC-IDS-2017']
-        fig, axes = plt.subplots(1, 2, figsize=(14, 6))  # LaTeX-friendly dimensions
+        # Create consistent model list from both datasets for alignment
+        fig, axes = plt.subplots(1, 2, figsize=(16, 8))
         
         if not cv_results:
             print("❌ No cross-validation results available")
-            # Create placeholder plots
-            for i, dataset in enumerate(available_datasets):
-                axes[i].text(0.5, 0.5, f'No {dataset} cross-validation\ndata available', 
-                           ha='center', va='center', transform=axes[i].transAxes,
-                           fontsize=12, style='italic')
-                axes[i].set_title(f'{dataset} Cross-Validation', fontweight='bold')
-            return fig
+            return None
         
         fig.suptitle('Cross-Validation Performance Comparison', fontsize=14, fontweight='bold')
         
-        # Process each dataset separately
-        for i, dataset in enumerate(available_datasets):
+        # Get all unique models from both datasets
+        all_models = set()
+        for dataset_name, df in cv_results.items():
+            if not df.empty:
+                models = df['Model'].str.replace('_cic', '').str.replace('_', ' ').str.title()
+                all_models.update(models.tolist())
+        
+        # Sort models for consistent ordering
+        all_models = sorted(list(all_models))
+        
+        datasets = ['NSL-KDD', 'CIC-IDS-2017']
+        
+        for i, dataset in enumerate(datasets):
+            model_scores = {}
+            model_stds = {}
+            
+            # Extract scores for available models
             if dataset in cv_results and not cv_results[dataset].empty:
                 df = cv_results[dataset]
-            else:
-                axes[i].text(0.5, 0.5, f'No {dataset} cross-validation\ndata available', 
-                           ha='center', va='center', transform=axes[i].transAxes,
-                           fontsize=12, style='italic')
-                axes[i].set_title(f'{dataset} Cross-Validation', fontweight='bold')
-                continue
+                for _, row in df.iterrows():
+                    model = row['Model'].replace('_cic', '').replace('_', ' ').title()
+                    f1_parts = row['F1-Score'].split(' ±')
+                    f1_score = float(f1_parts[0])
+                    f1_std = float(f1_parts[1]) if len(f1_parts) > 1 else 0
+                    model_scores[model] = f1_score
+                    model_stds[model] = f1_std
             
-            # Process existing data (df already assigned above)
-                
-            # Parse F1-Score and standard deviation
-            f1_parts = df['F1-Score'].str.split(' ±')
-            f1_scores = f1_parts.str[0].astype(float)
-            f1_stds = f1_parts.str[1].astype(float) if len(f1_parts.iloc[0]) > 1 else pd.Series([0] * len(f1_scores))
+            # Create aligned bar chart with grayed-out missing models
+            y_pos = np.arange(len(all_models))
+            scores = []
+            stds = []
+            colors = []
             
-            # Sort by F1-Score in descending order (best first)
-            sorted_indices = f1_scores.argsort()[::-1]
-            sorted_models = df.iloc[sorted_indices]['Model'].str.replace('_', ' ').str.title()
-            sorted_f1 = f1_scores.iloc[sorted_indices]
-            sorted_std = f1_stds.iloc[sorted_indices] if not f1_stds.isna().all() else pd.Series([0] * len(sorted_f1))
+            for model in all_models:
+                if model in model_scores:
+                    scores.append(model_scores[model])
+                    stds.append(model_stds[model])
+                    colors.append(self.colors['primary'])
+                else:
+                    scores.append(0)
+                    stds.append(0)
+                    colors.append(self.colors['neutral'])  # Gray for missing
             
-            # Create horizontal bar plot with error bars
-            y_pos = np.arange(len(sorted_models))
-            axes[i].barh(y_pos, sorted_f1, xerr=sorted_std,
-                         color=self.colors['primary'], alpha=0.8, edgecolor='white', linewidth=0.5,
-                         capsize=3, error_kw={'linewidth': 1, 'alpha': 0.7})
+            # Create bars
+            bars = axes[i].barh(y_pos, scores, xerr=stds, color=colors, alpha=0.7,
+                               edgecolor='white', linewidth=0.5, capsize=3)
             
-            # Customize plot
+            # Add "No Data" text for grayed-out bars
+            for j, (model, score) in enumerate(zip(all_models, scores)):
+                if score == 0:
+                    axes[i].text(0.5, j, 'No Data Available', va='center', ha='center',
+                               fontsize=8, style='italic', color='gray')
+                else:
+                    axes[i].text(score + 0.01, j, f'{score:.3f}', va='center', ha='left',
+                               fontsize=8, fontweight='bold')
+            
             axes[i].set_yticks(y_pos)
-            axes[i].set_yticklabels(sorted_models, fontsize=8)
+            axes[i].set_yticklabels(all_models, fontsize=8)
             axes[i].set_xlabel('F1-Score', fontsize=9)
             axes[i].set_title(f'{dataset} Cross-Validation', fontweight='bold', fontsize=10)
-            
-            # Set appropriate x-axis limits based on data range
-            min_score = sorted_f1.min()
-            if min_score > 0.9:
-                axes[i].set_xlim(0.85, 1.0)
-            else:
-                axes[i].set_xlim(0, 1.0)
-            
-            # Add value labels with better positioning
-            for j, v in enumerate(sorted_f1):
-                axes[i].text(v + 0.005, j, f'{v:.3f}', 
-                           va='center', ha='left', fontsize=8, fontweight='bold')
-            
-            # Improve grid
+            axes[i].set_xlim(0, 1.05)
             axes[i].grid(True, alpha=0.3, axis='x')
             axes[i].set_axisbelow(True)
         
@@ -1032,7 +1046,7 @@ class PaperFigureGenerator:
     
     def create_harmonized_evaluation_summary(self, save_path: Optional[str] = None) -> plt.Figure:
         """
-        Create harmonized vs. standard evaluation performance comparison
+        Create comparison between Experiment 05 (Standard Cross-Dataset) vs Experiment 06 (Harmonized)
         
         Args:
             save_path: Optional path to save figure
@@ -1040,177 +1054,152 @@ class PaperFigureGenerator:
         Returns:
             matplotlib Figure object
         """
-        # Load harmonized data and cross-dataset results
+        # Load actual experiment results
         harmonized_data = self.load_harmonized_results()
         cross_dataset_results = self.load_cross_dataset_results()
-        cv_results = self.load_cross_validation_results()
         
-        if not harmonized_data and not cross_dataset_results:
+        if not harmonized_data or not cross_dataset_results:
             print("❌ No harmonized or cross-dataset evaluation results available")
             return None
         
         fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-        fig.suptitle('Harmonized vs. Standard Cross-Dataset Evaluation Performance', fontsize=14, fontweight='bold')
+        fig.suptitle('Experiment 05 vs 06: Standard vs Harmonized Cross-Dataset Evaluation', fontsize=14, fontweight='bold')
         
-        # 1. Model Complexity vs Transfer Performance Analysis
-        if 'Bidirectional' in cross_dataset_results:
+        # 1. Transfer Performance Comparison: NSL→CIC
+        if 'Bidirectional' in cross_dataset_results and 'results' in harmonized_data:
             bidirectional = cross_dataset_results['Bidirectional']
-            
-            # Define model complexity (features vs performance trade-off)
-            model_complexity = {
-                'Random Forest': 3,    # Complex ensemble
-                'XGBoost': 3,         # Complex gradient boosting
-                'LightGBM': 3,        # Complex gradient boosting
-            }
+            harmonized_results = harmonized_data['results']
             
             models = bidirectional['Model'].values
-            nsl_cic_ratios = bidirectional['NSL_to_CIC_Transfer_Ratio'].values
-            cic_nsl_ratios = bidirectional['CIC_to_NSL_Transfer_Ratio'].values
+            standard_nsl_cic = bidirectional['NSL_to_CIC_Transfer_Ratio'].values
             
-            # Create scatter plot: Complexity vs Transfer Success
-            complexity_values = [model_complexity.get(model, 2) for model in models]
-            avg_transfer = [(nsl + cic) / 2 for nsl, cic in zip(nsl_cic_ratios, cic_nsl_ratios)]
+            # Get harmonized NSL→CIC result
+            harmonized_nsl_cic = None
+            for result in harmonized_results:
+                if result['source'] == 'NSL-KDD' and result['target'] == 'CIC-IDS-2017':
+                    harmonized_nsl_cic = result['target_f1']
+                    break
             
-            scatter = axes[0, 0].scatter(complexity_values, avg_transfer, 
-                                        c=avg_transfer, s=150, alpha=0.7, 
-                                        cmap='RdYlGn', edgecolors='black', linewidth=1)
+            x = np.arange(len(models))
+            width = 0.35
             
-            # Add model labels
-            for i, model in enumerate(models):
-                axes[0, 0].annotate(model, (complexity_values[i], avg_transfer[i]),
-                                   xytext=(5, 5), textcoords='offset points', fontsize=8)
+            bars1 = axes[0, 0].bar(x - width/2, standard_nsl_cic, width, 
+                                  label='Exp 05: Standard Cross-Dataset', 
+                                  color=self.colors['primary'], alpha=0.8)
             
-            axes[0, 0].set_title('Model Complexity vs Transfer Performance', fontweight='bold', fontsize=10)
-            axes[0, 0].set_xlabel('Model Complexity (Features/Interpretability)', fontsize=9)
-            axes[0, 0].set_ylabel('Average Transfer Success Ratio', fontsize=9)
-            axes[0, 0].grid(True, alpha=0.3)
+            # Add harmonized result as horizontal line
+            if harmonized_nsl_cic:
+                axes[0, 0].axhline(y=harmonized_nsl_cic, color=self.colors['accent'], 
+                                  linestyle='--', linewidth=2, alpha=0.8,
+                                  label=f'Exp 06: Harmonized (F1={harmonized_nsl_cic:.3f})')
             
-            # Add colorbar
-            cbar = plt.colorbar(scatter, ax=axes[0, 0])
-            cbar.set_label('Transfer Performance', fontsize=8)
+            axes[0, 0].set_title('NSL-KDD → CIC-IDS-2017 Transfer Performance', fontweight='bold', fontsize=10)
+            axes[0, 0].set_xlabel('Models', fontsize=9)
+            axes[0, 0].set_ylabel('Transfer Success Ratio / F1-Score', fontsize=9)
+            axes[0, 0].set_xticks(x)
+            axes[0, 0].set_xticklabels(models, rotation=45, ha='right', fontsize=8)
+            axes[0, 0].legend(fontsize=8)
+            axes[0, 0].grid(True, alpha=0.3, axis='y')
+            
+            # Add value labels
+            for i, (bar, val) in enumerate(zip(bars1, standard_nsl_cic)):
+                height = bar.get_height()
+                axes[0, 0].text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                               f'{val:.3f}', ha='center', va='bottom', fontsize=7)
         
-        # 2. Standard vs Harmonized Performance Comparison
-        if cv_results and harmonized_data:
-            comparison_data = []
+        # 2. Transfer Performance Comparison: CIC→NSL
+        if 'Bidirectional' in cross_dataset_results and 'results' in harmonized_data:
+            standard_cic_nsl = bidirectional['CIC_to_NSL_Transfer_Ratio'].values
             
-            # Extract standard CV performance
-            if 'NSL-KDD' in cv_results:
-                nsl_cv = cv_results['NSL-KDD']
-                for _, row in nsl_cv.iterrows():
-                    model = row['Model'].replace('_', ' ').title()
-                    f1_score = float(row['F1-Score'].split(' ±')[0])
-                    comparison_data.append({
-                        'Model': model, 
-                        'Method': 'Standard CV', 
-                        'F1_Score': f1_score,
-                        'Dataset': 'NSL-KDD'
-                    })
+            # Get harmonized CIC→NSL result
+            harmonized_cic_nsl = None
+            for result in harmonized_results:
+                if result['source'] == 'CIC-IDS-2017' and result['target'] == 'NSL-KDD':
+                    harmonized_cic_nsl = result['target_f1']
+                    break
             
-            if 'CIC-IDS-2017' in cv_results:
-                cic_cv = cv_results['CIC-IDS-2017']
-                for _, row in cic_cv.iterrows():
-                    model = row['Model'].replace('_cic', '').replace('_', ' ').title()
-                    f1_score = float(row['F1-Score'].split(' ±')[0])
-                    comparison_data.append({
-                        'Model': model, 
-                        'Method': 'Standard CV', 
-                        'F1_Score': f1_score,
-                        'Dataset': 'CIC-IDS-2017'
-                    })
+            bars2 = axes[0, 1].bar(x - width/2, standard_cic_nsl, width,
+                                  label='Exp 05: Standard Cross-Dataset',
+                                  color=self.colors['secondary'], alpha=0.8)
             
-            # Add harmonized performance if available
-            if 'experiments' in harmonized_data:
-                for exp in harmonized_data['experiments']:
-                    if 'results' in exp and exp['results']:
-                        model = exp.get('model', 'Unknown')
-                        f1_score = exp['results'].get('target_f1', 0)
-                        if f1_score > 0:
-                            comparison_data.append({
-                                'Model': model,
-                                'Method': 'Harmonized',
-                                'F1_Score': f1_score,
-                                'Dataset': 'Cross-Dataset'
-                            })
+            # Add harmonized result as horizontal line
+            if harmonized_cic_nsl:
+                axes[0, 1].axhline(y=harmonized_cic_nsl, color=self.colors['accent'],
+                                  linestyle='--', linewidth=2, alpha=0.8,
+                                  label=f'Exp 06: Harmonized (F1={harmonized_cic_nsl:.3f})')
             
-            if comparison_data:
-                df_comparison = pd.DataFrame(comparison_data)
+            axes[0, 1].set_title('CIC-IDS-2017 → NSL-KDD Transfer Performance', fontweight='bold', fontsize=10)
+            axes[0, 1].set_xlabel('Models', fontsize=9)
+            axes[0, 1].set_ylabel('Transfer Success Ratio / F1-Score', fontsize=9)
+            axes[0, 1].set_xticks(x)
+            axes[0, 1].set_xticklabels(models, rotation=45, ha='right', fontsize=8)
+            axes[0, 1].legend(fontsize=8)
+            axes[0, 1].grid(True, alpha=0.3, axis='y')
+            
+            # Add value labels
+            for i, (bar, val) in enumerate(zip(bars2, standard_cic_nsl)):
+                height = bar.get_height()
+                axes[0, 1].text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                               f'{val:.3f}', ha='center', va='bottom', fontsize=7)
+        
+        # 3. Cross-Validation vs Target Performance Analysis
+        if 'results' in harmonized_data:
+            cv_performance = []
+            target_performance = []
+            directions = []
+            
+            for result in harmonized_results:
+                if result['cv_f1_mean'] > 0:  # Valid CV result
+                    cv_performance.append(result['cv_f1_mean'])
+                    target_performance.append(result['target_f1'])
+                    directions.append(f"{result['source'][:3]}→{result['target'][:3]}")
+            
+            if cv_performance and target_performance:
+                x_pos = np.arange(len(directions))
+                width = 0.35
                 
-                # Create grouped bar chart
-                models_unique = df_comparison['Model'].unique()[:6]  # Top 6 models
-                x = np.arange(len(models_unique))
-                width = 0.25
+                bars1 = axes[1, 0].bar(x_pos - width/2, cv_performance, width,
+                                      label='Source CV Performance', color=self.colors['primary'], alpha=0.8)
+                bars2 = axes[1, 0].bar(x_pos + width/2, target_performance, width,
+                                      label='Target Performance', color=self.colors['warning'], alpha=0.8)
                 
-                methods = df_comparison['Method'].unique()
-                colors = [self.colors['primary'], self.colors['secondary'], self.colors['accent']]
+                axes[1, 0].set_title('Harmonized: CV vs Target Performance', fontweight='bold', fontsize=10)
+                axes[1, 0].set_xlabel('Transfer Direction', fontsize=9)
+                axes[1, 0].set_ylabel('F1-Score', fontsize=9)
+                axes[1, 0].set_xticks(x_pos)
+                axes[1, 0].set_xticklabels(directions, fontsize=8)
+                axes[1, 0].legend(fontsize=8)
+                axes[1, 0].grid(True, alpha=0.3, axis='y')
                 
-                for i, method in enumerate(methods):
-                    method_data = df_comparison[df_comparison['Method'] == method]
-                    values = [method_data[method_data['Model'] == model]['F1_Score'].mean() 
-                             if not method_data[method_data['Model'] == model].empty else 0 
-                             for model in models_unique]
-                    
-                    axes[0, 1].bar(x + i*width, values, width, 
-                                   label=method, color=colors[i % len(colors)], alpha=0.8)
-                
-                axes[0, 1].set_title('Standard vs Harmonized Performance', fontweight='bold', fontsize=10)
-                axes[0, 1].set_xlabel('Models', fontsize=9)
-                axes[0, 1].set_ylabel('F1-Score', fontsize=9)
-                axes[0, 1].set_xticks(x + width)
-                axes[0, 1].set_xticklabels(models_unique, rotation=45, ha='right', fontsize=8)
-                axes[0, 1].legend(fontsize=8)
-                axes[0, 1].grid(True, alpha=0.3, axis='y')
+                # Add value labels
+                for bars in [bars1, bars2]:
+                    for bar in bars:
+                        height = bar.get_height()
+                        axes[1, 0].text(bar.get_x() + bar.get_width()/2., height + 0.01,
+                                       f'{height:.3f}', ha='center', va='bottom', fontsize=7)
         
-        # 3. Feature Engineering Impact Analysis
-        datasets = ['NSL-KDD\n(41 features)', 'CIC-IDS-2017\n(78 features)']
+        # 4. Key Findings and Insights
+        findings_text = "Key Experimental Findings:\n\n"
+        findings_text += "📊 Experiment 05 (Standard Cross-Dataset):\n"
+        findings_text += "  • Direct model transfer\n"
+        findings_text += "  • Feature misalignment issues\n"
+        findings_text += "  • Variable performance across models\n\n"
+        findings_text += "📊 Experiment 06 (Harmonized):\n"
+        findings_text += "  • Feature space alignment\n"
+        findings_text += "  • Consistent evaluation framework\n"
+        findings_text += "  • Cross-validation validation\n\n"
         
-        # Simulate feature complexity vs performance based on actual results
-        feature_counts = [41, 78]
-        avg_performance = [0.995, 0.992]  # Based on actual CV results
-        feature_efficiency = [p/f*1000 for p, f in zip(avg_performance, feature_counts)]  # Performance per feature
+        if harmonized_nsl_cic and harmonized_cic_nsl:
+            findings_text += "🔍 Performance Insights:\n"
+            findings_text += f"  • NSL→CIC: Harmonized F1={harmonized_nsl_cic:.3f}\n"
+            findings_text += f"  • CIC→NSL: Harmonized F1={harmonized_cic_nsl:.3f}\n"
+            findings_text += "  • Asymmetric transfer performance\n"
+            findings_text += "  • Domain adaptation challenges"
         
-        # Create dual-axis plot
-        ax1 = axes[1, 0]
-        ax2 = ax1.twinx()
-        
-        bars1 = ax1.bar([x - 0.2 for x in range(len(datasets))], avg_performance, 
-                        width=0.4, color=self.colors['primary'], alpha=0.7, label='Avg Performance')
-        bars2 = ax2.bar([x + 0.2 for x in range(len(datasets))], feature_efficiency, 
-                        width=0.4, color=self.colors['secondary'], alpha=0.7, label='Efficiency')
-        
-        ax1.set_title('Feature Count vs Model Performance', fontweight='bold', fontsize=10)
-        ax1.set_ylabel('Average F1-Score', fontsize=9, color=self.colors['primary'])
-        ax2.set_ylabel('Performance/Feature Ratio', fontsize=9, color=self.colors['secondary'])
-        ax1.set_xticks(range(len(datasets)))
-        ax1.set_xticklabels(datasets, fontsize=8)
-        
-        # Add value labels
-        for bar, val in zip(bars1, avg_performance):
-            height = bar.get_height()
-            ax1.text(bar.get_x() + bar.get_width()/2., height + 0.001,
-                    f'{val:.3f}', ha='center', va='bottom', fontsize=8)
-        
-        for bar, val in zip(bars2, feature_efficiency):
-            height = bar.get_height()
-            ax2.text(bar.get_x() + bar.get_width()/2., height + 0.5,
-                    f'{val:.1f}', ha='center', va='bottom', fontsize=8)
-        
-        # 4. Harmonization Benefits Summary
-        benefits_text = "Key Harmonization Insights:\n\n"
-        benefits_text += "✓ Complex Models (XGBoost, LightGBM):\n"
-        benefits_text += "  • Better transfer performance\n"
-        benefits_text += "  • Handle feature misalignment well\n\n"
-        benefits_text += "✓ Feature Efficiency Analysis:\n"
-        benefits_text += "  • NSL-KDD: Higher efficiency ratio\n"
-        benefits_text += "  • CIC-IDS-2017: More complex patterns\n\n"
-        benefits_text += "✓ Cross-Dataset Challenges:\n"
-        benefits_text += "  • Domain adaptation critical\n"
-        benefits_text += "  • Feature harmonization essential\n"
-        benefits_text += "  • Model complexity matters"
-        
-        axes[1, 1].text(0.05, 0.95, benefits_text, transform=axes[1, 1].transAxes,
+        axes[1, 1].text(0.05, 0.95, findings_text, transform=axes[1, 1].transAxes,
                        fontsize=9, verticalalignment='top',
-                       bbox={'boxstyle': 'round', 'facecolor': self.colors['accent'], 'alpha': 0.1})
-        axes[1, 1].set_title('Harmonization Performance Insights', fontweight='bold', fontsize=10)
+                       bbox={'boxstyle': 'round', 'facecolor': self.colors['neutral'], 'alpha': 0.1})
+        axes[1, 1].set_title('Experimental Comparison Summary', fontweight='bold', fontsize=10)
         axes[1, 1].axis('off')
         
         plt.tight_layout(rect=[0, 0.03, 1, 0.95])
