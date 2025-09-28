@@ -977,76 +977,99 @@ class PaperFigureGenerator:
             print("❌ No harmonized evaluation results available")
             return None
         
-        fig, axes = plt.subplots(1, 2, figsize=(16, 6))
-        fig.suptitle('Harmonized Cross-Dataset Evaluation Results', fontsize=16, fontweight='bold')
+        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+        fig.suptitle('Harmonized Cross-Dataset Evaluation Summary', fontsize=14, fontweight='bold')
         
-        # Extract results from harmonized data structure
-        results_data = []
-        
-        # Parse the harmonized JSON structure
-        if 'results' in harmonized_data:
-            results_data = harmonized_data['results']
+        # 1. Dataset statistics comparison
+        if 'nsl_summary' in harmonized_data and 'cic_summary' in harmonized_data:
+            nsl_stats = harmonized_data['nsl_summary']
+            cic_stats = harmonized_data['cic_summary']
+            
+            # Compare dataset sizes and characteristics
+            datasets = ['NSL-KDD', 'CIC-IDS-2017']
+            rows = [nsl_stats.get('rows', 0), cic_stats.get('rows', 0)]
+            
+            bars = axes[0, 0].bar(datasets, rows, color=[self.colors['primary'], self.colors['secondary']], alpha=0.8)
+            axes[0, 0].set_title('Dataset Size Comparison', fontweight='bold', fontsize=10)
+            axes[0, 0].set_ylabel('Number of Records', fontsize=9)
+            axes[0, 0].grid(True, alpha=0.3, axis='y')
+            
+            # Add value labels
+            for bar, val in zip(bars, rows):
+                height = bar.get_height()
+                axes[0, 0].text(bar.get_x() + bar.get_width()/2., height + height*0.01,
+                               f'{val:,}', ha='center', va='bottom', fontsize=9, fontweight='bold')
         else:
-            # Try to extract from nested structure
-            for key, value in harmonized_data.items():
-                if key.endswith('_results') and isinstance(value, dict):
-                    source_target = key.replace('_results', '')
-                    if '→' in source_target:
-                        source, target = source_target.split('→')
-                        results_data.append({
-                            'source': source,
-                            'target': target,
-                            'target_accuracy': value.get('target_accuracy', 0),
-                            'target_f1': value.get('target_f1', 0),
-                            'training_method': value.get('training_method', 'regular')
-                        })
+            axes[0, 0].text(0.5, 0.5, 'Dataset statistics not available', 
+                           ha='center', va='center', transform=axes[0, 0].transAxes,
+                           fontsize=12, style='italic')
+            axes[0, 0].set_title('Dataset Statistics', fontweight='bold', fontsize=10)
         
-        if not results_data:
-            print("⚠️ No parseable results found in harmonized data")
-            return None
         
-        # 1. Transfer Performance by Direction
-        directions = [f"{r['source']}→{r['target']}" for r in results_data]
-        accuracies = [r['target_accuracy'] for r in results_data]
-        f1_scores = [r['target_f1'] for r in results_data]
+        # 2. Configuration summary from harmonized data
+        if harmonized_data:
+            config_text = f"Harmonized Evaluation Configuration:\n\n"
+            config_text += f"Schema Version: {harmonized_data.get('schema_version', 'N/A')}\n"
+            config_text += f"Max Samples: {harmonized_data.get('max_samples', 'N/A'):,}\n"
+            config_text += f"Batch Size: {harmonized_data.get('batch_size', 'N/A'):,}\n"
+            config_text += f"Memory Mode: {harmonized_data.get('memory_mode', 'N/A')}\n"
+            config_text += f"Training Method: {harmonized_data.get('training_method', 'N/A')}"
+            
+            axes[0, 1].text(0.05, 0.95, config_text, transform=axes[0, 1].transAxes,
+                           fontsize=10, verticalalignment='top', fontfamily='monospace',
+                           bbox=dict(boxstyle='round', facecolor=self.colors['neutral'], alpha=0.1))
+            axes[0, 1].set_title('Harmonized Configuration', fontweight='bold', fontsize=10)
+            axes[0, 1].axis('off')
         
-        x = np.arange(len(directions))
-        width = 0.35
+        # 3. Show dataset feature comparison if available
+        if 'nsl_summary' in harmonized_data and 'cic_summary' in harmonized_data:
+            nsl_features = harmonized_data['nsl_summary'].get('feature_count', 0)
+            cic_features = harmonized_data['cic_summary'].get('feature_count', 0)
+            
+            datasets = ['NSL-KDD', 'CIC-IDS-2017']
+            features = [nsl_features, cic_features]
+            
+            if features[0] > 0 or features[1] > 0:
+                axes[1, 0].bar(datasets, features, color=[self.colors['accent'], self.colors['warning']], alpha=0.8)
+                axes[1, 0].set_title('Feature Count Comparison', fontweight='bold', fontsize=10)
+                axes[1, 0].set_ylabel('Number of Features', fontsize=9)
+                axes[1, 0].grid(True, alpha=0.3, axis='y')
+                
+                # Add value labels
+                for i, val in enumerate(features):
+                    if val > 0:
+                        axes[1, 0].text(i, val + val*0.01, f'{val}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+            else:
+                axes[1, 0].text(0.5, 0.5, 'Feature information not available', 
+                               ha='center', va='center', transform=axes[1, 0].transAxes,
+                               fontsize=12, style='italic')
+                axes[1, 0].set_title('Feature Comparison', fontweight='bold', fontsize=10)
         
-        axes[0].bar(x - width/2, accuracies, width, label='Accuracy', 
-                   color=self.colors['primary'], alpha=0.8)
-        axes[0].bar(x + width/2, f1_scores, width, label='F1-Score', 
-                   color=self.colors['secondary'], alpha=0.8)
+        # 4. Display key harmonization metrics if available
+        metrics_text = "Harmonization Process Metrics:\n\n"
+        if 'evaluation_summary' in harmonized_data:
+            eval_summary = harmonized_data['evaluation_summary']
+            metrics_text += f"Total Experiments: {eval_summary.get('total_experiments', 'N/A')}\n"
+            metrics_text += f"Successful Runs: {eval_summary.get('successful_runs', 'N/A')}\n"
+            metrics_text += f"Average Runtime: {eval_summary.get('avg_runtime', 'N/A')}\n"
+        else:
+            metrics_text += "Harmonization enables consistent\nevaluation across different datasets\nby standardizing feature spaces\nand training procedures.\n\n"
+            metrics_text += "This ensures fair comparison\nof model performance across\nheterogeneous network datasets."
         
-        axes[0].set_title('Harmonized Transfer Performance', fontweight='bold')
-        axes[0].set_xlabel('Transfer Direction')
-        axes[0].set_ylabel('Performance Score')
-        axes[0].set_xticks(x)
-        axes[0].set_xticklabels(directions)
-        axes[0].legend()
-        axes[0].grid(True, alpha=0.3)
+        axes[1, 1].text(0.05, 0.95, metrics_text, transform=axes[1, 1].transAxes,
+                       fontsize=10, verticalalignment='top',
+                       bbox=dict(boxstyle='round', facecolor=self.colors['accent'], alpha=0.1))
+        axes[1, 1].set_title('Harmonization Benefits', fontweight='bold', fontsize=10)
+        axes[1, 1].axis('off')
         
-        # Add value labels
-        for i, (acc, f1) in enumerate(zip(accuracies, f1_scores)):
-            axes[0].text(i - width/2, acc + 0.01, f'{acc:.3f}', ha='center', fontsize=9)
-            axes[0].text(i + width/2, f1 + 0.01, f'{f1:.3f}', ha='center', fontsize=9)
-        
-        # 2. Training Method Comparison (if available)
-        training_methods = [r.get('training_method', 'regular') for r in results_data]
-        method_counts = pd.Series(training_methods).value_counts()
-        
-        colors_list = [self.colors['accent'], self.colors['success']][:len(method_counts)]
-        axes[1].pie(method_counts.values, labels=method_counts.index, autopct='%1.0f%%',
-                   colors=colors_list, startangle=90)
-        axes[1].set_title('Training Methods Distribution', fontweight='bold')
-        
-        plt.tight_layout()
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
         
         if save_path:
-            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
         else:
-            plt.savefig(self.output_dir / "harmonized_evaluation_summary.png", dpi=300, bbox_inches='tight')
+            plt.savefig(self.output_dir / "harmonized_evaluation_summary.png", dpi=300, bbox_inches='tight', facecolor='white')
         
+        print(f"📊 Harmonized evaluation summary saved successfully")
         return fig
     
     def create_dataset_comparison_overview(self, save_path: Optional[str] = None) -> plt.Figure:
