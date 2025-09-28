@@ -331,84 +331,138 @@ class PaperFigureGenerator:
         all_results = pd.concat([baseline_results, advanced_results], ignore_index=True)
         
         # Create figure with subplots
-        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+        fig, axes = plt.subplots(2, 2, figsize=(18, 14))
         fig.suptitle('Machine Learning Models Performance Comparison\nNSL-KDD Dataset', 
-                     fontsize=16, fontweight='bold')
+                     fontsize=14, fontweight='bold')
         
-        # Sort by accuracy for consistent ordering
-        all_results = all_results.sort_values('accuracy', ascending=True)
+        # Sort by accuracy for consistent ordering (descending for better readability)
+        all_results = all_results.sort_values('accuracy', ascending=False)
+        
+        # Clean model names for better display
+        all_results['display_name'] = all_results['model_name'].str.replace('_', ' ').str.title()
         
         # Color mapping by category
         category_colors = {
             'Traditional ML': self.colors['primary'],
             'Ensemble Methods': self.colors['secondary'],
-            'Neural Networks': self.colors['accent']
+            'Neural Networks': self.colors['accent'],
+            'Other': self.colors['neutral']
         }
         colors = [category_colors.get(cat, self.colors['neutral']) for cat in all_results['category']]
         
-        # 1. Accuracy comparison
-        axes[0, 0].barh(all_results['model_name'], all_results['accuracy'], color=colors)
-        axes[0, 0].set_title('Model Accuracy Comparison', fontweight='bold')
-        axes[0, 0].set_xlabel('Accuracy')
-        axes[0, 0].set_xlim(0.8, 1.0)
+        # 1. Accuracy comparison (horizontal bars, top performers first)
+        y_pos = np.arange(len(all_results))
+        axes[0, 0].barh(y_pos, all_results['accuracy'], color=colors, alpha=0.8, edgecolor='white', linewidth=0.5)
+        axes[0, 0].set_yticks(y_pos)
+        axes[0, 0].set_yticklabels(all_results['display_name'], fontsize=8)
+        axes[0, 0].set_title('Model Accuracy Comparison', fontweight='bold', fontsize=10)
+        axes[0, 0].set_xlabel('Accuracy', fontsize=9)
         
-        # Add value labels
+        # Set x-axis limits based on data range
+        min_acc = all_results['accuracy'].min()
+        if min_acc > 0.8:
+            axes[0, 0].set_xlim(max(0.0, min_acc - 0.1), 1.02)
+        else:
+            axes[0, 0].set_xlim(0.0, 1.02)
+        
+        # Add value labels with better positioning
         for i, v in enumerate(all_results['accuracy']):
-            axes[0, 0].text(v + 0.005, i, f'{v:.3f}', va='center', fontsize=9)
+            axes[0, 0].text(v + 0.01, i, f'{v:.3f}', va='center', ha='left', fontsize=7, fontweight='bold')
+        
+        axes[0, 0].grid(True, alpha=0.3, axis='x')
         
         # 2. F1-Score comparison
-        axes[0, 1].barh(all_results['model_name'], all_results['f1_score'], color=colors)
-        axes[0, 1].set_title('F1-Score Comparison', fontweight='bold')
-        axes[0, 1].set_xlabel('F1-Score')
-        axes[0, 1].set_xlim(0.8, 1.0)
+        axes[0, 1].barh(y_pos, all_results['f1_score'], color=colors, alpha=0.8, edgecolor='white', linewidth=0.5)
+        axes[0, 1].set_yticks(y_pos)
+        axes[0, 1].set_yticklabels(all_results['display_name'], fontsize=8)
+        axes[0, 1].set_title('F1-Score Comparison', fontweight='bold', fontsize=10)
+        axes[0, 1].set_xlabel('F1-Score', fontsize=9)
+        
+        min_f1 = all_results['f1_score'].min()
+        if min_f1 > 0.8:
+            axes[0, 1].set_xlim(max(0.0, min_f1 - 0.1), 1.02)
+        else:
+            axes[0, 1].set_xlim(0.0, 1.02)
         
         for i, v in enumerate(all_results['f1_score']):
-            axes[0, 1].text(v + 0.005, i, f'{v:.3f}', va='center', fontsize=9)
+            axes[0, 1].text(v + 0.01, i, f'{v:.3f}', va='center', ha='left', fontsize=7, fontweight='bold')
         
-        # 3. Precision vs Recall scatter
-        axes[1, 0].scatter(all_results['recall'], all_results['precision'], 
-                          c=[category_colors.get(cat, self.colors['neutral']) for cat in all_results['category']], 
-                          s=100, alpha=0.7)
+        axes[0, 1].grid(True, alpha=0.3, axis='x')
         
-        # Add model name labels
+        # 3. Precision vs Recall scatter (improved)
+        scatter_colors = [category_colors.get(cat, self.colors['neutral']) for cat in all_results['category']]
+        scatter = axes[1, 0].scatter(all_results['recall'], all_results['precision'], 
+                                    c=scatter_colors, s=120, alpha=0.7, edgecolors='white', linewidth=1)
+        
+        # Add model name labels with better positioning to avoid overlaps
+        texts = []
         for i, row in all_results.iterrows():
-            axes[1, 0].annotate(row['model_name'], 
-                              (row['recall'], row['precision']),
-                              xytext=(5, 5), textcoords='offset points',
-                              fontsize=8, alpha=0.7)
+            text = axes[1, 0].annotate(row['display_name'], 
+                                      (row['recall'], row['precision']),
+                                      xytext=(3, 3), textcoords='offset points',
+                                      fontsize=6, alpha=0.8, ha='left')
+            texts.append(text)
         
-        axes[1, 0].set_title('Precision vs Recall', fontweight='bold')
-        axes[1, 0].set_xlabel('Recall')
-        axes[1, 0].set_ylabel('Precision')
-        axes[1, 0].set_xlim(0.8, 1.02)
-        axes[1, 0].set_ylim(0.8, 1.02)
+        axes[1, 0].set_title('Precision vs Recall', fontweight='bold', fontsize=10)
+        axes[1, 0].set_xlabel('Recall', fontsize=9)
+        axes[1, 0].set_ylabel('Precision', fontsize=9)
+        
+        # Set limits based on data range
+        min_recall, max_recall = all_results['recall'].min(), all_results['recall'].max()
+        min_precision, max_precision = all_results['precision'].min(), all_results['precision'].max()
+        
+        x_margin = (max_recall - min_recall) * 0.1 if max_recall > min_recall else 0.1
+        y_margin = (max_precision - min_precision) * 0.1 if max_precision > min_precision else 0.1
+        
+        axes[1, 0].set_xlim(max(0, min_recall - x_margin), min(1.05, max_recall + x_margin))
+        axes[1, 0].set_ylim(max(0, min_precision - y_margin), min(1.05, max_precision + y_margin))
         
         # Add diagonal line (perfect balance)
-        axes[1, 0].plot([0.8, 1.0], [0.8, 1.0], 'k--', alpha=0.3)
+        lim_min = max(axes[1, 0].get_xlim()[0], axes[1, 0].get_ylim()[0])
+        lim_max = min(axes[1, 0].get_xlim()[1], axes[1, 0].get_ylim()[1])
+        axes[1, 0].plot([lim_min, lim_max], [lim_min, lim_max], 'k--', alpha=0.3, linewidth=1)
+        axes[1, 0].grid(True, alpha=0.3)
         
-        # 4. ROC-AUC comparison (if available)
+        # 4. ROC-AUC comparison (if available) or model distribution
         if 'roc_auc' in all_results.columns:
-            axes[1, 1].barh(all_results['model_name'], all_results['roc_auc'], color=colors)
-            axes[1, 1].set_title('ROC-AUC Comparison', fontweight='bold')
-            axes[1, 1].set_xlabel('ROC-AUC')
-            axes[1, 1].set_xlim(0.9, 1.0)
+            axes[1, 1].barh(y_pos, all_results['roc_auc'], color=colors, alpha=0.8, edgecolor='white', linewidth=0.5)
+            axes[1, 1].set_yticks(y_pos)
+            axes[1, 1].set_yticklabels(all_results['display_name'], fontsize=8)
+            axes[1, 1].set_title('ROC-AUC Comparison', fontweight='bold', fontsize=10)
+            axes[1, 1].set_xlabel('ROC-AUC', fontsize=9)
+            
+            min_roc = all_results['roc_auc'].min()
+            if min_roc > 0.9:
+                axes[1, 1].set_xlim(max(0.0, min_roc - 0.05), 1.02)
+            else:
+                axes[1, 1].set_xlim(0.0, 1.02)
             
             for i, v in enumerate(all_results['roc_auc']):
-                axes[1, 1].text(v + 0.002, i, f'{v:.3f}', va='center', fontsize=9)
+                axes[1, 1].text(v + 0.005, i, f'{v:.3f}', va='center', ha='left', fontsize=7, fontweight='bold')
+            
+            axes[1, 1].grid(True, alpha=0.3, axis='x')
         else:
             # Alternative: Model category distribution
             category_counts = all_results['category'].value_counts()
-            axes[1, 1].pie(category_counts.values, labels=category_counts.index, 
-                          colors=[category_colors.get(cat, self.colors['neutral']) for cat in category_counts.index],
-                          autopct='%1.0f%%')
-            axes[1, 1].set_title('Model Categories Distribution', fontweight='bold')
+            wedges, texts_pie, autotexts = axes[1, 1].pie(category_counts.values, 
+                                                          labels=category_counts.index, 
+                                                          colors=[category_colors.get(cat, self.colors['neutral']) for cat in category_counts.index],
+                                                          autopct='%1.1f%%',
+                                                          startangle=90)
+            axes[1, 1].set_title('Model Categories Distribution', fontweight='bold', fontsize=10)
+            
+            # Improve pie chart text
+            for autotext in autotexts:
+                autotext.set_color('white')
+                autotext.set_fontweight('bold')
+                autotext.set_fontsize(8)
         
-        # Create legend
-        legend_elements = [plt.Rectangle((0,0),1,1, facecolor=color, label=category) 
-                          for category, color in category_colors.items()]
-        fig.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(0.98, 0.98))
+        # Create improved legend
+        legend_elements = [plt.Rectangle((0,0),1,1, facecolor=color, edgecolor='white', label=category) 
+                          for category, color in category_colors.items() if category in all_results['category'].values]
+        fig.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(0.98, 0.98), fontsize=8)
         
-        plt.tight_layout()
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])  # Leave space for suptitle
         
         # Save figure
         if save_path is None:
@@ -703,45 +757,66 @@ class PaperFigureGenerator:
             print("❌ No cross-validation results available")
             return None
         
-        fig, axes = plt.subplots(1, len(cv_results), figsize=(8*len(cv_results), 6))
+        # Use single plot if only one dataset, otherwise subplot layout
         if len(cv_results) == 1:
-            axes = [axes]
+            fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+            axes = [ax]
+        else:
+            fig, axes = plt.subplots(1, len(cv_results), figsize=(6*len(cv_results), 8))
+            if not isinstance(axes, (list, np.ndarray)):
+                axes = [axes]
         
-        fig.suptitle('Cross-Validation Performance Comparison', fontsize=16, fontweight='bold')
+        fig.suptitle('Cross-Validation Performance Comparison', fontsize=14, fontweight='bold')
         
         for i, (dataset, df) in enumerate(cv_results.items()):
             if df.empty:
+                axes[i].text(0.5, 0.5, f'No data available for {dataset}', 
+                           ha='center', va='center', transform=axes[i].transAxes,
+                           fontsize=12, style='italic')
+                axes[i].set_title(f'{dataset} Cross-Validation', fontweight='bold')
                 continue
                 
             # Parse F1-Score (remove ± part)
             f1_scores = df['F1-Score'].str.split(' ±').str[0].astype(float)
             
-            # Sort by F1-Score
-            sorted_indices = f1_scores.argsort()
-            sorted_models = df.iloc[sorted_indices]['Model']
+            # Sort by F1-Score in descending order (best first)
+            sorted_indices = f1_scores.argsort()[::-1]
+            sorted_models = df.iloc[sorted_indices]['Model'].str.replace('_', ' ').str.title()
             sorted_f1 = f1_scores.iloc[sorted_indices]
             
-            # Create bar plot
-            bars = axes[i].barh(range(len(sorted_models)), sorted_f1, 
-                               color=self.colors['primary'], alpha=0.7)
+            # Create horizontal bar plot with better colors
+            y_pos = np.arange(len(sorted_models))
+            bars = axes[i].barh(y_pos, sorted_f1, 
+                               color=self.colors['primary'], alpha=0.8, edgecolor='white', linewidth=0.5)
             
             # Customize plot
-            axes[i].set_yticks(range(len(sorted_models)))
-            axes[i].set_yticklabels(sorted_models)
-            axes[i].set_xlabel('F1-Score')
-            axes[i].set_title(f'{dataset} Cross-Validation', fontweight='bold')
-            axes[i].set_xlim(0.9, 1.0)
+            axes[i].set_yticks(y_pos)
+            axes[i].set_yticklabels(sorted_models, fontsize=8)
+            axes[i].set_xlabel('F1-Score', fontsize=9)
+            axes[i].set_title(f'{dataset} Cross-Validation', fontweight='bold', fontsize=10)
             
-            # Add value labels
+            # Set appropriate x-axis limits based on data range
+            min_score = sorted_f1.min()
+            if min_score > 0.9:
+                axes[i].set_xlim(0.85, 1.0)
+            else:
+                axes[i].set_xlim(0, 1.0)
+            
+            # Add value labels with better positioning
             for j, v in enumerate(sorted_f1):
-                axes[i].text(v + 0.002, j, f'{v:.3f}', va='center', fontsize=9)
+                axes[i].text(v + 0.005, j, f'{v:.3f}', 
+                           va='center', ha='left', fontsize=8, fontweight='bold')
+            
+            # Improve grid
+            axes[i].grid(True, alpha=0.3, axis='x')
+            axes[i].set_axisbelow(True)
         
-        plt.tight_layout()
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])  # Leave space for suptitle
         
         if save_path:
-            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
         else:
-            plt.savefig(self.output_dir / "cross_validation_comparison.png", dpi=300, bbox_inches='tight')
+            plt.savefig(self.output_dir / "cross_validation_comparison.png", dpi=300, bbox_inches='tight', facecolor='white')
         
         return fig
     
@@ -974,58 +1049,71 @@ class PaperFigureGenerator:
             return None
         
         fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-        fig.suptitle('Dataset Performance Comparison Overview', fontsize=16, fontweight='bold')
+        fig.suptitle('Dataset Performance Comparison Overview', fontsize=14, fontweight='bold')
         
-        # 1. Accuracy comparison by dataset
-        datasets = all_results['dataset'].unique()
-        dataset_colors = {datasets[i]: list(self.colors.values())[i] for i in range(len(datasets))}
+        # Get datasets and create better color scheme
+        datasets = sorted(all_results['dataset'].unique())
+        dataset_colors = {datasets[i]: self.qual_colors[i] for i in range(len(datasets))}
         
-        for dataset in datasets:
-            dataset_data = all_results[all_results['dataset'] == dataset]
-            axes[0, 0].scatter(dataset_data.index, dataset_data['accuracy'], 
-                              label=dataset, color=dataset_colors[dataset], s=60, alpha=0.7)
+        # 1. Accuracy comparison by dataset (improved scatter plot)
+        for i, dataset in enumerate(datasets):
+            dataset_data = all_results[all_results['dataset'] == dataset].reset_index(drop=True)
+            axes[0, 0].scatter(range(len(dataset_data)), dataset_data['accuracy'], 
+                              label=dataset, color=dataset_colors[dataset], s=80, alpha=0.7, edgecolors='white')
         
-        axes[0, 0].set_title('Accuracy by Dataset', fontweight='bold')
-        axes[0, 0].set_xlabel('Model Index')
-        axes[0, 0].set_ylabel('Accuracy')
-        axes[0, 0].legend()
+        axes[0, 0].set_title('Accuracy by Dataset', fontweight='bold', fontsize=10)
+        axes[0, 0].set_xlabel('Model Index', fontsize=9)
+        axes[0, 0].set_ylabel('Accuracy', fontsize=9)
+        axes[0, 0].legend(fontsize=8)
         axes[0, 0].grid(True, alpha=0.3)
+        axes[0, 0].set_ylim(0.0, 1.05)
         
-        # 2. F1-Score comparison by dataset
-        for dataset in datasets:
-            dataset_data = all_results[all_results['dataset'] == dataset]
-            axes[0, 1].scatter(dataset_data.index, dataset_data['f1_score'], 
-                              label=dataset, color=dataset_colors[dataset], s=60, alpha=0.7)
+        # 2. F1-Score comparison by dataset (improved scatter plot)
+        for i, dataset in enumerate(datasets):
+            dataset_data = all_results[all_results['dataset'] == dataset].reset_index(drop=True)
+            axes[0, 1].scatter(range(len(dataset_data)), dataset_data['f1_score'], 
+                              label=dataset, color=dataset_colors[dataset], s=80, alpha=0.7, edgecolors='white')
         
-        axes[0, 1].set_title('F1-Score by Dataset', fontweight='bold')
-        axes[0, 1].set_xlabel('Model Index')
-        axes[0, 1].set_ylabel('F1-Score')
-        axes[0, 1].legend()
+        axes[0, 1].set_title('F1-Score by Dataset', fontweight='bold', fontsize=10)
+        axes[0, 1].set_xlabel('Model Index', fontsize=9)
+        axes[0, 1].set_ylabel('F1-Score', fontsize=9)
+        axes[0, 1].legend(fontsize=8)
         axes[0, 1].grid(True, alpha=0.3)
+        axes[0, 1].set_ylim(0.0, 1.05)
         
-        # 3. Model category distribution by dataset
+        # 3. Model category distribution by dataset (improved bar chart)
         category_dataset = all_results.groupby(['dataset', 'category']).size().unstack(fill_value=0)
-        category_dataset.plot(kind='bar', ax=axes[1, 0], color=[self.colors['primary'], self.colors['secondary'], self.colors['accent']])
-        axes[1, 0].set_title('Model Categories by Dataset', fontweight='bold')
-        axes[1, 0].set_xlabel('Dataset')
-        axes[1, 0].set_ylabel('Number of Models')
-        axes[1, 0].legend(title='Model Category')
-        axes[1, 0].tick_params(axis='x', rotation=0)
+        category_colors_list = [self.colors['primary'], self.colors['secondary'], self.colors['accent']]
+        category_dataset.plot(kind='bar', ax=axes[1, 0], color=category_colors_list, width=0.8)
+        axes[1, 0].set_title('Model Categories by Dataset', fontweight='bold', fontsize=10)
+        axes[1, 0].set_xlabel('Dataset', fontsize=9)
+        axes[1, 0].set_ylabel('Number of Models', fontsize=9)
+        axes[1, 0].legend(title='Model Category', fontsize=8, title_fontsize=8)
+        axes[1, 0].tick_params(axis='x', rotation=0, labelsize=8)
+        axes[1, 0].grid(True, alpha=0.3, axis='y')
         
-        # 4. Performance distribution by dataset
+        # 4. Performance distribution by dataset (improved boxplot)
         accuracy_by_dataset = [all_results[all_results['dataset'] == d]['accuracy'].values for d in datasets]
-        axes[1, 1].boxplot(accuracy_by_dataset, labels=datasets)
-        axes[1, 1].set_title('Accuracy Distribution by Dataset', fontweight='bold')
-        axes[1, 1].set_xlabel('Dataset')
-        axes[1, 1].set_ylabel('Accuracy')
-        axes[1, 1].grid(True, alpha=0.3)
+        bp = axes[1, 1].boxplot(accuracy_by_dataset, labels=datasets, patch_artist=True)
         
-        plt.tight_layout()
+        # Color the boxplots
+        for patch, color in zip(bp['boxes'], [dataset_colors[d] for d in datasets]):
+            patch.set_facecolor(color)
+            patch.set_alpha(0.7)
+        
+        axes[1, 1].set_title('Accuracy Distribution by Dataset', fontweight='bold', fontsize=10)
+        axes[1, 1].set_xlabel('Dataset', fontsize=9)
+        axes[1, 1].set_ylabel('Accuracy', fontsize=9)
+        axes[1, 1].grid(True, alpha=0.3, axis='y')
+        axes[1, 1].tick_params(axis='x', labelsize=8)
+        axes[1, 1].set_ylim(0.0, 1.05)
+        
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])  # Leave space for suptitle
         
         if save_path:
-            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
         else:
-            plt.savefig(self.output_dir / "dataset_comparison_overview.png", dpi=300, bbox_inches='tight')
+            plt.savefig(self.output_dir / "dataset_comparison_overview.png", dpi=300, bbox_inches='tight', facecolor='white')
         
         return fig
     
@@ -1088,32 +1176,74 @@ class PaperFigureGenerator:
         return summary_table
     
     def _generate_latex_table(self, df: pd.DataFrame) -> str:
-        """Generate LaTeX table code"""
+        """Generate professional LaTeX table code"""
         
-        # Create column specification
-        num_cols = len(df.columns)
-        col_spec = '|' + 'c|' * num_cols
+        # Create column specification with proper alignment
+        col_alignments = {
+            'Rank': 'c',
+            'Model': 'l', 
+            'Category': 'l',
+            'Accuracy': 'c',
+            'Precision': 'c', 
+            'Recall': 'c',
+            'F1-Score': 'c',
+            'ROC-AUC': 'c'
+        }
         
-        latex_code = f"""
-\\begin{{table}}[htbp]
+        col_spec = ''
+        for col in df.columns:
+            alignment = col_alignments.get(col, 'c')
+            col_spec += alignment
+        
+        # Use booktabs for professional appearance
+        latex_code = """\\begin{table}[htbp]
 \\centering
-\\caption{{Machine Learning Models Performance Comparison on NSL-KDD Dataset}}
-\\label{{tab:model_performance}}
-\\begin{{tabular}}{{{col_spec}}}
-\\hline
+\\caption{Machine Learning Models Performance Comparison on NSL-KDD Dataset}
+\\label{tab:model_performance}
+\\begin{tabular}{""" + col_spec + """}
+\\toprule
 """
         
-        # Add header
-        header = ' & '.join([f"\\textbf{{{col}}}" for col in df.columns]) + ' \\\\\n'
+        # Add header with proper formatting
+        header_mapping = {
+            'Rank': '\\textbf{Rank}',
+            'Model': '\\textbf{Model}',
+            'Category': '\\textbf{Category}',
+            'Accuracy': '\\textbf{Accuracy}',
+            'Precision': '\\textbf{Precision}',
+            'Recall': '\\textbf{Recall}',
+            'F1-Score': '\\textbf{F1-Score}',
+            'ROC-AUC': '\\textbf{ROC-AUC}'
+        }
+        
+        headers = [header_mapping.get(col, f'\\textbf{{{col}}}') for col in df.columns]
+        header = ' & '.join(headers) + ' \\\\\n'
         latex_code += header
-        latex_code += '\\hline\n'
+        latex_code += '\\midrule\n'
         
-        # Add rows
-        for _, row in df.iterrows():
-            row_str = ' & '.join([str(val) for val in row.values]) + ' \\\\\n'
+        # Add rows with proper formatting
+        for i, (_, row) in enumerate(df.iterrows()):
+            # Format values appropriately
+            formatted_values = []
+            for col, val in zip(df.columns, row.values):
+                if col == 'Rank':
+                    formatted_values.append(str(val))
+                elif col in ['Model', 'Category']:
+                    # Escape underscores and special characters
+                    formatted_val = str(val).replace('_', '\\_').replace('&', '\\&')
+                    formatted_values.append(formatted_val)
+                else:
+                    # Numeric values
+                    formatted_values.append(str(val))
+            
+            row_str = ' & '.join(formatted_values) + ' \\\\\n'
             latex_code += row_str
+            
+            # Add midrule every 5 rows for better readability
+            if (i + 1) % 10 == 0 and i < len(df) - 1:
+                latex_code += '\\midrule\n'
         
-        latex_code += """\\hline
+        latex_code += """\\bottomrule
 \\end{tabular}
 \\end{table}
 """
