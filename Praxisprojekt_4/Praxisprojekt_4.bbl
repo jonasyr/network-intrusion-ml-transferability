@@ -529,6 +529,55 @@
       \verb 10.21608/ajahs.2024.341707
       \endverb
     \endentry
+    \entry{Tavallaee2009}{article}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=f0dac0844df885da6654f1543ea847c8}{%
+           family={Tavallaee},
+           familyi={T\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=051ea9d38cbefb376388f2d41170ed28}{%
+           family={Bagheri},
+           familyi={B\bibinitperiod},
+           given={E.},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ab361a4c3518e2c13bd5d8b87e314738}{%
+           family={Lu},
+           familyi={L\bibinitperiod},
+           given={W.},
+           giveni={W\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c15f7fdf79408185339d4551e562b81f}{%
+           family={Ghorbani},
+           familyi={G\bibinitperiod},
+           given={A.\bibnamedelimi A.},
+           giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{f3cda29d36f8f0dc5cd33e9a073814fc}
+      \strng{fullhash}{5abe073c0d132bede93659b2e5d06733}
+      \strng{bibnamehash}{5abe073c0d132bede93659b2e5d06733}
+      \strng{authorbibnamehash}{5abe073c0d132bede93659b2e5d06733}
+      \strng{authornamehash}{f3cda29d36f8f0dc5cd33e9a073814fc}
+      \strng{authorfullhash}{5abe073c0d132bede93659b2e5d06733}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2009 IEEE Symposium on Computational Intelligence for Security and Defense Applications}
+      \field{title}{A detailed analysis of the KDD CUP 99 data set}
+      \field{year}{2009}
+      \field{pages}{1\bibrangedash 6}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.1109/CISDA.2009.5356528
+      \endverb
+    \endentry
     \entry{Vinayakumar2019}{article}{}
       \name{author}{6}{}{%
         {{un=0,uniquepart=base,hash=6132de4a82b69e9c9a4b36edd1704420}{%
@@ -624,6 +673,56 @@
       \endverb
       \verb{url}
       \verb https://www.weforum.org/publications/global-risks-report-2024/
+      \endverb
+    \endentry
+    \entry{Zhou2020}{article}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=288f1cb2dd384cb5e91127507559fdbc}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Y.},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=112f6df29c44bf60dd57629dca6325c7}{%
+           family={Cheng},
+           familyi={C\bibinitperiod},
+           given={G.},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=969e89612b8c1fcb83d15a13b7447ff4}{%
+           family={Jiang},
+           familyi={J\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2de34a51d969d8d84c134eea2527be71}{%
+           family={Dai},
+           familyi={D\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{ead6f251afc769e383afca17647887af}
+      \strng{fullhash}{69fa348da636225afcef3bdce86a09d9}
+      \strng{bibnamehash}{69fa348da636225afcef3bdce86a09d9}
+      \strng{authorbibnamehash}{69fa348da636225afcef3bdce86a09d9}
+      \strng{authornamehash}{ead6f251afc769e383afca17647887af}
+      \strng{authorfullhash}{69fa348da636225afcef3bdce86a09d9}
+      \field{sortinit}{Z}
+      \field{sortinithash}{96892c0b0a36bb8557c40c49813d48b3}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Computer Networks}
+      \field{title}{Building an efficient intrusion detection system based on feature selection and ensemble classifier}
+      \field{volume}{174}
+      \field{year}{2020}
+      \field{pages}{107247}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1016/j.comnet.2020.107247
       \endverb
     \endentry
   \enddatalist
@@ -1138,6 +1237,55 @@
       \verb 10.21608/ajahs.2024.341707
       \endverb
     \endentry
+    \entry{Tavallaee2009}{article}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=f0dac0844df885da6654f1543ea847c8}{%
+           family={Tavallaee},
+           familyi={T\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=051ea9d38cbefb376388f2d41170ed28}{%
+           family={Bagheri},
+           familyi={B\bibinitperiod},
+           given={E.},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=ab361a4c3518e2c13bd5d8b87e314738}{%
+           family={Lu},
+           familyi={L\bibinitperiod},
+           given={W.},
+           giveni={W\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=c15f7fdf79408185339d4551e562b81f}{%
+           family={Ghorbani},
+           familyi={G\bibinitperiod},
+           given={A.\bibnamedelimi A.},
+           giveni={A\bibinitperiod\bibinitdelim A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{f3cda29d36f8f0dc5cd33e9a073814fc}
+      \strng{fullhash}{5abe073c0d132bede93659b2e5d06733}
+      \strng{bibnamehash}{5abe073c0d132bede93659b2e5d06733}
+      \strng{authorbibnamehash}{5abe073c0d132bede93659b2e5d06733}
+      \strng{authornamehash}{f3cda29d36f8f0dc5cd33e9a073814fc}
+      \strng{authorfullhash}{5abe073c0d132bede93659b2e5d06733}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{2009 IEEE Symposium on Computational Intelligence for Security and Defense Applications}
+      \field{title}{A detailed analysis of the KDD CUP 99 data set}
+      \field{year}{2009}
+      \field{pages}{1\bibrangedash 6}
+      \range{pages}{6}
+      \verb{doi}
+      \verb 10.1109/CISDA.2009.5356528
+      \endverb
+    \endentry
     \entry{Vinayakumar2019}{article}{}
       \name{author}{6}{}{%
         {{un=0,uniquepart=base,hash=6132de4a82b69e9c9a4b36edd1704420}{%
@@ -1233,6 +1381,56 @@
       \endverb
       \verb{url}
       \verb https://www.weforum.org/publications/global-risks-report-2024/
+      \endverb
+    \endentry
+    \entry{Zhou2020}{article}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=288f1cb2dd384cb5e91127507559fdbc}{%
+           family={Zhou},
+           familyi={Z\bibinitperiod},
+           given={Y.},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=112f6df29c44bf60dd57629dca6325c7}{%
+           family={Cheng},
+           familyi={C\bibinitperiod},
+           given={G.},
+           giveni={G\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=969e89612b8c1fcb83d15a13b7447ff4}{%
+           family={Jiang},
+           familyi={J\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=2de34a51d969d8d84c134eea2527be71}{%
+           family={Dai},
+           familyi={D\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{ead6f251afc769e383afca17647887af}
+      \strng{fullhash}{69fa348da636225afcef3bdce86a09d9}
+      \strng{bibnamehash}{69fa348da636225afcef3bdce86a09d9}
+      \strng{authorbibnamehash}{69fa348da636225afcef3bdce86a09d9}
+      \strng{authornamehash}{ead6f251afc769e383afca17647887af}
+      \strng{authorfullhash}{69fa348da636225afcef3bdce86a09d9}
+      \field{sortinit}{Z}
+      \field{sortinithash}{96892c0b0a36bb8557c40c49813d48b3}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Computer Networks}
+      \field{title}{Building an efficient intrusion detection system based on feature selection and ensemble classifier}
+      \field{volume}{174}
+      \field{year}{2020}
+      \field{pages}{107247}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1016/j.comnet.2020.107247
       \endverb
     \endentry
   \enddatalist
