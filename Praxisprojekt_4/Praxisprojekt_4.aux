@@ -154,13 +154,41 @@
 \newlabel{app:dataset_comparison}{{A.3}{14}{Dataset Comparison Overview}{subsection.A.3}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Vergleichende Dataset-Analyse: (a) Accuracy-Korrelation NSL-KDD vs. CIC (Pearson r = 0.72, p < 0.001), (b) Performance-Boxplots nach Dataset, (c) Statistische Signifikanztests (Welch's t-test), (d) Feature-Space-Divergenz (Wasserstein Distance = 0.148).}}{14}{figure.caption.10}\protected@file@percent }
 \newlabel{fig:app_dataset_comparison}{{6}{14}{Vergleichende Dataset-Analyse: (a) Accuracy-Korrelation NSL-KDD vs. CIC (Pearson r = 0.72, p < 0.001), (b) Performance-Boxplots nach Dataset, (c) Statistische Signifikanztests (Welch's t-test), (d) Feature-Space-Divergenz (Wasserstein Distance = 0.148)}{figure.caption.10}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {B}Pseudocode}{15}{appendix.B}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Nützliche LaTeX-Referenz}{16}{appendix.B}\protected@file@percent }
-\newlabel{lst:fib}{{1}{19}{Fibonacci-Beispiel}{lstlisting.1}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Fibonacci-Beispiel}}{19}{lstlisting.1}\protected@file@percent }
-\newlabel{lst:mini}{{2}{19}{Minimalbeispiel}{lstlisting.2}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Minimalbeispiel}}{19}{lstlisting.2}\protected@file@percent }
-\expandafter\ifx\csname c@figure@totc\endcsname\relax\newcounter{figure@totc}\fi\setcounter{figure@totc}{6}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Within-Dataset Performance Details}{15}{appendix.B}\protected@file@percent }
+\newlabel{app:within_dataset}{{B}{15}{Within-Dataset Performance Details}{appendix.B}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.1}NSL-KDD ROC-Kurven}{15}{subsection.B.1}\protected@file@percent }
+\newlabel{app:nsl_roc}{{B.1}{15}{NSL-KDD ROC-Kurven}{subsection.B.1}{}}
+\newlabel{fig:nsl_roc_baseline}{{7a}{15}{Baseline-Modelle (6 Algorithmen)}{figure.caption.11}{}}
+\newlabel{sub@fig:nsl_roc_baseline}{{a}{15}{Baseline-Modelle (6 Algorithmen)}{figure.caption.11}{}}
+\newlabel{fig:nsl_roc_advanced}{{7b}{15}{Advanced-Modelle (6 Algorithmen)}{figure.caption.11}{}}
+\newlabel{sub@fig:nsl_roc_advanced}{{b}{15}{Advanced-Modelle (6 Algorithmen)}{figure.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces ROC-Kurven NSL-KDD: (a) Baseline zeigt moderate Trennschärfe (AUC 0.35--1.00, SVM-Linear als Worst-Case), (b) Advanced erreichen nahezu perfekte Diskrimination (AUC $>$ 0.999 für XGBoost, LightGBM, Gradient Boosting). Diagonale = Random Classifier (AUC 0.5).}}{15}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:app_nsl_roc}{{7}{15}{ROC-Kurven NSL-KDD: (a) Baseline zeigt moderate Trennschärfe (AUC 0.35--1.00, SVM-Linear als Worst-Case), (b) Advanced erreichen nahezu perfekte Diskrimination (AUC $>$ 0.999 für XGBoost, LightGBM, Gradient Boosting). Diagonale = Random Classifier (AUC 0.5)}{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {paragraph}{ROC-Interpretation}{15}{paragraph*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.2}CIC-IDS-2017 ROC-Kurven}{16}{subsection.B.2}\protected@file@percent }
+\newlabel{app:cic_roc}{{B.2}{16}{CIC-IDS-2017 ROC-Kurven}{subsection.B.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces ROC-Kurven CIC-IDS-2017: Vergleichbare AUC-Werte wie NSL-KDD, jedoch flacherer Anstieg bei niedrigen FPR-Werten aufgrund höherer Datensatz-Komplexität (79 Features vs. 41, moderne Attack-Vektoren).}}{16}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:app_cic_roc}{{8}{16}{ROC-Kurven CIC-IDS-2017: Vergleichbare AUC-Werte wie NSL-KDD, jedoch flacherer Anstieg bei niedrigen FPR-Werten aufgrund höherer Datensatz-Komplexität (79 Features vs. 41, moderne Attack-Vektoren)}{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.3}Precision-Recall Kurven}{17}{subsection.B.3}\protected@file@percent }
+\newlabel{app:pr_curves}{{B.3}{17}{Precision-Recall Kurven}{subsection.B.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Precision-Recall Trade-Off-Analyse: PR-Kurven sind besonders informativ bei Klassenimbalance (CIC: 83\% Normal). Average Precision (AP) aggregiert Performance über alle Schwellenwerte. Baseline-Modelle zeigen stärkeren Precision-Drop bei hohem Recall (rechte Kurvenabschnitte) im Vergleich zu Advanced-Modellen.}}{17}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:app_pr_curves}{{9}{17}{Precision-Recall Trade-Off-Analyse: PR-Kurven sind besonders informativ bei Klassenimbalance (CIC: 83\% Normal). Average Precision (AP) aggregiert Performance über alle Schwellenwerte. Baseline-Modelle zeigen stärkeren Precision-Drop bei hohem Recall (rechte Kurvenabschnitte) im Vergleich zu Advanced-Modellen}{figure.caption.14}{}}
+\@writefile{toc}{\contentsline {paragraph}{PR-Kurven vs. ROC-Kurven}{17}{paragraph*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.4}Konfusionsmatrizen NSL-KDD}{18}{subsection.B.4}\protected@file@percent }
+\newlabel{app:cm_nsl}{{B.4}{18}{Konfusionsmatrizen NSL-KDD}{subsection.B.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Konfusionsmatrizen NSL-KDD (normalisiert pro True Label): Diagonalelemente = korrekte Klassifikationen (idealer Wert: 1.0). SVM-Linear zeigt starke False-Negative-Rate (dunklere Off-Diagonal-Werte).}}{18}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:app_cm_nsl}{{10}{18}{Konfusionsmatrizen NSL-KDD (normalisiert pro True Label): Diagonalelemente = korrekte Klassifikationen (idealer Wert: 1.0). SVM-Linear zeigt starke False-Negative-Rate (dunklere Off-Diagonal-Werte)}{figure.caption.16}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.5}Konfusionsmatrizen CIC-IDS-2017}{18}{subsection.B.5}\protected@file@percent }
+\newlabel{app:cm_cic}{{B.5}{18}{Konfusionsmatrizen CIC-IDS-2017}{subsection.B.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Konfusionsmatrizen CIC-IDS-2017: Naive Bayes zeigt charakteristische Bias zur Attack-Klasse (hohe False-Positive-Rate bei Normal $\rightarrow $ Attack), während Decision Tree nahezu perfekte Klassifikation erreicht (Diagonale $\approx $ 1.0).}}{18}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:app_cm_cic}{{11}{18}{Konfusionsmatrizen CIC-IDS-2017: Naive Bayes zeigt charakteristische Bias zur Attack-Klasse (hohe False-Positive-Rate bei Normal $\rightarrow $ Attack), während Decision Tree nahezu perfekte Klassifikation erreicht (Diagonale $\approx $ 1.0)}{figure.caption.17}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Pseudocode}{19}{appendix.C}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Nützliche LaTeX-Referenz}{20}{appendix.C}\protected@file@percent }
+\newlabel{lst:fib}{{1}{23}{Fibonacci-Beispiel}{lstlisting.1}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Fibonacci-Beispiel}}{23}{lstlisting.1}\protected@file@percent }
+\newlabel{lst:mini}{{2}{23}{Minimalbeispiel}{lstlisting.2}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Minimalbeispiel}}{23}{lstlisting.2}\protected@file@percent }
+\expandafter\ifx\csname c@figure@totc\endcsname\relax\newcounter{figure@totc}\fi\setcounter{figure@totc}{11}
 \expandafter\ifx\csname c@table@totc\endcsname\relax\newcounter{table@totc}\fi\setcounter{table@totc}{2}
 \abx@aux@read@bbl@mdfivesum{2F063B767018B3CC0EF39B0C86AE4F64}
 \abx@aux@defaultrefcontext{0}{Belavagi2016}{nyt/global//global/global}
@@ -175,4 +203,4 @@
 \abx@aux@defaultrefcontext{0}{Tavallaee2009}{nyt/global//global/global}
 \abx@aux@defaultrefcontext{0}{Vinayakumar2019}{nyt/global//global/global}
 \abx@aux@defaultrefcontext{0}{GlobalRisksReport2024}{nyt/global//global/global}
-\gdef \@abspage@last{24}
+\gdef \@abspage@last{29}

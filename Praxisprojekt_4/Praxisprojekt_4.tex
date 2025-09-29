@@ -38,6 +38,7 @@ Scale=1.0
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{float}
+\usepackage{subcaption}
 \usepackage{siunitx}
 \sisetup{detect-all}                      % Sans-Serif in siunitx
 \usepackage{csquotes}                     % saubere Anführungszeichen / Blockzitate
@@ -588,6 +589,151 @@ giveninits=true % Nur Initialen für Vornamen
         \label{fig:app_dataset_comparison}
     \end{figure}
 
+    \section{Within-Dataset Performance Details}
+    \label{app:within_dataset}
+    
+    \subsection{NSL-KDD ROC-Kurven}
+    \label{app:nsl_roc}
+    
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+            \includegraphics[width=\textwidth]{../data/results/roc_curves/nsl_kdd_baseline_scientific_roc.pdf}
+            \caption{Baseline-Modelle (6 Algorithmen)}
+            \label{fig:nsl_roc_baseline}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.48\textwidth}
+            \includegraphics[width=\textwidth]{../data/results/roc_curves/nsl_kdd_advanced_scientific_roc.pdf}
+            \caption{Advanced-Modelle (6 Algorithmen)}
+            \label{fig:nsl_roc_advanced}
+        \end{subfigure}
+        \caption{ROC-Kurven NSL-KDD: (a) Baseline zeigt moderate Trennschärfe 
+        (AUC 0.35--1.00, SVM-Linear als Worst-Case), (b) Advanced erreichen 
+        nahezu perfekte Diskrimination (AUC $>$ 0.999 für XGBoost, LightGBM, 
+        Gradient Boosting). Diagonale = Random Classifier (AUC 0.5).}
+        \source{Eigene Darstellung.}
+        \label{fig:app_nsl_roc}
+    \end{figure}
+    
+    \paragraph{ROC-Interpretation}
+    \begin{itemize}
+        \item \textbf{XGBoost/LightGBM:} Nahezu vertikaler Anstieg bei TPR $\approx$ 1.0, 
+        FPR $\approx$ 0.0 indiziert optimale Klassifikation
+        \item \textbf{SVM-Linear:} AUC = 0.35 (schlechter als Random) aufgrund 
+        nicht-linearer Separierbarkeit
+        \item \textbf{Naive Bayes:} AUC = 0.95 zeigt gute probabilistische Kalibrierung 
+        trotz Feature-Unabhängigkeits-Annahme
+    \end{itemize}
+    
+    \subsection{CIC-IDS-2017 ROC-Kurven}
+    \label{app:cic_roc}
+    
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+            \includegraphics[width=\textwidth]{../data/results/roc_curves/cic_ids_2017_baseline_scientific_roc.pdf}
+            \caption{Baseline-Modelle}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.48\textwidth}
+            \includegraphics[width=\textwidth]{../data/results/roc_curves/cic_ids_2017_advanced_scientific_roc.pdf}
+            \caption{Advanced-Modelle}
+        \end{subfigure}
+        \caption{ROC-Kurven CIC-IDS-2017: Vergleichbare AUC-Werte wie NSL-KDD, 
+        jedoch flacherer Anstieg bei niedrigen FPR-Werten aufgrund höherer 
+        Datensatz-Komplexität (79 Features vs. 41, moderne Attack-Vektoren).}
+        \source{Eigene Darstellung.}
+        \label{fig:app_cic_roc}
+    \end{figure}
+    
+    \subsection{Precision-Recall Kurven}
+    \label{app:pr_curves}
+    
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+            \includegraphics[width=\textwidth]{../data/results/precision_recall_curves/nsl_kdd_baseline_scientific_pr.pdf}
+            \caption{NSL-KDD Baseline}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.48\textwidth}
+            \includegraphics[width=\textwidth]{../data/results/precision_recall_curves/cic_ids_2017_baseline_scientific_pr.pdf}
+            \caption{CIC-IDS-2017 Baseline}
+        \end{subfigure}
+        \\[1em]
+        \begin{subfigure}[b]{0.48\textwidth}
+            \includegraphics[width=\textwidth]{../data/results/precision_recall_curves/nsl_kdd_advanced_scientific_pr.pdf}
+            \caption{NSL-KDD Advanced}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.48\textwidth}
+            \includegraphics[width=\textwidth]{../data/results/precision_recall_curves/cic_ids_2017_advanced_scientific_pr.pdf}
+            \caption{CIC-IDS-2017 Advanced}
+        \end{subfigure}
+        \caption{Precision-Recall Trade-Off-Analyse: PR-Kurven sind besonders 
+        informativ bei Klassenimbalance (CIC: 83\% Normal). Average Precision (AP) 
+        aggregiert Performance über alle Schwellenwerte. Baseline-Modelle zeigen 
+        stärkeren Precision-Drop bei hohem Recall (rechte Kurvenabschnitte) im 
+        Vergleich zu Advanced-Modellen.}
+        \source{Eigene Darstellung.}
+        \label{fig:app_pr_curves}
+    \end{figure}
+    
+    \paragraph{PR-Kurven vs. ROC-Kurven}
+    Bei starker Klassenimbalance (CIC-IDS-2017):
+    \begin{itemize}
+        \item \textbf{ROC-Kurven:} Können übermäßig optimistisch wirken 
+        (hohe TN-Zahlen dominieren)
+        \item \textbf{PR-Kurven:} Fokussieren auf Minority Class (Attack), 
+        daher realistischere Einschätzung
+        \item \textbf{Beispiel:} Random Forest CIC-IDS hat ROC-AUC = 1.0, 
+        aber AP = 0.999 (minimale Precision-Degradation bei hohem Recall)
+    \end{itemize}
+    
+    \subsection{Konfusionsmatrizen NSL-KDD}
+    \label{app:cm_nsl}
+    
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+            \includegraphics[width=\textwidth]{../data/results/confusion_matrices/nsl_kdd_baseline_scientific_cm.pdf}
+            \caption{Baseline-Modelle}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.48\textwidth}
+            \includegraphics[width=\textwidth]{../data/results/confusion_matrices/nsl_kdd_advanced_scientific_cm.pdf}
+            \caption{Advanced-Modelle}
+        \end{subfigure}
+        \caption{Konfusionsmatrizen NSL-KDD (normalisiert pro True Label): 
+        Diagonalelemente = korrekte Klassifikationen (idealer Wert: 1.0). 
+        SVM-Linear zeigt starke False-Negative-Rate (dunklere Off-Diagonal-Werte).}
+        \source{Eigene Darstellung.}
+        \label{fig:app_cm_nsl}
+    \end{figure}
+    
+    \subsection{Konfusionsmatrizen CIC-IDS-2017}
+    \label{app:cm_cic}
+    
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}[b]{0.48\textwidth}
+            \includegraphics[width=\textwidth]{../data/results/confusion_matrices/cic_ids_2017_baseline_scientific_cm.pdf}
+            \caption{Baseline-Modelle}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[b]{0.48\textwidth}
+            \includegraphics[width=\textwidth]{../data/results/confusion_matrices/cic_ids_2017_advanced_scientific_cm.pdf}
+            \caption{Advanced-Modelle}
+        \end{subfigure}
+        \caption{Konfusionsmatrizen CIC-IDS-2017: Naive Bayes zeigt charakteristische 
+        Bias zur Attack-Klasse (hohe False-Positive-Rate bei Normal $\rightarrow$ 
+        Attack), während Decision Tree nahezu perfekte Klassifikation erreicht 
+        (Diagonale $\approx$ 1.0).}
+        \source{Eigene Darstellung.}
+        \label{fig:app_cm_cic}
+    \end{figure}
+    
     \section{Pseudocode}
     (Optionaler Inhalt des Anhangs.)
 

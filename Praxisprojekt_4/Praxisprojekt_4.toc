@@ -24,5 +24,13 @@
 \contentsline {subsection}{\numberline {A.2}CIC-IDS-2017 Attack Distribution}{13}{subsection.A.2}%
 \contentsline {paragraph}{Unterschiede zu NSL-KDD}{13}{paragraph*.9}%
 \contentsline {subsection}{\numberline {A.3}Dataset Comparison Overview}{14}{subsection.A.3}%
-\contentsline {section}{\numberline {B}Pseudocode}{15}{appendix.B}%
-\contentsline {section}{Nützliche LaTeX-Referenz}{16}{appendix.B}%
+\contentsline {section}{\numberline {B}Within-Dataset Performance Details}{15}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}NSL-KDD ROC-Kurven}{15}{subsection.B.1}%
+\contentsline {paragraph}{ROC-Interpretation}{15}{paragraph*.12}%
+\contentsline {subsection}{\numberline {B.2}CIC-IDS-2017 ROC-Kurven}{16}{subsection.B.2}%
+\contentsline {subsection}{\numberline {B.3}Precision-Recall Kurven}{17}{subsection.B.3}%
+\contentsline {paragraph}{PR-Kurven vs. ROC-Kurven}{17}{paragraph*.15}%
+\contentsline {subsection}{\numberline {B.4}Konfusionsmatrizen NSL-KDD}{18}{subsection.B.4}%
+\contentsline {subsection}{\numberline {B.5}Konfusionsmatrizen CIC-IDS-2017}{18}{subsection.B.5}%
+\contentsline {section}{\numberline {C}Pseudocode}{19}{appendix.C}%
+\contentsline {section}{Nützliche LaTeX-Referenz}{20}{appendix.C}%
