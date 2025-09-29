@@ -513,25 +513,383 @@ giveninits=true % Nur Initialen für Vornamen
     \textbf{Computational Efficiency} wird durch Trainings- und Inferenzzeiten charakterisiert, kritisch für Echtzeit-IDS-Deployments. Ensemble-Modelle (XGBoost, LightGBM) bieten optimale Balance zwischen Accuracy und Effizienz, während k-NN hohe Inferenzzeiten bei großen Trainingsdatensätzen aufweist \parencite{Vinayakumar2019}. \textbf{5-Fold Cross-Validation} mit zeitlicher Stratifizierung verhindert Data Leakage und respektiert temporale Abhängigkeiten in Netzwerkdaten \parencite{Tavallaee2009}.
 
     \section{Methodik}
-    Design, Daten, Preprocessing, Metriken, Validierung.
-    \subsection{Daten}
-    Kurzbeschreibung der Datensätze.
-    \subsection{Modelle und Hyperparameter}
-    Tabellenbeispiel mit Quellenangabe (10 pt):
-    \begin{table}[h]
-        \centering
-        \begin{tabular}{lcc}
-            \toprule
-            \textbf{Parameter} & \textbf{Wert A} & \textbf{Wert B} \\
-            \midrule
-            Lernrate & 0{,}001 & 0{,}01 \\
-            Batchgröße & 64 & 64 \\
-            \bottomrule
-        \end{tabular}
-        \caption{Beispielhafte Hyperparameter.}
-        \source{Eigene Darstellung.}
-        \label{tab:hyper}
-    \end{table}
+
+    \subsection{Forschungsdesign und methodische Begründung}
+    % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - FORSCHUNGSDESIGN
+    %
+    % Grundlegendes Evaluationsframework: Dreistufiges Validierungsprotokoll (Within-Dataset → Cross-Dataset → Feature-Harmonized Transfer)
+    % - Begründung: Systematische aufbauende Komplexitätssteigerung gewährleistet vollständige Charakterisierung der Generalisierungsfähigkeit
+    % - von einfachen intra-dataset Szenarien bis hin zu realistischen cross-domain Transfer-Situationen
+    % - Methodische Innovation: Erste systematische Evaluation der bidirektionalen Transfer-Asymmetrie zwischen Historical/Modern Datasets
+    %
+    % Bidirektionale Transfer-Evaluation: NSL-KDD ↔ CIC-IDS-2017 mit asymmetrischer Transferanalyse
+    % - Begründung: Erkennung von Generalisierungsasymmetrien zwischen historischen (2009) und modernen (2017) Netzwerkumgebungen
+    % - ermöglicht differenzierte Bewertung der Temporal-Transfer-Robustheit für praktische IDS-Deployment-Szenarien
+    % - Wissenschaftliche Neuheit: Erste quantitative Charakterisierung der 19-Jahre Technology-Gap Impact auf ML-Generalization
+    %
+    % Reproduzierbarkeitsprotokoll: Deterministische Random Seeds (RANDOM_STATE=42), Environment Validation, Requirements Pinning
+    % - Begründung: Vollständige wissenschaftliche Reproduzierbarkeit durch standardisierte Experimentalumgebung
+    % - mit dokumentierter Systemkonfiguration und bit-level deterministic execution
+    % - Compliance mit Open Science Standards für collaborative research und peer review validation
+    %
+    % Automatisierte 8-stufige Experimentalpipeline: Von EDA bis Publication-Ready Visualizations
+    % - Begründung: Eliminierung manueller Fehlerquellen durch vollständig automatisierte, nachvollziehbare Ausführung
+    % - mit Fault-Tolerance und Incremental Recovery für robuste long-running computational experiments
+    % - Skalierbarkeit: Memory-adaptive execution von sample-based bis full-dataset processing (2.8M+ samples)
+
+    \subsection{Datengrundlage und Stichprobenauswahl}
+    % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - DATENGRUNDLAGE
+    %
+    % NSL-KDD Datensatz (2009): 125.973 Trainingssamples, 22.544 dedizierte Testsamples
+    % - Begründung: De-facto Standard Benchmark mit eliminiertem KDD Cup 99 Duplikate-Bias
+    % - etablierte Vergleichbarkeit mit internationaler Forschungslandschaft für Meta-Analysis-Kompatibilität
+    % - Repräsentativität: 4 Angriffskategorien (DoS: 36%, Probe: 11%, R2L/U2R: <1%) mit realistischer Class-Imbalance
+    % - Feature-Space: 41 Connection-basierte Features mit interpretierbare Network-Flow-Semantik
+    % - Zugang: Öffentlich verfügbar, Canadian Institute for Cybersecurity, keine Privacy-Constraints
+    %
+    % CIC-IDS-2017 Datensatz (2017): 2.8M+ Samples aus realistischen Netzwerkumgebungen
+    % - Begründung: Moderne, realitätsnahe Angriffsszenarien mit zeitgemäßen Netzwerkprotokollen
+    % - komplementär zu NSL-KDD für 19-Jahre Technologie-Gap Analyse und Temporal-Transfer-Assessment
+    % - Attack-Taxonomie: 14 moderne Angriffsfamilien (Heartbleed, SQL Injection, XSS, Botnet, DDoS-Variants)
+    % - Feature-Space: 79 bidirektionale Flow-Features mit advanced statistical flow characterization
+    % - Realismus: Captured from live network traffic, nicht simuliert, höhere External Validity
+    %
+    % Memory-Adaptive Sampling: Dynamische Stichprobengrößen basierend auf Systemressourcen (>16GB: Full Dataset, <16GB: Optimized Sampling)
+    % - Begründung: Gewährleistung experimenteller Durchführbarkeit auf verschiedenen Hardware-Konfigurationen
+    % - ohne Kompromittierung der statistischen Validität durch stratified random sampling preservation
+    % - SCIENTIFIC_MODE=1 enforcement für >16GB RAM forciert Full-Dataset-Usage für maximale wissenschaftliche Rigorosität
+    %
+    % Stratifizierte Klassenbalancierung: Proportional erhaltene Attack/Normal-Verhältnisse bei reduzierten Stichproben
+    % - Begründung: Preservation der ursprünglichen Datenverteilung verhindert Sampling-Bias
+    % - und erhält realistische Klassen-Proportionen für Transfer-Evaluation ohne artificial class balancing
+    % - Class Imbalance: 83% normal vs. 17% attack in CIC-IDS-2017 reflects realistic network environments
+
+    \subsection{Experimenteller Ablauf und Evaluationsframework}
+    % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - EXPERIMENTELLER ABLAUF
+    %
+    % 8-stufige automatisierte Experimentalpipeline mit wissenschaftlicher Präzision:
+    %
+    % Phase 1 - Data Exploration (01_data_exploration.py):
+    % - Begründung: Console-basierte EDA mit Verteilungsanalyse und Feature-Charakterisierung für Datenqualitäts-Assessment
+    % - Funktionalität: Dataset Loading Verification, Class Distribution Analysis, Sample Data Inspection
+    % - Output: Console-only validation, keine persistenten Files für explorative Analyse
+    %
+    % Phase 2 - Baseline Training (02_baseline_training.py):
+    % - Begründung: 6 Baseline-Algorithmen (Random Forest, Logistic Regression, Decision Tree, Naive Bayes, k-NN, Linear SVM)
+    % - etablieren interpretierbare Referenz-Performance für comparative evaluation mit advanced methods
+    % - Class-Imbalance-Handling: class_weight="balanced" für algorithmus-agnostic fairness preservation
+    %
+    % Phase 3 - Advanced Training (03_advanced_training.py):
+    % - Begründung: 6 Advanced-Algorithmen (XGBoost, LightGBM, Gradient Boosting, Extra Trees, MLP, Voting Classifier)
+    % - repräsentieren state-of-the-art ML-Praxis für Cybersecurity-Anwendungen mit ensemble-based robustness
+    % - Failed-Model-Handling: Graceful Degradation mit Dokumentation gescheiterter Trainings für transparency
+    %
+    % Phase 4 - Cross-Validation (04_cross_validation.py):
+    % - Begründung: 5-Fold Stratified Cross-Validation für Within-Dataset-Robustheit mit statistischer Aggregation
+    % - Statistical Testing: Paired t-tests, Cohen's d effect sizes, Bootstrap confidence intervals
+    % - Class-Stratification: Erhaltung der Attack/Normal-Proportionen in allen CV-Folds
+    %
+    % Phase 5 - Cross-Dataset Evaluation (05_cross_dataset_evaluation.py):
+    % - Begründung: Kernexperiment - Bidirektionale Transfer-Evaluation mit PCA-Alignment für fair comparison
+    % - Transfer-Metriken: Transfer Ratio, Generalization Gap, Domain Divergence quantification
+    % - Feature Alignment: 6 semantically harmonized features aus 41+79 original dimensions
+    %
+    % Phase 6 - Harmonized Evaluation (06_harmonized_evaluation.py):
+    % - Begründung: Feature-harmonisierte Evaluation mit Incremental Learning für CIC-Full-Dataset (2.8M samples)
+    % - SGDClassifier partial_fit() für memory-efficient large-scale processing
+    % - Adaptive Sample Weighting: Dynamic class weight adjustment für realistic deployment scenarios
+    %
+    % Phase 7 - Results Summary (07_generate_results_summary.py):
+    % - Begründung: Konsolidierte Ergebnisaggregation mit statistischen Tests für comprehensive reporting
+    % - Output: CSV/JSON consolidation mit timing analysis integration und metadata preservation
+    %
+    % Phase 8 - Paper Figures (08_generate_paper_figures.py + 09/10_enhanced_visualizations.py):
+    % - Begründung: Wissenschaftliche Publication-Ready Visualisierung mit 300 DPI, PDF-Export
+    % - Scientific Standards: LaTeX-compatible formatting, colorblind-friendly palettes
+    % - Enhanced Visualizations: Experimente 09/10 für zusätzliche scientific accurate visualizations und repository enhancement
+    %
+    % Technisches Setting: Python 3.8+, scikit-learn 1.3+, XGBoost 1.7+, LightGBM 3.3+
+    % - Begründung: Etablierte ML-Ecosystem mit stabilen APIs und wissenschaftlicher Reproduzierbarkeit
+    % - Platform-Independence: Cross-platform compatibility mit automated environment validation
+    %
+    % Fault-Tolerance: Incremental Result Storage mit automatischer Recovery bei Systemfehlern
+    % - Begründung: Resiliente Experimentaldurchführung bei long-running computational experiments
+    % - mit kritischen Systemressourcen und potential hardware failures
+    % - Checkpoint-System: Periodische Model-State-Speicherung für Unterbrechungsresilienz
+
+    \subsection{Feature-Engineering und Harmonisierung}
+    % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - FEATURE-ENGINEERING
+    %
+    % Zwei-Ebenen-Harmonisierungsstrategie mit wissenschaftlicher Präzision:
+    %
+    % Level 1 - Semantische Feature-Mappings:
+    % - Begründung: NSL-KDD (41D) ↔ CIC-IDS-2017 (79D) Domain-Knowledge-basierte Korrespondenz
+    % - erhält semantische Bedeutung und ermöglicht interpretierbare Cross-Dataset-Vergleiche ohne Informationsverlust
+    % - Gemeinsame Features: duration, forward_bytes, backward_bytes, total_bytes, bytes_per_second, byte_ratio
+    % - Feature-Space-Reduktion: 6 harmonisierte Features für Cross-Dataset-Kompatibilität bei preserved network semantics
+    % - Validation: Correlation analysis zwischen original und harmonized features für semantic preservation
+    %
+    % Level 2 - Statistische Alignment-Pipeline:
+    % - Begründung: StandardScaler-Normalisierung mit Z-Score-Transformation using Source-Dataset-Statistiken
+    % - eliminiert scale-abhängige Bias und gewährleistet numerische Stabilität über verschiedene Algorithmus-Familien
+    % - PCA-Projektion: 20 Hauptkomponenten für latente Repräsentation (Explained Variance >95%)
+    % - optimaler Trade-off zwischen Dimensionsreduktion und Informationserhalt für robuste Transfer-Performance
+    % - Domain Divergence Quantifizierung: Wasserstein-Distance zwischen aligned Feature-Distributionen
+    % - theoretisch fundierte Messung der Dataset-Ähnlichkeit korreliert mit erwartbarer Transfer-Performance
+    %
+    % Feature-Alignment-Pipeline: Automatisierte Skalierung, Normalisierung und Validierung
+    % - Begründung: Standardisierte Preprocessing-Pipeline eliminiert manual preprocessing bias
+    % - und gewährleistet consistent feature engineering across experimental phases
+    % - Robust Error Handling: UTF-8 parsing, missing value imputation, outlier detection
+    %
+    % Variance-Explained-Retention: Minimum 95% kumulativer Varianzerhalt bei PCA-Transformation
+    % - Begründung: Optimaler Trade-off zwischen Dimensionsreduktion und Informationserhalt
+    % - für robuste Transfer-Performance ohne overfitting zu source-domain characteristics
+    %
+    % Validierung: Comprehensive Unit Tests für Alignment-Konsistenz, Shape-Kompatibilität, numerische Stabilität
+    % - Begründung: Automated quality assurance für complex feature transformation pipeline
+    % - prevents silent failures in high-dimensional feature space alignment procedures
+
+    \subsection{Modellauswahl und Hyperparameter-Konfiguration}
+    % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - MODELLAUSWAHL
+    %
+    % Baseline-Modelle (interpretierbare, effiziente Verfahren):
+    % - Begründung: Etablierte Referenzalgorithmen mit unterschiedlichen Lernparadigmen
+    % - (parametrisch/non-parametrisch, linear/non-linear) für comprehensive Baseline-Charakterisierung
+    %
+    % Random Forest: n_estimators=200, max_depth=25, class_weight="balanced"
+    % - Begründung: Robust ensemble method mit inherent feature importance für interpretability
+    % - Overfitting-Resistance durch bootstrap aggregation und controlled tree depth
+    %
+    % Logistic Regression: solver="saga", max_iter=2000, C=1.0, L2-Regularisierung
+    % - Begründung: Linear baseline mit probabilistic output für calibrated confidence estimates
+    % - SAGA solver für large-scale datasets mit L2 regularization für generalization
+    %
+    % Decision Tree: max_depth=25, min_samples_split=10, Overfitting-Prävention
+    % - Begründung: Highly interpretable model mit explicit decision rules für cybersecurity domain experts
+    % - Depth limitation prevents memorization von training-specific attack patterns
+    %
+    % k-Nearest Neighbors: k=3, algorithm="kd_tree", metric="euclidean"
+    % - Begründung: Non-parametric method für local similarity-based classification
+    % - KD-tree optimization für efficient nearest neighbor search in harmonized feature space
+    %
+    % Linear SVM: kernel="linear", C=1.0, probability=True für Soft-Voting
+    % - Begründung: Maximum margin classifier mit theoretical generalization guarantees
+    % - Linear kernel für computational efficiency und decision boundary interpretability
+    %
+    % Naive Bayes: GaussianNB ohne Hyperparameter-Tuning
+    % - Begründung: Probabilistic baseline mit strong independence assumptions für comparison
+    % - Parameter-free für fair comparison ohne hyperparameter optimization bias
+    %
+    % Advanced-Modelle (state-of-the-art Ensemble-Verfahren):
+    % - Begründung: Repräsentieren moderne ML-Praxis für Cybersecurity-Anwendungen
+    % - mit ensemble-based robustness und sophisticated feature interaction modeling
+    %
+    % XGBoost: n_estimators=400, max_depth=6, learning_rate=0.1, subsample=0.8
+    % - Begründung: Gradient boosting mit advanced regularization für state-of-the-art performance
+    % - tree_method="hist" für memory efficiency bei large-scale feature spaces
+    %
+    % LightGBM: n_estimators=400, learning_rate=0.05, num_leaves=31, class_weight="balanced"
+    % - Begründung: Optimized gradient boosting mit faster training und lower memory usage
+    % - Leaf-wise tree growth für better accuracy bei controlled overfitting risk
+    %
+    % MLP: hidden_layers=(128,64), activation="relu", solver="adam", early_stopping=True
+    % - Begründung: Deep learning representative mit non-linear feature transformation capability
+    % - Early stopping für automatic regularization und computational efficiency
+    %
+    % Voting Classifier: Soft-Voting-Kombination aller Basis-Lerner mit probabilistischen Gewichten
+    % - Begründung: Meta-ensemble method für diversity-based robustness improvement
+    % - Probabilistic averaging reduces individual model bias durch collective intelligence
+    %
+    % Hyperparameter-Strategie: Praxis-orientierte Default-Konfiguration ohne exhaustive Grid-Search
+    % - Begründung: Fokus auf realistic deployment scenarios mit computational constraints
+    % - verhindert hyperparameter overfitting zu specific benchmark characteristics
+    %
+    % Class Imbalance Handling: Adaptive Gewichtung durch class_weight="balanced"
+    % - Begründung: Algorithmus-agnostic fairness für realistic class distributions (83% normal vs. 17% attack)
+    % - SMOTE für NSL-KDD bei extremer minority class representation, Undersampling für CIC bei ausreichender sample size
+    %
+    % Failed-Model-Handling: Graceful Degradation mit Dokumentation gescheiterter Trainings
+    % - Begründung: Vollständige Transparenz über Algorithmus-Limitationen bei memory-constrained
+    % - oder high-dimensional Szenarien für realistic performance assessment
+
+    \subsection{Evaluationsmetriken und Transfer-Learning-Assessment}
+    % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - EVALUATIONSMETRIKEN
+    %
+    % Within-Dataset-Performance-Metriken (internationale Standards):
+    % - Begründung: Standard-Performancemetriken ermöglichen internationale Vergleichbarkeit
+    % - und etablierte Benchmark-Referenzierung für Meta-Analysis-Integration
+    %
+    % Accuracy, Precision, Recall, F1-Score für binäre Klassifikation:
+    % - Begründung: Comprehensive performance characterization mit Berücksichtigung von Precision/Recall-Trade-offs
+    % - kritisch für cybersecurity applications bei asymmetrischen error costs (false positives vs. false negatives)
+    %
+    % ROC-AUC für probabilistische Bewertung und Threshold-Optimierung:
+    % - Begründung: Threshold-agnostic performance measurement ermöglicht operational flexibility
+    % - für deployment-specific operating point selection basierend auf business constraints
+    %
+    % 5-Fold Stratified Cross-Validation mit statistischer Signifikanz-Evaluation:
+    % - Begründung: Robuste Within-Dataset-Validierung mit kontrollierten Zufallseffekten
+    % - für stabile Performanceschätzungen und statistical power für significance testing
+    %
+    % Cross-Dataset-Transfer-Metriken (wissenschaftliche Neuheit und Innovation):
+    % - Begründung: Erste systematische Quantifizierung der Cross-Domain-Generalisierungsfähigkeit
+    % - mit theoretisch fundierten Metriken für praktische Transfer-Assessment
+    %
+    % Transfer Ratio: TR = Performance_target / Performance_source ∈ [0,1]
+    % - Begründung: Quantifiziert relative Generalisierungsqualität, normalisiert für verschiedene Baseline-Performance-Level
+    % - ermöglicht fair comparison zwischen models mit unterschiedlichen source-domain capabilities
+    %
+    % Generalization Gap: GG = Performance_source - Performance_target ≥ 0
+    % - Begründung: Absolute Performancedifferenz zeigt praktische Transfer-Robustheit
+    % - für Deployment-Entscheidungen und realistic performance expectation management
+    %
+    % Relative Performance Drop: RPD = (GG / Performance_source) × 100%
+    % - Begründung: Prozentuale Degradation ermöglicht modellübergreifende Transfer-Qualitätsvergleiche
+    % - standardized metric für ranking models by cross-domain robustness
+    %
+    % Domain Divergence: Wasserstein-Distanz zwischen Source- und Target-Feature-Distributionen
+    % - Begründung: Theoretisch fundierte Messung der Dataset-Ähnlichkeit korreliert mit erwartbarer Transfer-Performance
+    % - provides theoretical foundation für transfer learning expectations
+    %
+    % Statistische Validierung mit rigoroser Unsicherheitsquantifizierung:
+    % - Begründung: Scientific rigor through comprehensive uncertainty assessment
+    % - und statistical significance testing für robust scientific conclusions
+    %
+    % Bootstrap-Konfidenzintervalle für Unsicherheitsquantifizierung:
+    % - Begründung: Non-parametrische Unsicherheitsschätzung ohne Verteilungsannahmen
+    % - für robuste Inferenz bei complex performance distributions
+    %
+    % Paired t-Tests für Inter-Model-Vergleiche mit Bonferroni-Korrektur:
+    % - Begründung: Kontrolle für Multiple Testing Problem bei systematischen Modellvergleichen
+    % - statistische Signifikanz bei α=0.05 mit family-wise error rate control
+    %
+    % Cohen's d für praktische Signifikanz-Bewertung:
+    % - Begründung: Quantifizierung praktischer Relevanz von Performance-Unterschieden
+    % - für Decision-Making in produktiven IDS-Deployments über statistical significance hinaus
+    %
+    % Bidirektionale Transfer-Asymmetrie: |TR_forward - TR_reverse|
+    % - Begründung: Identifikation asymmetrischer Generalisierungsmuster
+    % - zwischen historical-to-modern vs. modern-to-historical Transfer-Richtungen für temporal robustness assessment
+
+    \subsection{Experimentelle Kontrolle und Qualitätssicherung}
+    % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - EXPERIMENTELLE KONTROLLE
+    %
+    % Objektivität durch vollständige Automatisierung:
+    % - Begründung: Vollständig automatisierte Pipeline ohne manuelle Hyperparameter-Intervention
+    % - eliminiert subjektive Bias durch deterministische Ausführung und gewährleistet Inter-Operator-Reliabilität
+    % - Deterministische Reproduzierbarkeit: RANDOM_STATE=42 für alle stochastischen Komponenten
+    % - ermöglicht bit-level reproducibility für scientific integrity und peer review validation
+    % - Standardisierte Train/Validation/Test-Splits respektieren offizielle Datensatz-Partitionierung
+    % - prevents data leakage und maintains established benchmark comparability
+    %
+    % Reliabilität durch statistische Robustheit:
+    % - Begründung: Robustheit durch 5-Fold Cross-Validation mit statistischer Aggregation
+    % - und confidence interval estimation für uncertainty quantification
+    % - Fault-Tolerant Execution: Incremental Result Storage mit automatischer Recovery
+    % - resiliente Experimentaldurchführung bei long-running computational experiments
+    % - Comprehensive Unit Testing: 15+ Tests für Feature-Alignment, Metrics, I/O-Pipeline
+    % - automated quality assurance für complex experimental infrastructure
+    %
+    % Validität durch wissenschaftliche Standards:
+    % - Begründung: Construct Validity durch Transfer-Metriken validiert durch Domain-Expert-Review
+    % - und theoretical foundation in transfer learning literature
+    % - External Validity: Etablierte Benchmark-Datensätze für wissenschaftliche Vergleichbarkeit
+    % - mit internationaler research community und meta-analysis integration
+    % - Internal Validity: Kontrollierte experimentelle Bedingungen, keine Data Leakage
+    % - strict separation of training/validation/test sets across all experimental phases
+    %
+    % Computational Reproducibility durch umfassende Dokumentation:
+    % - Begründung: Environment Validation durch validate_environment.py für System-Kompatibilität
+    % - proactive identification von Platform-spezifischen Incompatibilities vor Experiment-Execution
+    % - Dependency Management: requirements.txt mit Version-Pinning für deterministic software environment
+    % - Git-Version-Control: Vollständige Code-Historie und Experiment-Tracking für scientific provenance
+    %
+    % Memory-Management und Computational Efficiency:
+    % - Begründung: Adaptive Memory Management System für scalable execution
+    % - Scientific Mode Enforcement: SCIENTIFIC_MODE=1 forciert Full-Dataset-Usage (>16GB RAM)
+    % - Dynamic Memory Configuration basierend auf available system resources
+    % - Real-Time Memory Monitoring mit MemoryMonitor Context Manager für Resource-Tracking
+    % - prevents out-of-memory failures bei memory-intensive algorithmen
+
+    \subsection{Memory-Adaptation und Computational Challenges}
+    % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - MEMORY-ADAPTATION
+    %
+    % Adaptive Memory Management System für scalable execution:
+    % - Begründung: Scientific Mode Enforcement mit SCIENTIFIC_MODE=1 forciert Full-Dataset-Usage (>16GB RAM)
+    % - für maximale wissenschaftliche Rigorosität und realistische large-scale evaluation scenarios
+    % - Dynamic Memory Configuration: 32GB→30K Batch, 16GB→20K Batch, <16GB→Reduced Dataset
+    % - adaptive scaling basierend auf available system resources ohne compromising statistical validity
+    % - Real-Time Memory Monitoring: MemoryMonitor Context Manager für Resource-Tracking
+    % - proactive resource management prevents Out-of-Memory-Failures bei memory-intensive Algorithmen
+    % - Intelligent Garbage Collection: Explizite del statements und gc.collect() nach Processing-Phasen
+    % - optimized memory footprint für sustained long-running computational experiments
+    %
+    % Incremental Learning für Large-Scale-Datasets (wissenschaftliche Innovation):
+    % - Begründung: SGDClassifier mit partial_fit() für CIC-Full-Dataset (2.8M Samples)
+    % - scalable Learning ohne Memory-Overflow, repräsentiert realistic deployment scenarios
+    % - Chunk-basiertes Streaming: 20K Sample Batches mit Class-Balance-Preservation
+    % - maintains statistical properties der original dataset distribution bei memory-efficient processing
+    % - Adaptive Sample Weighting: Inverse Frequency Weighting basierend auf kumulativer Class-Distribution
+    % - dynamic compensation für inherente class imbalance (83% normal vs. 17% attack) ohne aggressive resampling
+    % - Online Class-Weight-Adaptation: Dynamic Gewichtsanpassung während Incremental Training
+    % - real-time adaptation to evolving class distributions in streaming scenarios
+    %
+    % Computational Efficiency Optimizations für praxisnahe Performance:
+    % - Begründung: Model-Specific Tuning mit tree_method="hist" für XGBoost, algorithm="kd_tree" für k-NN
+    % - optimized algorithm variants für large-scale datasets ohne accuracy degradation
+    % - Parallel Processing: n_jobs=-1 für CPU-Kern-Auslastung bei Ensemble-Modellen
+    % - computational efficiency bei umfangreichen Experimenten ohne compromising result quality
+    % - Early Stopping: MLP validation_fraction=0.1, max_iter=120 für Overfitting-Prävention
+    % - automatic regularization und computational efficiency bei deep learning components
+    % - Checkpoint System: Automatic Model Persistence mit pickle für Intermediate-Results
+    % - fault-tolerance für continuation von unterbrochenen long-running experiments
+
+    \subsection{Methodische Abgrenzungen und wissenschaftliche Limitationen}
+    % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - METHODISCHE ABGRENZUNGEN
+    %
+    % Bewusste Scope-Einschränkungen mit wissenschaftlicher Begründung:
+    % - Begründung: Fokus auf Supervised Binary Classification (Normal vs. Attack) ohne Multi-Class-Granularität
+    % - ermöglicht focused analysis der fundamental transfer learning challenges
+    % - ohne complexity dilution durch attack-type-specific classification nuances
+    % - Statische Feature-Sets ohne Real-Time-Feature-Engineering oder Online-Adaptation
+    % - controlled experimental conditions für systematic comparative evaluation
+    % - eliminiert dynamic feature engineering als confounding variable
+    % - Cross-Sectional-Design ohne Temporal-Drift-Modeling oder Concept-Drift-Adaptation
+    % - snapshot-based evaluation ermöglicht reproducible benchmarking
+    % - temporal drift analysis würde separate longitudinal study design erfordern
+    % - Ausschluss von Deep Learning: CNNs/RNNs aufgrund Computational-Constraints und Interpretability
+    % - focus auf interpretable ML für cybersecurity domain expert acceptance
+    % - computational feasibility für comprehensive comparative study
+    %
+    % Inhärente Limitationen mit transparent acknowledgment:
+    % - Begründung: Dataset Temporal Gap mit 19-Jahre Technology-Evolution zwischen NSL-KDD (1998) und CIC-IDS-2017 (2017)
+    % - reflects realistic challenge of temporal transfer in evolving cybersecurity landscape
+    % - provides unique opportunity für temporal generalization assessment
+    % - Feature Space Heterogenität: Nur 6 gemeinsame Features aus 41+79 verfügbaren Dimensionen
+    % - conservative approach ensures semantic feature alignment validity
+    % - trade-off zwischen feature richness und cross-dataset compatibility
+    % - Simulated vs. Real Traffic: NSL-KDD basiert auf simulierten, CIC auf realen Network-Captures
+    % - complementary data sources provide robustness assessment across simulation/reality gap
+    % - Geographic Bias: Beide Datensätze stammen aus nordamerikanischen Forschungsumgebungen
+    % - limitation für global generalizability, acknowledged für future international validation
+    %
+    % Threat to Validity mit wissenschaftlicher Reflexion:
+    % - Begründung: External Validity - Generalisierbarkeit auf andere Netzwerk-Topologien unbekannt
+    % - requires future validation in diverse network environments (IoT, 5G, cloud)
+    % - Construct Validity - PCA-Alignment könnte task-relevante Information eliminieren
+    % - trade-off zwischen dimensionality reduction und information preservation
+    % - validated durch explained variance retention >95%
+    % - Temporal Validity - Performance-Trends möglicherweise nicht auf zukünftige Bedrohungen übertragbar
+    % - inherent limitation von static ML models für evolving threat landscape
+    %
+    % Ethische Überlegungen und Responsible AI:
+    % - Begründung: Datenschutz durch Verwendung öffentlich verfügbarer, anonymisierter Benchmark-Datensätze
+    % - Compliance mit Forschungsethik-Standards ohne Privacy-Risiken für reale Netzwerknutzer
+    % - Computational Carbon Footprint: Energy-efficient Algorithm-Selection und Resource-Optimization
+    % - Responsible AI-Practices durch minimierte environmental impact bei extensiven Experimenten
+    % - Bias Awareness: Acknowledged geographic und temporal bias für transparent limitation disclosure
+
 
     \section{Ergebnisse}
 
