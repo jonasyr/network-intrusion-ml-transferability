@@ -37,6 +37,7 @@ Scale=1.0
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{float}
 \usepackage{siunitx}
 \sisetup{detect-all}                      % Sans-Serif in siunitx
 \usepackage{csquotes}                     % saubere Anführungszeichen / Blockzitate
@@ -524,8 +525,68 @@ giveninits=true % Nur Initialen für Vornamen
 
     % ---------- Anhänge ----------
     \appendix
-    \section{Zusatzabbildungen}
-    (Optionaler Inhalt des Anhangs.)
+    \section{Dataset-Charakterisierung und Explorative Analyse}
+    \label{app:dataset_analysis}
+
+    \subsection{NSL-KDD Attack Distribution}
+    \label{app:nsl_attack_dist}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{../data/results/paper_figures/nsl_attack_distribution_analysis.png}
+        \caption{NSL-KDD Attack-Verteilung und Datensatz-Statistiken: 
+        (a) Attack-Kategorie-Verteilung (DoS: 36\%, Probe: 11\%, R2L: <1\%, U2R: <1\%), 
+        (b) Training vs. Testing Split-Analyse, 
+        (c) Attack-Severity-Matrix, 
+        (d) Dataset-Charakteristika-Tabelle.}
+        \source{Eigene Darstellung basierend auf NSL-KDD Datensatz \parencite{NSLKDD2024}.}
+        \label{fig:nsl_attack_dist}
+    \end{figure}
+
+    \paragraph{Interpretation der Attack-Verteilung}
+    Die NSL-KDD-Verteilung zeigt:
+    \begin{itemize}
+        \item Dominanz von DoS-Angriffen (36\% aller Attack-Samples)
+        \item Starke Klassenimbalance bei U2R (User-to-Root, <0.1\%)
+        \item Probe-Angriffe (11\%) gut repräsentiert für Pattern-Detection
+    \end{itemize}
+
+    \subsection{CIC-IDS-2017 Attack Distribution}
+    \label{app:cic_attack_dist}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{../data/results/paper_figures/cic_attack_distribution_analysis.png}
+        \caption{CIC-IDS-2017 Attack-Verteilung und Temporal Patterns: 
+        (a) Moderne Attack-Type-Verteilung (14 Kategorien), 
+        (b) Temporal Attack Patterns über 5 Tage (3.-7. Juli 2017), 
+        (c) Attack-Severity-Heatmap, 
+        (d) Vergleichstabelle mit NSL-KDD.}
+        \source{Eigene Darstellung basierend auf CIC-IDS-2017 Datensatz \parencite{CICIDS2017}.}
+        \label{fig:cic_attack_dist}
+    \end{figure}
+
+    \paragraph{Unterschiede zu NSL-KDD}
+    CIC-IDS-2017 zeichnet sich aus durch:
+    \begin{itemize}
+        \item Moderne Attack-Vektoren (Heartbleed, SQL-Injection, XSS)
+        \item Temporale Variabilität (Tag 3: DDoS-Peak, Tag 5: Port-Scan-Aktivität)
+        \item Realistischere Klassenimbalance (83\% Normal, 17\% Attack)
+    \end{itemize}
+
+    \subsection{Dataset Comparison Overview}
+    \label{app:dataset_comparison}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{../data/results/paper_figures/dataset_comparison_overview.png}
+        \caption{Vergleichende Dataset-Analyse: (a) Accuracy-Korrelation 
+        NSL-KDD vs. CIC (Pearson r = 0.72, p < 0.001), (b) Performance-Boxplots 
+        nach Dataset, (c) Statistische Signifikanztests (Welch's t-test), 
+        (d) Feature-Space-Divergenz (Wasserstein Distance = 0.148).}
+        \source{Eigene Darstellung.}
+        \label{fig:app_dataset_comparison}
+    \end{figure}
 
     \section{Pseudocode}
     (Optionaler Inhalt des Anhangs.)

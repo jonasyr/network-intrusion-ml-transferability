@@ -18,6 +18,11 @@
 \contentsline {section}{\numberline {5}Diskussion}{8}{section.5}%
 \contentsline {section}{\numberline {6}Fazit}{9}{section.6}%
 \contentsline {section}{Anhangsverzeichnis}{11}{section.6}%
-\contentsline {section}{\numberline {A}Zusatzabbildungen}{12}{appendix.A}%
-\contentsline {section}{\numberline {B}Pseudocode}{13}{appendix.B}%
-\contentsline {section}{Nützliche LaTeX-Referenz}{14}{appendix.B}%
+\contentsline {section}{\numberline {A}Dataset-Charakterisierung und Explorative Analyse}{12}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}NSL-KDD Attack Distribution}{12}{subsection.A.1}%
+\contentsline {paragraph}{Interpretation der Attack-Verteilung}{12}{paragraph*.7}%
+\contentsline {subsection}{\numberline {A.2}CIC-IDS-2017 Attack Distribution}{13}{subsection.A.2}%
+\contentsline {paragraph}{Unterschiede zu NSL-KDD}{13}{paragraph*.9}%
+\contentsline {subsection}{\numberline {A.3}Dataset Comparison Overview}{14}{subsection.A.3}%
+\contentsline {section}{\numberline {B}Pseudocode}{15}{appendix.B}%
+\contentsline {section}{Nützliche LaTeX-Referenz}{16}{appendix.B}%
