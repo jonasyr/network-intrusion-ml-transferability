@@ -435,13 +435,49 @@ giveninits=true % Nur Initialen für Vornamen
 
     \subsection{Traditionelle versus Machine Learning-basierte Detektionsansätze}
 
+    Die Evolution der Anomalieerkennungstechnologien lässt sich in zwei fundamentale Paradigmen unterteilen: signaturbasierte und anomaliebasierte Verfahren, wobei letztere zunehmend durch  Machine Learning-Ansätze implementiert werden \parencite{Ring2019, Belavagi2016}.
+
+    \textbf{Signaturbasierte Systeme} operieren nach dem Prinzip des Musterabgleichs und vergleichen den aktuellen Netzwerkverkehr mit einer Datenbank bekannter Angriffssignaturen \parencite{Ring2019}. Diese Systeme zeichnen sich durch hohe Präzision bei der Erkennung bereits katalogisierter Bedrohungen aus und generieren typischerweise niedrige False-Positive-Raten. Die fundamentale Limitation signaturbasierter Ansätze liegt jedoch in ihrer Reaktivität: Sie können ausschließlich Angriffe identifizieren, deren Signaturen bereits in der Datenbank hinterlegt sind \parencite{Vinayakumar2019}. Diese Eigenschaft macht sie anfällig für Zero-Day-Exploits, polymorphe Malware und neuartige Angriffstechniken, die noch nicht in den Signaturdatenbanken erfasst sind.
+
+    \textbf{Anomaliebasierte Systeme} verfolgen einen proaktiven Ansatz, indem sie zunächst ein statistisches Modell des normalen Netzwerkverhaltens etablieren und anschließend Abweichungen von diesem Baseline-Verhalten als potenzielle Bedrohungen klassifizieren \parencite{Ring2019}. Der entscheidende Vorteil dieses Paradigmas liegt in der theoretischen Fähigkeit zur Detektion unbekannter Angriffsmuster und Zero-Day-Exploits \parencite{Vinayakumar2019}. Allerdings erfordert die praktische Umsetzung eine präzise Modellierung des Normalverhaltens sowie die Definition geeigneter Schwellenwerte zur Minimierung von False-Positive-Meldungen.
+
+    Machine Learning-basierte Ansätze haben das potenzial, die Limitationen beider traditioneller Paradigmen zu überwinden. Überwachte Lernverfahren können komplexe, nichtlineare Beziehungen zwischen Netzwerkfeatures und Angriffskategorien erlernen, während unüberwachte Methoden in der Lage sind, neuartige Anomaliemuster ohne vorherige Kennzeichnung zu identifizieren \parencite{Vinayakumar2019}. Die Integration von Deep Learning-Techniken ermöglicht zudem die automatische Feature-Extraction aus hochdimensionalen Netzwerkdaten, wodurch manuell entwickelte Heuristiken obsolet werden \parencite{Goodfellow2016}.
 
     \subsection{Machine Learning-Taxonomie für Anomalieerkennung}
 
+    Die Anwendung von Machine Learning-Verfahren in der Netzwerk-Anomalieerkennung lässt sich systematisch in drei Hauptkategorien unterteilen, die jeweils unterschiedliche theoretische Ansätze und praktische Implementierungsstrategien verfolgen \parencite{Vinayakumar2019}.
+
+    \textbf{Überwachtes Lernverfahren} nutzen gelabelte Trainingsdaten, um explizite Mappings zwischen Netzwerkfeatures und Angriffskategorien zu erlernen. \textbf{Decision Trees} implementieren hierarchische Entscheidungsregeln und bieten hohe Interpretierbarkeit, leiden jedoch unter Overfitting bei komplexen Datensätzen \parencite{Hastie2009}. \textbf{Random Forest} erweitert diesen Ansatz durch Ensemble-Learning und reduziert Overfitting durch die Aggregation multipler Entscheidungsbäume \parencite{Hastie2009}. Die theoretische Grundlage basiert auf dem Bootstrap Aggregating (Bagging) Prinzip, welches die Varianz des Gesamtmodells durch Mittelwertbildung über diversifizierte Submodelle reduziert.
+
+    \textbf{k-Nearest Neighbors (k-NN)} implementiert einen instanzbasierten Lernansatz, der Klassifikationsentscheidungen auf Basis der lokalen Nachbarschaftsstruktur im Feature-Space trifft \parencite{Bishop2006}. Während k-NN theoretisch universelle Approximationseigenschaften besitzt, ist die praktische Performance stark abhängig von der Dimensionalität des Feature-Space und der Wahl geeigneter Distanzmetriken. \textbf{Support Vector Machines (SVM)} maximieren den Margin zwischen Klassen durch die Identifikation optimaler Hyperebenen im transformierten Feature-Space \parencite{Platt1999}. Die Kernel-Trick-Methodik ermöglicht die Behandlung nichtlinearer Klassifikationsprobleme durch implizite Transformation in höherdimensionale Räume.
+
+    \textbf{Ensemble-basierte Verfahren} kombinieren multiple Basis-Lerner zur Verbesserung der Generalisierungsleistung. \textbf{XGBoost} implementiert Gradient Boosting mit erweiterten Regularisierungstechniken und optimierten Baum-Konstruktionsalgorithmen \parencite{Hastie2009}. Die theoretische Grundlage basiert auf der sequenziellen Addition schwacher Lerner, wobei jeder neue Baum darauf optimiert wird, die Residuen der vorherigen Iteration zu minimieren. \textbf{LightGBM} erweitert diesen Ansatz durch Gradient-based One-Side Sampling (GOSS) und Exclusive Feature Bundling (EFB), wodurch sowohl Trainingseffizienz als auch Memory-Footprint signifikant reduziert werden.
+
+    \textbf{Neuronale Netzwerke} ermöglichen die automatische Extraktion hierarchischer Feature-Repräsentationen aus Rohdaten. \textbf{Multilayer Perceptrons (MLP)} implementieren universelle Funktionsapproximatoren durch die Kombination nichtlinearer Aktivierungsfunktionen in mehrschichtigen Architekturen \parencite{Goodfellow2016}. \textbf{Autoencoder} folgen einem unüberwachten Lernparadigma und erlernen kompakte Repräsentationen durch Dimensionsreduktion in einem Encoder-Decoder-Framework. Anomalien werden durch hohe Rekonstruktionsfehler identifiziert, wobei die theoretische Annahme besteht, dass normale Datenverteilungen effizienter kodiert werden können als anomale Muster.
 
     \subsection{Transfer Learning und Cross-Dataset-Generalisierung}
 
+    Die Transferierbarkeit von Machine Learning-Modellen zwischen verschiedenen Datensätzen stellt eine der zentralen Herausforderungen in der praktischen Anwendung von Anomalieerkennungssystemen dar. \textbf{Transfer Learning} definiert die Fähigkeit eines Systems, Wissen aus einer Quelldomäne zu nutzen, um die Performance in einer verwandten Zieldomäne zu verbessern \parencite{Goodfellow2016}. Im Kontext der Netzwerk-Anomalieerkennung manifestiert sich diese Problematik in der Frage, inwieweit Modelle, die auf einem spezifischen Datensatz trainiert wurden, auf andere Netzwerkumgebungen oder zeitlich versetzte Datenverteilungen generalisieren können.
 
+    \textbf{Domain Adaption} beschreibt den systematischen Transfer von Lernmodellen zwischen Quell- und Zieldomänen, die durch unterschiedliche Datenverteilungen charakterisiert sind \parencite{Goodfellow2016}. In der Praxis unterscheiden sich Netzwerk-Datensätze fundamental in ihrer \textbf{Feature-Dimensionalität} (NSL-KDD: 41 Features vs. CIC-IDS-2017: 79 Features), \textbf{temporalen Abdeckung} (historische vs. moderne Angriffsmuster) und \textbf{Netzwerktopologie} (simulierte vs. reale Umgebungen). Diese Divergenzen führen zu \textbf{Distribution Shift}, einem Phänomen, bei dem die Joint-Probability-Distribution P(X,Y) zwischen Training und Test differiert.
+
+    Die \textbf{Generalisierungslücke} quantifiziert die Performance-Degradation beim Transfer zwischen Datensätzen und lässt sich formal definieren als:
+
+    \begin{equation}
+        \text{Generalization Gap} = \text{Performance}_{\text{source}} - \text{Performance}_{\text{target}}
+    \end{equation}
+
+    \textbf{Concept Drift} beschreibt zeitliche Veränderungen in der zugrundeliegenden Datenverteilung, die besonders relevant für die Cybersicherheit sind, da sich Angriffstechniken kontinuierlich weiterentwickeln \parencite{Ring2019}. \textbf{Covariate Shift} tritt auf, wenn sich die Eingabedatenverteilung $P(X)$ ändert, während die bedingte Verteilung $P(Y|X)$ konstant bleibt. \textbf{Prior Probability Shift} bezeichnet Veränderungen in der Klassenverteilung $P(Y)$, während \textbf{Concept Shift} fundamentale Änderungen in der Beziehung $P(Y|X)$ beschreibt.
+
+    \textbf{Cross-Dataset-Robustheit} erfordert die Entwicklung von Metriken, die über traditionelle Within-Dataset-Evaluationen hinausgehen. Die \textbf{Transfer Ratio} quantifiziert die relative Performance-Retention:
+
+    \begin{equation}
+        \text{Transfer Ratio} = \frac{\text{Performance}_{\text{cross-dataset}}}{\text{Performance}_{\text{within-dataset}}}
+    \end{equation}
+
+    Werte nahe 1.0 indizieren hohe Transferierbarkeit, während niedrige Werte auf domänenspezifische Überanpassung hindeuten. Die theoretische Erwartung basiert auf der Hypothese, dass robuste Algorithmen invariante Feature-Repräsentationen erlernen, die weniger anfällig für Domain-Specific-Bias sind.
+
+    Die \textbf{Wasserstein-Distanz} bietet eine theoretisch fundierte Metrik zur Quantifizierung der Divergenz zwischen Datenverteilungen und ermöglicht die systematische Analyse der Domain-Gap zwischen NSL-KDD und CIC-IDS-2017. Diese Distanz-basierte Analyse kann prädiktive Insights bezüglich der erwarteten Transfer-Performance verschiedener Algorithmus-Klassen liefern.
 
     \section{Methodik}
     Design, Daten, Preprocessing, Metriken, Validierung.
