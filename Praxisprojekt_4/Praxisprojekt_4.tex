@@ -400,11 +400,11 @@ giveninits=true % Nur Initialen für Vornamen
     \section{Einleitung}
     \subsection{Motivation und Problemstellung}
 
-    Mit über 10,5 Billionen US-Dollar geschätzten jährlichen Schäden bis 2025 stellen Cyberangriffe eine der größten globalen Bedrohungen dar \parencite{GlobalRisksReport2024}. Gemäß dem Global Risk Report 2024 des Weltwirtschaftsforums gehören Cyberangriffe zu den fünf bedeutendsten globalen Risiken in den nächsten Jahren, was einer Verdreifachung der finanziellen Verluste im Vergleich zu 2015 entspricht \parencite{GlobalRisksReport2024}. Diese besorgniserregenden Statistiken unterstreichen die akute Notwendigkeit wirksamer Sicherheitsvorkehrungen zum Schutz kritischer Infrastrukturen \parencite{Taman2024}.
+    Mit über 10,5 Billionen US-Dollar geschätzten jährlichen Schäden bis 2025 stellen Cyberangriffe eine der größten globalen Bedrohungen dar \parencite{GlobalRisksReport2024}. Diese besorgniserregenden Statistiken unterstreichen die akute Notwendigkeit wirksamer Sicherheitsvorkehrungen zum Schutz kritischer Infrastrukturen \parencite{Taman2024}.
 
-    Traditionelle signaturbasierte Intrusion Detection Systeme (IDS) erreichen zunehmend ihre Grenzen bei der Erkennung neuartiger Zero-Day-Exploits und unbekannter Angriffsmuster \parencite{Ring2019,Belavagi2016}. Diese Systeme können lediglich bekannte Signaturen identifizieren und versagen bei der Detektion innovativer Bedrohungen. Gleichzeitig führen die steigende Vernetzung und Digitalisierung zu einer kontinuierlichen Zunahme der Angriffsvektoren und einer erhöhten Komplexität der Netzwerkumgebungen.
+    Traditionelle signaturbasierte Intrusion Detection Systeme (IDS) erreichen zunehmend ihre Grenzen bei der Erkennung neuartiger Zero-Day-Exploits und unbekannter Angriffsmuster \parencite{Ring2019,Belavagi2016}. Machine Learning (ML) bietet das Potenzial, diese Limitationen zu überwinden, jedoch ist die tatsächliche Wirksamkeit verschiedener ML-Modelle in heterogenen Netzwerken noch nicht vollständig geklärt. Ein kritisches Problem stellt dabei die Generalisierungsfähigkeit dar: Während Modelle auf spezifischen Trainingsdaten exzellente Leistungen erzielen, zeigen sie oft dramatische Leistungseinbußen beim Transfer auf neue Netzwerkumgebungen \parencite{Ring2019}.
 
-    Machine Learning (ML) bietet das Potenzial, diese Limitationen zu überwinden und auch bisher unbekannte Angriffsmuster aufzudecken \parencite{Vinayakumar2019}. Dennoch ist die tatsächliche Wirksamkeit verschiedener ML-Modelle in heterogenen Netzwerken noch nicht vollständig geklärt. Ein kritisches Problem stellt dabei die Generalisierungsfähigkeit dar: Während Modelle auf spezifischen Trainingsdaten exzellente Leistungen erzielen, zeigen sie oft dramatische Leistungseinbußen beim Transfer auf neue Netzwerkumgebungen oder unterschiedliche Datensätze \parencite{Ring2019}.
+    \textbf{Forschungslücke}: Bisherige Studien konzentrieren sich primär auf Within-Dataset-Evaluationen und vernachlässigen die praktisch relevante Frage der Cross-Dataset-Transferierbarkeit \parencite{Mourouzis2021}. Die systematische Bewertung der Generalisierungsfähigkeit zwischen fundamental verschiedenen Netzwerk-Datensätzen, insbesondere zwischen historischen Benchmarks wie NSL-KDD und modernen Datensätzen wie CIC-IDS-2017, bleibt eine unzureichend erforschte, aber praxiskritische Herausforderung.
 
     \subsection{Forschungsfrage und Zielsetzung}
 
@@ -412,27 +412,21 @@ giveninits=true % Nur Initialen für Vornamen
 
     \textit{„Inwieweit sind Machine-Learning-Modelle für Netzwerk-Anomalieerkennung zwischen verschiedenen Datensätzen übertragbar?"}
 
-    Die Untersuchung fokussiert sich auf die Cross-Dataset-Transferierbarkeit zwischen dem NSL-KDD-Datensatz \parencite{NSLKDD2024} (simulierter Netzwerkverkehr von 1998 mit 125.973 Trainingsdatensätzen) und dem CIC-IDS-2017-Datensatz \parencite{CICIDS2017,Sharafaldin2018} (realistischer Netzwerkverkehr mit 2,8 Millionen Datenpunkten aus einer fünftägigen Netzwerkumgebung). Diese Datensätze unterscheiden sich fundamental in ihrer Datenverteilung, Merkmalsdimensionalität und den abgebildeten Angriffsszenarien \parencite{Mourouzis2021}.
+    Die Untersuchung fokussiert sich auf die Cross-Dataset-Transferierbarkeit zwischen NSL-KDD (1998, 41 Features) und CIC-IDS-2017 (2017, 79 Features), die sich fundamental in Datenverteilung, Merkmalsdimensionalität und Angriffsszenarien unterscheiden \parencite{Mourouzis2021}.
 
-    Die konkreten Forschungsziele umfassen:
+    Die konkreten Forschungsziele umfassen erstens die \textbf{systematische Cross-Dataset-Evaluation} durch bidirektionale Transferanalyse mit zwölf ML-Algorithmen von Baseline-Modellen (Random Forest, Decision Tree, k-NN, Logistic Regression, Naive Bayes, Linear SVM) bis zu Advanced-Modellen (XGBoost, LightGBM, Gradient Boosting, Extra Trees, MLP, Voting Classifier). Zweitens erfolgt die \textbf{Entwicklung neuartiger Transfer-Metriken} durch Einführung von Generalization Gap, Transfer Ratio und Relative Performance Drop als quantitative Maße für Cross-Dataset-Robustheit. Drittens wird eine \textbf{Feature-Space-Harmonisierung} zur Überbrückung der Dimensionalitätslücke (41 vs. 79 Dimensionen) implementiert. Viertens zielt die Arbeit auf \textbf{praktische Deployment-Guidance} durch Identifikation der transferrobustesten Algorithmen für heterogene Netzwerkumgebungen ab.
 
-    \begin{itemize}
-        \item \textbf{Vergleichende Evaluation}: Systematische Bewertung von Baseline-Modellen (Random Forest, Decision Tree, k-NN) und Advanced-Modellen (XGBoost, LightGBM, Neural Networks) hinsichtlich ihrer Intra-Dataset-Performance und Cross-Dataset-Robustheit.
-        \item \textbf{Cross-Dataset-Transferierbarkeit}: Quantifizierung der Generalisierungslücken beim Transfer zwischen NSL-KDD und CIC-IDS-2017 sowie Identifikation der robustesten Algorithmen für heterogene Netzwerkumgebungen.
-        \item \textbf{Praktische Effizienzbetrachtung}: Analyse des Trade-offs zwischen Erkennungsleistung und computational Effizienz durch systematische Messung von Trainings- und Inferenzzeiten zur Bewertung der Praktikabilität in Echtzeit-Systemen.
-    \end{itemize}
 
-    Die Ergebnisse sollen konkrete Handlungsempfehlungen für die effektive Anwendung von ML-Modellen in verschiedenen Netzwerkszenarien liefern und zur aktuellen Forschungslandschaft der adaptiven Anomalieerkennung beitragen.
 
     \subsection{Aufbau der Arbeit}
 
-    Die Arbeit gliedert sich in vier aufeinander aufbauende Hauptteile. Zunächst werden in den \textit{theoretischen Grundlagen} die konzeptionellen Fundamente der Netzwerk-Anomalieerkennung etabliert. Dabei erfolgt eine systematische Einordnung signaturbasierter versus anomaliebasierter Detektionsansätze sowie eine Taxonomie der eingesetzten Machine-Learning-Verfahren – von traditionellen Algorithmen wie Random Forest über moderne Ensemble-Methoden bis hin zu neuronalen Netzen \parencite{McHugh2000,Vinayakumar2019}.
+    Die Arbeit gliedert sich in vier aufeinander aufbauende Hauptteile. Zunächst werden in den \textit{theoretischen Grundlagen} die konzeptionellen Fundamente der Netzwerk-Anomalieerkennung etabliert, einschließlich einer Taxonomie der eingesetzten Machine-Learning-Verfahren \parencite{McHugh2000,Vinayakumar2019}.
 
-    Im \textit{methodischen Teil} wird das dreistufige Evaluationsframework vorgestellt, das Within-Dataset-Validation, Cross-Dataset-Transfer und Feature-Harmonisierung systematisch kombiniert. Besondere Berücksichtigung finden dabei die Herausforderungen der Datenvorverarbeitung und die Behandlung von Klassenimbalance in heterogenen Netzwerkumgebungen \parencite{Gharib2016}.
+    Im \textit{methodischen Teil} wird das dreistufige Evaluationsframework vorgestellt, das Within-Dataset-Validation, Cross-Dataset-Transfer und Feature-Harmonisierung systematisch kombiniert \parencite{Gharib2016}.
 
-    Die \textit{empirische Analyse} präsentiert die Ergebnisse der umfassenden Modellvergleiche zwischen NSL-KDD und CIC-IDS-2017. Neben klassischen Performance-Metriken werden neuartige Transfer-Kennzahlen wie Generalization Gap und Transfer Ratio eingeführt, um die Cross-Dataset-Robustheit quantitativ zu bewerten. Feature-Importance-Analysen decken die prädiktiven Schlüsselvariablen auf und charakterisieren deren datensatzspezifische Eigenschaften.
+    Die \textit{empirische Analyse} präsentiert die Ergebnisse der umfassenden Modellvergleiche zwischen NSL-KDD und CIC-IDS-2017. Neben klassischen Performance-Metriken werden neuartige Transfer-Kennzahlen wie Generalization Gap und Transfer Ratio eingeführt.
 
-    Abschließend werden in der \textit{Diskussion} die praktischen Implikationen für IDS-Deployments erörtert. Die Erkenntnisse münden in konkrete Handlungsempfehlungen für die Modellauswahl sowie einen Ausblick auf zukünftige Forschungsrichtungen in Transfer Learning und Explainable AI für Cybersicherheitsanwendungen. Der wissenschaftliche Beitrag liegt in der erstmaligen systematischen Cross-Dataset-Evaluation von zwölf ML-Modellen unter realistischen Transferbedingungen und der empirischen Quantifizierung von Generalisierungslücken zwischen historischen und modernen IDS-Benchmarks.
+    Abschließend werden in der \textit{Diskussion} die praktischen Implikationen für IDS-Deployments erörtert. Der wissenschaftliche Beitrag liegt in der erstmaligen systematischen Cross-Dataset-Evaluation von zwölf ML-Modellen unter realistischen Transferbedingungen sowie der Entwicklung neuartiger Transfer-Metriken für ML-basierte Cybersecurity-Systeme.
 
 
     \section{Theoretische Fundierung}
@@ -620,12 +614,7 @@ giveninits=true % Nur Initialen für Vornamen
     \end{figure}
 
     \paragraph{Interpretation der Attack-Verteilung}
-    Die NSL-KDD-Verteilung zeigt:
-    \begin{itemize}
-        \item Dominanz von DoS-Angriffen (36\% aller Attack-Samples)
-        \item Starke Klassenimbalance bei U2R (User-to-Root, <0.1\%)
-        \item Probe-Angriffe (11\%) gut repräsentiert für Pattern-Detection
-    \end{itemize}
+    Die NSL-KDD-Verteilung zeigt eine Dominanz von DoS-Angriffen (36\% aller Attack-Samples), eine starke Klassenimbalance bei U2R (User-to-Root, <0.1\%) sowie gut repräsentierte Probe-Angriffe (11\%) für Pattern-Detection.
 
     \subsection{CIC-IDS-2017 Attack Distribution}
     \label{app:cic_attack_dist}
@@ -643,12 +632,7 @@ giveninits=true % Nur Initialen für Vornamen
     \end{figure}
 
     \paragraph{Unterschiede zu NSL-KDD}
-    CIC-IDS-2017 zeichnet sich aus durch:
-    \begin{itemize}
-        \item Moderne Attack-Vektoren (Heartbleed, SQL-Injection, XSS)
-        \item Temporale Variabilität (Tag 3: DDoS-Peak, Tag 5: Port-Scan-Aktivität)
-        \item Realistischere Klassenimbalance (83\% Normal, 17\% Attack)
-    \end{itemize}
+    CIC-IDS-2017 zeichnet sich durch moderne Attack-Vektoren (Heartbleed, SQL-Injection, XSS), temporale Variabilität (Tag 3: DDoS-Peak, Tag 5: Port-Scan-Aktivität) und eine realistischere Klassenimbalance (83\% Normal, 17\% Attack) aus.
 
     \subsection{Dataset Comparison Overview}
     \label{app:dataset_comparison}
@@ -692,14 +676,7 @@ giveninits=true % Nur Initialen für Vornamen
     \end{figure}
 
     \paragraph{ROC-Interpretation}
-    \begin{itemize}
-        \item \textbf{XGBoost/LightGBM:} Nahezu vertikaler Anstieg bei TPR $\approx$ 1.0,
-        FPR $\approx$ 0.0 indiziert optimale Klassifikation
-        \item \textbf{SVM-Linear:} AUC = 0.35 (schlechter als Random) aufgrund
-        nicht-linearer Separierbarkeit
-        \item \textbf{Naive Bayes:} AUC = 0.95 zeigt gute probabilistische Kalibrierung
-        trotz Feature-Unabhängigkeits-Annahme
-    \end{itemize}
+    Die ROC-Analyse zeigt bei \textbf{XGBoost/LightGBM} einen nahezu vertikalen Anstieg bei TPR $\approx$ 1.0 und FPR $\approx$ 0.0, was eine optimale Klassifikation indiziert. \textbf{SVM-Linear} erreicht eine AUC von 0.35 (schlechter als Random) aufgrund nicht-linearer Separierbarkeit, während \textbf{Naive Bayes} mit AUC = 0.95 eine gute probabilistische Kalibrierung trotz Feature-Unabhängigkeits-Annahme zeigt.
 
     \subsection{CIC-IDS-2017 ROC-Kurven}
     \label{app:cic_roc}
@@ -756,15 +733,7 @@ giveninits=true % Nur Initialen für Vornamen
     \end{figure}
 
     \paragraph{PR-Kurven vs. ROC-Kurven}
-    Bei starker Klassenimbalance (CIC-IDS-2017):
-    \begin{itemize}
-        \item \textbf{ROC-Kurven:} Können übermäßig optimistisch wirken
-        (hohe TN-Zahlen dominieren)
-        \item \textbf{PR-Kurven:} Fokussieren auf Minority Class (Attack),
-        daher realistischere Einschätzung
-        \item \textbf{Beispiel:} Random Forest CIC-IDS hat ROC-AUC = 1.0,
-        aber AP = 0.999 (minimale Precision-Degradation bei hohem Recall)
-    \end{itemize}
+    Bei starker Klassenimbalance (CIC-IDS-2017) können \textbf{ROC-Kurven} übermäßig optimistisch wirken, da hohe TN-Zahlen dominieren, während \textbf{PR-Kurven} sich auf die Minority Class (Attack) fokussieren und daher eine realistischere Einschätzung liefern. Ein Beispiel hierfür ist Random Forest CIC-IDS mit ROC-AUC = 1.0, aber AP = 0.999, was eine minimale Precision-Degradation bei hohem Recall zeigt.
 
     \subsection{Konfusionsmatrizen NSL-KDD}
     \label{app:cm_nsl}
