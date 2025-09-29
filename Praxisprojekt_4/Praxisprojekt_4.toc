@@ -1,8 +1,7 @@
 \babel@toc {english}{}\relax 
 \babel@toc {ngerman}{}\relax 
 \contentsline {section}{Abbildungsverzeichnis}{IV}{Doc-Start}%
-\contentsline {section}{Tabellenverzeichnis}{V}{Doc-Start}%
-\contentsline {section}{Abkürzungsverzeichnis}{VI}{Doc-Start}%
+\contentsline {section}{Abkürzungsverzeichnis}{V}{Doc-Start}%
 \contentsline {section}{\numberline {1}Einleitung}{1}{section.1}%
 \contentsline {subsection}{\numberline {1.1}Motivation und Problemstellung}{1}{subsection.1.1}%
 \contentsline {subsection}{\numberline {1.2}Forschungsfrage und Zielsetzung}{1}{subsection.1.2}%
@@ -15,47 +14,54 @@
 \contentsline {subsection}{\numberline {2.5}Transfer Learning und Cross-Dataset-Generalisierung}{6}{subsection.2.5}%
 \contentsline {subsection}{\numberline {2.6}Evaluationsmetriken und Cross-Dataset-Transferierbarkeit}{7}{subsection.2.6}%
 \contentsline {section}{\numberline {3}Methodik}{8}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Daten}{8}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Modelle und Hyperparameter}{8}{subsection.3.2}%
-\contentsline {section}{\numberline {4}Ergebnisse}{9}{section.4}%
-\contentsline {section}{\numberline {5}Diskussion}{12}{section.5}%
-\contentsline {section}{\numberline {6}Fazit}{13}{section.6}%
-\contentsline {section}{Anhangsverzeichnis}{16}{section.6}%
-\contentsline {section}{\numberline {A}Dataset-Charakterisierung und Explorative Analyse}{17}{appendix.A}%
-\contentsline {subsection}{\numberline {A.1}NSL-KDD Attack Distribution}{17}{subsection.A.1}%
-\contentsline {paragraph}{Interpretation der Attack-Verteilung}{17}{paragraph*.7}%
-\contentsline {subsection}{\numberline {A.2}CIC-IDS-2017 Attack Distribution}{18}{subsection.A.2}%
-\contentsline {paragraph}{Unterschiede zu NSL-KDD}{18}{paragraph*.9}%
-\contentsline {subsection}{\numberline {A.3}Dataset Comparison Overview}{19}{subsection.A.3}%
-\contentsline {section}{\numberline {B}Within-Dataset Performance Details}{20}{appendix.B}%
-\contentsline {subsection}{\numberline {B.1}NSL-KDD ROC-Kurven}{20}{subsection.B.1}%
-\contentsline {paragraph}{ROC-Interpretation}{20}{paragraph*.12}%
-\contentsline {subsection}{\numberline {B.2}CIC-IDS-2017 ROC-Kurven}{21}{subsection.B.2}%
-\contentsline {subsection}{\numberline {B.3}Precision-Recall Kurven}{22}{subsection.B.3}%
-\contentsline {paragraph}{PR-Kurven vs. ROC-Kurven}{22}{paragraph*.15}%
-\contentsline {subsection}{\numberline {B.4}Konfusionsmatrizen NSL-KDD}{23}{subsection.B.4}%
-\contentsline {subsection}{\numberline {B.5}Konfusionsmatrizen CIC-IDS-2017}{23}{subsection.B.5}%
-\contentsline {section}{\numberline {C}Cross-Validation und Statistische Analysen}{24}{appendix.C}%
-\contentsline {subsection}{\numberline {C.1}Cross-Validation Vergleich}{24}{subsection.C.1}%
-\contentsline {subsection}{\numberline {C.2}CV Results Distribution}{25}{subsection.C.2}%
-\contentsline {paragraph}{Variabilitäts-Interpretation}{25}{paragraph*.20}%
-\contentsline {subsection}{\numberline {C.3}Statistische Vergleichsanalysen}{26}{subsection.C.3}%
-\contentsline {paragraph}{Signifikanz-Befunde}{26}{paragraph*.22}%
-\contentsline {subsection}{\numberline {C.4}Konvergenzanalyse}{27}{subsection.C.4}%
-\contentsline {paragraph}{Konvergenz-Interpretation}{27}{paragraph*.24}%
-\contentsline {section}{\numberline {D}Cross-Dataset Transfer und Generalisierung}{28}{appendix.D}%
-\contentsline {subsection}{\numberline {D.1}Cross-Dataset Transfer Confusion Matrices}{28}{subsection.D.1}%
-\contentsline {paragraph}{Transfer-Pattern-Analyse}{28}{paragraph*.26}%
-\contentsline {subsection}{\numberline {D.2}Harmonisierte Evaluation}{29}{subsection.D.2}%
-\contentsline {paragraph}{Harmonisierungs-Effekte}{29}{paragraph*.28}%
-\contentsline {section}{\numberline {E}Learning Curves und Trainingsanalysen}{30}{appendix.E}%
-\contentsline {subsection}{\numberline {E.1}Model Learning Curves}{30}{subsection.E.1}%
-\contentsline {paragraph}{Lernkurven-Interpretation}{30}{paragraph*.30}%
-\contentsline {paragraph}{Praktische Implikationen}{31}{paragraph*.31}%
-\contentsline {section}{\numberline {F}Computational Efficiency Analysis}{32}{appendix.F}%
-\contentsline {subsection}{\numberline {F.1}Timing Performance Analysis}{32}{subsection.F.1}%
-\contentsline {paragraph}{Effizienz-Ranking}{32}{paragraph*.33}%
-\contentsline {paragraph}{Reverse-Transfer Performance-Paradox}{32}{paragraph*.34}%
-\contentsline {subsection}{\numberline {F.2}Real-World Deployment Considerations}{33}{subsection.F.2}%
-\contentsline {section}{\numberline {G}Comprehensive Model Dashboard}{34}{appendix.G}%
-\contentsline {paragraph}{Cluster-Analyse-Befunde}{34}{paragraph*.37}%
+\contentsline {subsection}{\numberline {3.1}Forschungsdesign und methodische Begründung}{8}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Datengrundlage und Stichprobenauswahl}{9}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Experimenteller Ablauf und Evaluationsframework}{10}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Feature-Engineering und Harmonisierung}{10}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Modellauswahl und Hyperparameter-Konfiguration}{10}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Evaluationsmetriken und Transfer-Learning-Assessment}{10}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}Experimentelle Kontrolle und Qualitätssicherung}{10}{subsection.3.7}%
+\contentsline {subsection}{\numberline {3.8}Memory-Adaptation und Computational Challenges}{10}{subsection.3.8}%
+\contentsline {subsection}{\numberline {3.9}Methodische Abgrenzungen und wissenschaftliche Limitationen}{10}{subsection.3.9}%
+\contentsline {section}{\numberline {4}Ergebnisse}{11}{section.4}%
+\contentsline {section}{\numberline {5}Diskussion}{14}{section.5}%
+\contentsline {section}{\numberline {6}Fazit}{15}{section.6}%
+\contentsline {section}{Anhangsverzeichnis}{18}{section.6}%
+\contentsline {section}{\numberline {A}Dataset-Charakterisierung und Explorative Analyse}{19}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}NSL-KDD Attack Distribution}{19}{subsection.A.1}%
+\contentsline {paragraph}{Interpretation der Attack-Verteilung}{19}{paragraph*.6}%
+\contentsline {subsection}{\numberline {A.2}CIC-IDS-2017 Attack Distribution}{20}{subsection.A.2}%
+\contentsline {paragraph}{Unterschiede zu NSL-KDD}{20}{paragraph*.8}%
+\contentsline {subsection}{\numberline {A.3}Dataset Comparison Overview}{21}{subsection.A.3}%
+\contentsline {section}{\numberline {B}Within-Dataset Performance Details}{22}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}NSL-KDD ROC-Kurven}{22}{subsection.B.1}%
+\contentsline {paragraph}{ROC-Interpretation}{22}{paragraph*.11}%
+\contentsline {subsection}{\numberline {B.2}CIC-IDS-2017 ROC-Kurven}{23}{subsection.B.2}%
+\contentsline {subsection}{\numberline {B.3}Precision-Recall Kurven}{24}{subsection.B.3}%
+\contentsline {paragraph}{PR-Kurven vs. ROC-Kurven}{24}{paragraph*.14}%
+\contentsline {subsection}{\numberline {B.4}Konfusionsmatrizen NSL-KDD}{25}{subsection.B.4}%
+\contentsline {subsection}{\numberline {B.5}Konfusionsmatrizen CIC-IDS-2017}{25}{subsection.B.5}%
+\contentsline {section}{\numberline {C}Cross-Validation und Statistische Analysen}{26}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}Cross-Validation Vergleich}{26}{subsection.C.1}%
+\contentsline {subsection}{\numberline {C.2}CV Results Distribution}{27}{subsection.C.2}%
+\contentsline {paragraph}{Variabilitäts-Interpretation}{27}{paragraph*.19}%
+\contentsline {subsection}{\numberline {C.3}Statistische Vergleichsanalysen}{28}{subsection.C.3}%
+\contentsline {paragraph}{Signifikanz-Befunde}{28}{paragraph*.21}%
+\contentsline {subsection}{\numberline {C.4}Konvergenzanalyse}{29}{subsection.C.4}%
+\contentsline {paragraph}{Konvergenz-Interpretation}{29}{paragraph*.23}%
+\contentsline {section}{\numberline {D}Cross-Dataset Transfer und Generalisierung}{30}{appendix.D}%
+\contentsline {subsection}{\numberline {D.1}Cross-Dataset Transfer Confusion Matrices}{30}{subsection.D.1}%
+\contentsline {paragraph}{Transfer-Pattern-Analyse}{30}{paragraph*.25}%
+\contentsline {subsection}{\numberline {D.2}Harmonisierte Evaluation}{31}{subsection.D.2}%
+\contentsline {paragraph}{Harmonisierungs-Effekte}{31}{paragraph*.27}%
+\contentsline {section}{\numberline {E}Learning Curves und Trainingsanalysen}{32}{appendix.E}%
+\contentsline {subsection}{\numberline {E.1}Model Learning Curves}{32}{subsection.E.1}%
+\contentsline {paragraph}{Lernkurven-Interpretation}{32}{paragraph*.29}%
+\contentsline {paragraph}{Praktische Implikationen}{33}{paragraph*.30}%
+\contentsline {section}{\numberline {F}Computational Efficiency Analysis}{34}{appendix.F}%
+\contentsline {subsection}{\numberline {F.1}Timing Performance Analysis}{34}{subsection.F.1}%
+\contentsline {paragraph}{Effizienz-Ranking}{34}{paragraph*.32}%
+\contentsline {paragraph}{Reverse-Transfer Performance-Paradox}{34}{paragraph*.33}%
+\contentsline {subsection}{\numberline {F.2}Real-World Deployment Considerations}{35}{subsection.F.2}%
+\contentsline {section}{\numberline {G}Comprehensive Model Dashboard}{36}{appendix.G}%
+\contentsline {paragraph}{Cluster-Analyse-Befunde}{36}{paragraph*.36}%
