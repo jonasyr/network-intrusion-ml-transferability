@@ -373,10 +373,23 @@ giveninits=true % Nur Initialen für Vornamen
     \section*{Abkürzungsverzeichnis}
     \addtoTOC{Abkürzungsverzeichnis}
     \begin{tabular}{@{}ll}
-        \textbf{AI}  & Artificial Intelligence \\
-        \textbf{DoS} & Denial-of-Service \\
-        \textbf{IDS} & Intrusion Detection Systems \\
-        \textbf{ML}  & Machine Learning \\
+        \textbf{AI}           & Artificial Intelligence \\
+        \textbf{AUC}          & Area Under the Curve \\
+        \textbf{CIC-IDS-2017} & Canadian Institute for Cybersecurity Intrusion Detection System 2017 \\
+        \textbf{DoS}          & Denial-of-Service \\
+        \textbf{EFB}          & Exclusive Feature Bundling \\
+        \textbf{FPR}          & False Positive Rate \\
+        \textbf{GOSS}         & Gradient-based One-Side Sampling \\
+        \textbf{HIDS}         & Host-based Intrusion Detection Systems \\
+        \textbf{IDS}          & Intrusion Detection Systems \\
+        \textbf{k-NN}         & k-Nearest Neighbors \\
+        \textbf{ML}           & Machine Learning \\
+        \textbf{MLP}          & Multi-Layer Perceptron \\
+        \textbf{NIDS}         & Network-based Intrusion Detection Systems \\
+        \textbf{NSL-KDD}      & Network Security Laboratory - Knowledge Discovery and Data Mining \\
+        \textbf{ROC}          & Receiver Operating Characteristic \\
+        \textbf{SVM}          & Support Vector Machines \\
+        \textbf{TPR}          & True Positive Rate \\
     \end{tabular}
     \clearpage
 
@@ -432,20 +445,20 @@ giveninits=true % Nur Initialen für Vornamen
 
     \textbf{Deployment-Modi} unterscheiden zwischen passiver Überwachung durch Mirroring von Netzwerktraffic und aktiver Inline-Implementierung mit direkter Paketfilterung. Passive Systeme bieten den Vorteil der Latenz-neutralen Überwachung, während Inline-Systeme proaktive Threat-Mitigation ermöglichen, jedoch Durchsatz-Limitationen unterliegen \parencite{Vinayakumar2019}. Diese architektonischen Entscheidungen determinieren die verfügbaren Datencharakteristika und beeinflussen die Generalisierbarkeit trainierter Modelle zwischen verschiedenen Netzwerkumgebungen.
 
-    Die theoretische Grundlage der Anomalieerkennung basiert auf der systematischen Unterscheidung zwischen normalem und abnormalem Netzwerkverhalten. Dabei lassen sich drei fundamentale Kategorien von Anomalien differenzieren \parencite{Ring2019}. \textbf{Punktuelle Anomalien} bezeichnen einzelne Datenpunkte, die signifikant von der erwarteten Normalverteilung abweichen, wie beispielsweise ungewöhnlich hohe Banbreitennutzung durch einzelne Verbindungen. \textbf{Kontextuelle Anomalien} sind Datenpunkte, die nur unter Berücksichtigung ihres spezifischen Kontexts als anormal klassifiziert werden können. Ein hoher Datenverkehr während Nachtstunden könnte kontextuell anomal sein, obwohl derselbe Verkehr während der Geschäftszeiten normal erscheint. \textbf{Kollektive Anomalien} beziehen sich auf Gruppen von Datenpunkten, die gemeinsam ein ungewöhnliches Verhalten zeigen, obwohl einzelne Werte innerhalb normaler Parameter liegen könnten, wie etwa koordinierte Botnet-Aktivitäten \parencite{Ring2019}.
+    Die theoretische Grundlage der Anomalieerkennung basiert auf der systematischen Unterscheidung zwischen normalem und abnormalem Netzwerkverhalten. Dabei lassen sich drei fundamentale Kategorien von Anomalien differenzieren \parencite{Ring2019}. \textbf{Punktuelle Anomalien} bezeichnen einzelne Datenpunkte, die signifikant von der erwarteten Normalverteilung abweichen, wie beispielsweise ungewöhnlich hohe Bandbreitennutzung durch einzelne Verbindungen. \textbf{Kontextuelle Anomalien} sind Datenpunkte, die nur unter Berücksichtigung ihres spezifischen Kontexts als anormal klassifiziert werden können. Ein hoher Datenverkehr während Nachtstunden könnte kontextuell anomal sein, obwohl derselbe Verkehr während der Geschäftszeiten normal erscheint. \textbf{Kollektive Anomalien} beziehen sich auf Gruppen von Datenpunkten, die gemeinsam ein ungewöhnliches Verhalten zeigen, obwohl einzelne Werte innerhalb normaler Parameter liegen könnten, wie etwa koordinierte Botnet-Aktivitäten \parencite{Ring2019}.
 
-    Die praktische Implementierung von IDS erfordert jedoch mehr als nur die technische Fähigkeit zur Mustererkennung. Moderne Netzwerkumgebungen sind durch hohe Dynamik, heterogene Infrastrukturen und kontinuierliche evolvierende Bedrohungslandschaften charakterisiert. \parencite{Gharib2016}. Dies führt zu dem Phänomen des \textbf{Concept Drift}, bei dem sich die statistische Verteilung der Netzwerkdaten über die Zeit verändert, was die Anpassungsfähigkeit und Generalisierungsfähigkeit der eingesetzten Detektionssysteme vor erhebliche Herausforderungen stellt \parencite{Ring2019}.
+    Die praktische Implementierung von IDS erfordert jedoch mehr als nur die technische Fähigkeit zur Mustererkennung. Moderne Netzwerkumgebungen sind durch hohe Dynamik, heterogene Infrastrukturen und kontinuierlich evolvierende Bedrohungslandschaften charakterisiert \parencite{Gharib2016}. Dies führt zu dem Phänomen des \textbf{Concept Drift}, bei dem sich die statistische Verteilung der Netzwerkdaten über die Zeit verändert, was die Anpassungsfähigkeit und Generalisierungsfähigkeit der eingesetzten Detektionssysteme vor erhebliche Herausforderungen stellt \parencite{Ring2019}.
 
 
     \subsection{Traditionelle versus Machine Learning-basierte Detektionsansätze}
 
-    Die Evolution der Anomalieerkennungstechnologien lässt sich in zwei fundamentale Paradigmen unterteilen: signaturbasierte und anomaliebasierte Verfahren, wobei letztere zunehmend durch  Machine Learning-Ansätze implementiert werden \parencite{Ring2019, Belavagi2016}.
+    Die Evolution der Anomalieerkennungstechnologien lässt sich in zwei fundamentale Paradigmen unterteilen: signaturbasierte und anomaliebasierte Verfahren, wobei letztere zunehmend durch Machine Learning-Ansätze implementiert werden \parencite{Ring2019, Belavagi2016}.
 
     \textbf{Signaturbasierte Systeme} operieren nach dem Prinzip des Musterabgleichs und vergleichen den aktuellen Netzwerkverkehr mit einer Datenbank bekannter Angriffssignaturen \parencite{Ring2019}. Diese Systeme zeichnen sich durch hohe Präzision bei der Erkennung bereits katalogisierter Bedrohungen aus und generieren typischerweise niedrige False-Positive-Raten. Die fundamentale Limitation signaturbasierter Ansätze liegt jedoch in ihrer Reaktivität: Sie können ausschließlich Angriffe identifizieren, deren Signaturen bereits in der Datenbank hinterlegt sind \parencite{Vinayakumar2019}. Diese Eigenschaft macht sie anfällig für Zero-Day-Exploits, polymorphe Malware und neuartige Angriffstechniken, die noch nicht in den Signaturdatenbanken erfasst sind.
 
     \textbf{Anomaliebasierte Systeme} verfolgen einen proaktiven Ansatz, indem sie zunächst ein statistisches Modell des normalen Netzwerkverhaltens etablieren und anschließend Abweichungen von diesem Baseline-Verhalten als potenzielle Bedrohungen klassifizieren \parencite{Ring2019}. Der entscheidende Vorteil dieses Paradigmas liegt in der theoretischen Fähigkeit zur Detektion unbekannter Angriffsmuster und Zero-Day-Exploits \parencite{Vinayakumar2019}. Allerdings erfordert die praktische Umsetzung eine präzise Modellierung des Normalverhaltens sowie die Definition geeigneter Schwellenwerte zur Minimierung von False-Positive-Meldungen.
 
-    Machine Learning-basierte Ansätze haben das potenzial, die Limitationen beider traditioneller Paradigmen zu überwinden. Überwachte Lernverfahren können komplexe, nichtlineare Beziehungen zwischen Netzwerkfeatures und Angriffskategorien erlernen, während unüberwachte Methoden in der Lage sind, neuartige Anomaliemuster ohne vorherige Kennzeichnung zu identifizieren \parencite{Vinayakumar2019}. Die Integration von Deep Learning-Techniken ermöglicht zudem die automatische Feature-Extraction aus hochdimensionalen Netzwerkdaten, wodurch manuell entwickelte Heuristiken obsolet werden \parencite{Goodfellow2016}.
+    Machine Learning-basierte Ansätze haben das Potenzial, die Limitationen beider traditioneller Paradigmen zu überwinden. Überwachte Lernverfahren können komplexe, nichtlineare Beziehungen zwischen Netzwerkfeatures und Angriffskategorien erlernen, während unüberwachte Methoden in der Lage sind, neuartige Anomaliemuster ohne vorherige Kennzeichnung zu identifizieren \parencite{Vinayakumar2019}. Die Integration von Deep Learning-Techniken ermöglicht zudem die automatische Feature-Extraction aus hochdimensionalen Netzwerkdaten, wodurch manuell entwickelte Heuristiken obsolet werden \parencite{Goodfellow2016}.
 
     \subsection{Machine Learning-Taxonomie für Anomalieerkennung}
 
