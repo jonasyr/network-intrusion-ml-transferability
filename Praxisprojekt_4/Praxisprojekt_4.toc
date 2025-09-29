@@ -1,6 +1,7 @@
 \babel@toc {english}{}\relax 
 \babel@toc {ngerman}{}\relax 
-\contentsline {section}{Abkürzungsverzeichnis}{II}{Doc-Start}%
+\contentsline {section}{Abbildungsverzeichnis}{II}{Doc-Start}%
+\contentsline {section}{Abkürzungsverzeichnis}{III}{Doc-Start}%
 \contentsline {section}{\numberline {1}Einleitung}{1}{section.1}%
 \contentsline {subsection}{\numberline {1.1}Motivation und Problemstellung}{1}{subsection.1.1}%
 \contentsline {subsection}{\numberline {1.2}Forschungsfrage und Zielsetzung}{1}{subsection.1.2}%
@@ -14,9 +15,9 @@
 \contentsline {subsection}{\numberline {3.1}Daten}{4}{subsection.3.1}%
 \contentsline {subsection}{\numberline {3.2}Modelle und Hyperparameter}{4}{subsection.3.2}%
 \contentsline {section}{\numberline {4}Ergebnisse}{5}{section.4}%
-\contentsline {section}{\numberline {5}Diskussion}{6}{section.5}%
-\contentsline {section}{\numberline {6}Fazit}{7}{section.6}%
-\contentsline {section}{Anhangsverzeichnis}{9}{section.6}%
-\contentsline {section}{\numberline {A}Zusatzabbildungen}{10}{appendix.A}%
-\contentsline {section}{\numberline {B}Pseudocode}{11}{appendix.B}%
-\contentsline {section}{Nützliche LaTeX-Referenz}{12}{appendix.B}%
+\contentsline {section}{\numberline {5}Diskussion}{8}{section.5}%
+\contentsline {section}{\numberline {6}Fazit}{9}{section.6}%
+\contentsline {section}{Anhangsverzeichnis}{11}{section.6}%
+\contentsline {section}{\numberline {A}Zusatzabbildungen}{12}{appendix.A}%
+\contentsline {section}{\numberline {B}Pseudocode}{13}{appendix.B}%
+\contentsline {section}{Nützliche LaTeX-Referenz}{14}{appendix.B}%

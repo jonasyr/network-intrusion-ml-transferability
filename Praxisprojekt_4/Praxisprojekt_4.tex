@@ -463,13 +463,43 @@ giveninits=true % Nur Initialen für Vornamen
     \end{table}
 
     \section{Ergebnisse}
-    Beispielabbildung mit Titel und Quelle (10 pt):
+
+    % Abbildung 1: Zentrale Performance-Übersicht
     \begin{figure}[h]
         \centering
-        \includegraphics[width=0.85\textwidth]{example-image}
-        \caption{Schematische Lernkurven.}
-        \source{Eigene Darstellung (Platzhalter).}
-        \label{fig:learn}
+        \includegraphics[width=\textwidth]{../data/results/paper_figures/nsl_cic_model_performance_comparison.png}
+        \caption{Vergleichende Modellperformance NSL-KDD vs. CIC-IDS-2017: 
+        Accuracy, Precision, Recall und F1-Score über alle 12 evaluierten Algorithmen. 
+        Farbkodierung: Traditionelle ML (blau), Ensemble-Methoden (grün), 
+        Neuronale Netze (rot).}
+        \source{Eigene Darstellung.}
+        \label{fig:performance_comparison}
+    \end{figure}
+
+    % Abbildung 2: Kernforschungsfrage - Cross-Dataset Transfer
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.9\textwidth]{../data/results/paper_figures/cross_dataset_transfer_analysis.png}
+        \caption{Bidirektionale Cross-Dataset-Transfer-Analyse: Performance-Degradation 
+        beim Transfer NSL-KDD $\leftrightarrow$ CIC-IDS-2017. Balken zeigen 
+        Generalization Gap, Fehlerbalken indizieren Wasserstein Domain Divergence.}
+        \source{Eigene Darstellung.}
+        \label{fig:transfer_analysis}
+    \end{figure}
+
+    % Tabelle 1: Performance Summary (kompakt, Top-5)
+    % Anpassen: Nur Top-5 Zeilen zeigen, Rest ins Anhang
+    \input{../data/results/paper_figures/nsl_cic_performance_summary_table.tex}
+
+    % Optional - wenn Platz: Dataset Comparison Overview
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.85\textwidth]{../data/results/paper_figures/dataset_comparison_overview.png}
+        \caption{Dataset-spezifische Performance-Charakteristika: 
+        (a) Accuracy-Scatter NSL-KDD vs. CIC, (b) Metrik-Boxplots, 
+        (c) Statistische Signifikanztests (p < 0.05).}
+        \source{Eigene Darstellung.}
+        \label{fig:dataset_overview}
     \end{figure}
 
     \section{Diskussion}

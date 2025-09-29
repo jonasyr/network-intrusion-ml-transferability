@@ -1,0 +1,5 @@
+\babel@toc {english}{}\relax 
+\babel@toc {ngerman}{}\relax 
+\contentsline {figure}{\numberline {1}{\ignorespaces Vergleichende Modellperformance NSL-KDD vs. CIC-IDS-2017: Accuracy, Precision, Recall und F1-Score über alle 12 evaluierten Algorithmen. Farbkodierung: Traditionelle ML (blau), Ensemble-Methoden (grün), Neuronale Netze (rot).}}{5}{figure.caption.2}%
+\contentsline {figure}{\numberline {2}{\ignorespaces Bidirektionale Cross-Dataset-Transfer-Analyse: Performance-Degradation beim Transfer NSL-KDD $\leftrightarrow $ CIC-IDS-2017. Balken zeigen Generalization Gap, Fehlerbalken indizieren Wasserstein Domain Divergence.}}{6}{figure.caption.3}%
+\contentsline {figure}{\numberline {3}{\ignorespaces Dataset-spezifische Performance-Charakteristika: (a) Accuracy-Scatter NSL-KDD vs. CIC, (b) Metrik-Boxplots, (c) Statistische Signifikanztests (p < 0.05).}}{7}{figure.caption.5}%
