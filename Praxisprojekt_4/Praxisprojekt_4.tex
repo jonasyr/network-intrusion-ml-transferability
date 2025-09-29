@@ -258,9 +258,9 @@ giveninits=true % Nur Initialen für Vornamen
     }{\end{quote}}
 
 % ---------- Meta-Felder für Titelseite ----------
-\newcommand{\university}{IU Internationale Hochschule}
-\newcommand{\studyprogram}{Studiengang (B.\,Sc.\ Informatik)}
-\newcommand{\thesistype}{Art der Arbeit (Wissenschaftliche Arbeit)}
+\newcommand{\university}{Internationale Hochschule Duales Studium}
+\newcommand{\studyprogram}{B.Sc. Informatik}
+\newcommand{\thesistype}{Projektarbeit}
 \newcommand{\papertitle}{Inwieweit sind Machine-Learning-Modelle für Netzwerk-Anomalieerkennung zwischen verschiedenen Datensätzen übertragbar?}
 \newcommand{\authorname}{Jonas Weirauch}
 \newcommand{\matno}{10237021}
@@ -279,25 +279,59 @@ giveninits=true % Nur Initialen für Vornamen
     \setcounter{page}{1}
     \begin{titlepage}
         \thispagestyle{empty}
+        \vspace*{-1cm}
+        
+        % IU Logo
         \begin{center}
-            \large \university\\[6pt]
-            \studyprogram\\[18pt]
-            \textbf{\Large \thesistype}\\[24pt]
-            {\bfseries\fontsize{18pt}{20pt}\selectfont \papertitle}\\[24pt]
+            \includegraphics[width=5cm]{/home/jonas/Documents/Studium/Allgemein/IU_Logo.png}
         \end{center}
-        \vspace{6mm}
-        \begin{tabular}{@{}ll}
-            Autor:            & \authorname \\
-            Matrikelnummer:   & \matno \\
-            Anschrift:        & \address \\
-            Betreuung:        & \advisor \\
-            Abgabedatum:      & \submissiondate \\
-        \end{tabular}
+        
+        \vspace{3cm}
+        
+        % Projektarbeit
+        \begin{center}
+            {\fontsize{11pt}{13pt}\selectfont \thesistype}
+        \end{center}
+        
+        \vspace{2cm}
+        
+        % University and Program
+        \begin{center}
+            {\fontsize{11pt}{13pt}\selectfont \university}
+            
+            \vspace{0.5cm}
+            
+            {\fontsize{11pt}{13pt}\selectfont Studiengang: \studyprogram}
+        \end{center}
+        
+        \vspace{2cm}
+        
+        % Title
+        \begin{center}
+            {\bfseries\fontsize{12pt}{14pt}\selectfont \papertitle}
+        \end{center}
+        
+        \vspace{2cm}
+        
+        % Author details
+        \begin{center}
+            {\fontsize{11pt}{13pt}\selectfont \authorname}
+            
+            {\fontsize{11pt}{13pt}\selectfont Matrikelnummer: \matno}
+            
+            {\fontsize{11pt}{13pt}\selectfont \address}
+        \end{center}
+        
+        \vspace{2cm}
+        
+        % Supervisor and date
+        \begin{center}
+            {\fontsize{11pt}{13pt}\selectfont Betreuende Person: \advisor}
+            
+            {\fontsize{11pt}{13pt}\selectfont Abgabedatum: \submissiondate}
+        \end{center}
+        
         \vfill
-        \begin{center}
-            \footnotesize
-
-        \end{center}
     \end{titlepage}
 
     % ---------- Erklärung / Sperrvermerk (optional je nach Arbeit) ----------
@@ -337,9 +371,10 @@ giveninits=true % Nur Initialen für Vornamen
     \section*{Abkürzungsverzeichnis}
     \addtoTOC{Abkürzungsverzeichnis}
     \begin{tabular}{@{}ll}
-        \textbf{AUROC} & Area under the Receiver Operating Characteristic \\
-        \textbf{BA}    & Balanced Accuracy \\
-        \textbf{SNR}   & Signal-zu-Rausch-Verhältnis \\
+        \textbf{AI}  & Artificial Intelligence \\
+        \textbf{DoS} & Denial-of-Service \\
+        \textbf{IDS} & Intrusion Detection Systems \\
+        \textbf{ML}  & Machine Learning \\
     \end{tabular}
     \clearpage
 
