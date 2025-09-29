@@ -8,8 +8,8 @@
 \abx@aux@refcontext{nyt/global//global/global}
 \babel@aux{english}{}
 \babel@aux{ngerman}{}
-\@writefile{toc}{\contentsline {section}{Abbildungsverzeichnis}{II}{Doc-Start}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Abkürzungsverzeichnis}{III}{Doc-Start}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Abbildungsverzeichnis}{IV}{Doc-Start}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Abkürzungsverzeichnis}{V}{Doc-Start}\protected@file@percent }
 \abx@aux@refcontext{nyt/apasortcite//global/global}
 \abx@aux@cite{0}{GlobalRisksReport2024}
 \abx@aux@segm{0}{0}{GlobalRisksReport2024}
@@ -182,13 +182,45 @@
 \newlabel{app:cm_cic}{{B.5}{18}{Konfusionsmatrizen CIC-IDS-2017}{subsection.B.5}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Konfusionsmatrizen CIC-IDS-2017: Naive Bayes zeigt charakteristische Bias zur Attack-Klasse (hohe False-Positive-Rate bei Normal $\rightarrow $ Attack), während Decision Tree nahezu perfekte Klassifikation erreicht (Diagonale $\approx $ 1.0).}}{18}{figure.caption.17}\protected@file@percent }
 \newlabel{fig:app_cm_cic}{{11}{18}{Konfusionsmatrizen CIC-IDS-2017: Naive Bayes zeigt charakteristische Bias zur Attack-Klasse (hohe False-Positive-Rate bei Normal $\rightarrow $ Attack), während Decision Tree nahezu perfekte Klassifikation erreicht (Diagonale $\approx $ 1.0)}{figure.caption.17}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {C}Pseudocode}{19}{appendix.C}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Nützliche LaTeX-Referenz}{20}{appendix.C}\protected@file@percent }
-\newlabel{lst:fib}{{1}{23}{Fibonacci-Beispiel}{lstlisting.1}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Fibonacci-Beispiel}}{23}{lstlisting.1}\protected@file@percent }
-\newlabel{lst:mini}{{2}{23}{Minimalbeispiel}{lstlisting.2}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Minimalbeispiel}}{23}{lstlisting.2}\protected@file@percent }
-\expandafter\ifx\csname c@figure@totc\endcsname\relax\newcounter{figure@totc}\fi\setcounter{figure@totc}{11}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Cross-Validation und Statistische Analysen}{19}{appendix.C}\protected@file@percent }
+\newlabel{app:cross_validation}{{C}{19}{Cross-Validation und Statistische Analysen}{appendix.C}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {C.1}Cross-Validation Vergleich}{19}{subsection.C.1}\protected@file@percent }
+\newlabel{app:cv_comparison}{{C.1}{19}{Cross-Validation Vergleich}{subsection.C.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Cross-Validation Performance-Vergleich NSL-KDD vs. CIC-IDS-2017: 5-Fold stratifizierte CV mit Konfidenzintervallen (95\% CI). Fehlerbalken indizieren Variabilität über Folds.}}{19}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:app_cv_comparison}{{12}{19}{Cross-Validation Performance-Vergleich NSL-KDD vs. CIC-IDS-2017: 5-Fold stratifizierte CV mit Konfidenzintervallen (95\% CI). Fehlerbalken indizieren Variabilität über Folds}{figure.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {C.2}CV Results Distribution}{20}{subsection.C.2}\protected@file@percent }
+\newlabel{app:cv_boxplot}{{C.2}{20}{CV Results Distribution}{subsection.C.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Boxplot-Verteilung der Cross-Validation Accuracy: Median (zentrale Linie), Interquartilbereich (Box), Whiskers (1.5×IQR), Ausreißer (Punkte). SVM-Linear zeigt extreme Variabilität über Folds (IQR = 0.43, Range = 0.33--0.83).}}{20}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:app_cv_boxplot}{{13}{20}{Boxplot-Verteilung der Cross-Validation Accuracy: Median (zentrale Linie), Interquartilbereich (Box), Whiskers (1.5×IQR), Ausreißer (Punkte). SVM-Linear zeigt extreme Variabilität über Folds (IQR = 0.43, Range = 0.33--0.83)}{figure.caption.19}{}}
+\@writefile{toc}{\contentsline {paragraph}{Variabilitäts-Interpretation}{20}{paragraph*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {C.3}Statistische Vergleichsanalysen}{21}{subsection.C.3}\protected@file@percent }
+\newlabel{app:statistical_comparison}{{C.3}{21}{Statistische Vergleichsanalysen}{subsection.C.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Statistische Vergleichsanalyse Top-5 Modelle: Pairwise t-Tests mit Bonferroni-Korrektur ($\alpha = 0.01$). Heatmap zeigt p-Werte, Sterne indizieren Signifikanz (*** p < 0.001, ** p < 0.01, * p < 0.05).}}{21}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:app_statistical}{{14}{21}{Statistische Vergleichsanalyse Top-5 Modelle: Pairwise t-Tests mit Bonferroni-Korrektur ($\alpha = 0.01$). Heatmap zeigt p-Werte, Sterne indizieren Signifikanz (*** p < 0.001, ** p < 0.01, * p < 0.05)}{figure.caption.21}{}}
+\@writefile{toc}{\contentsline {paragraph}{Signifikanz-Befunde}{21}{paragraph*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {C.4}Konvergenzanalyse}{22}{subsection.C.4}\protected@file@percent }
+\newlabel{app:convergence}{{C.4}{22}{Konvergenzanalyse}{subsection.C.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Cross-Validation Konvergenzanalyse: Kumulative Mean Accuracy $\pm $ SD über Folds 1--5. Konvergenz ab Fold 3 indiziert ausreichende k-Wahl. Gestrichelte Linie = finale 5-Fold Mean.}}{22}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:app_convergence}{{15}{22}{Cross-Validation Konvergenzanalyse: Kumulative Mean Accuracy $\pm $ SD über Folds 1--5. Konvergenz ab Fold 3 indiziert ausreichende k-Wahl. Gestrichelte Linie = finale 5-Fold Mean}{figure.caption.23}{}}
+\@writefile{toc}{\contentsline {paragraph}{Konvergenz-Interpretation}{22}{paragraph*.24}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {D}Cross-Dataset Transfer und Generalisierung}{23}{appendix.D}\protected@file@percent }
+\newlabel{app:transfer_analysis}{{D}{23}{Cross-Dataset Transfer und Generalisierung}{appendix.D}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {D.1}Cross-Dataset Transfer Confusion Matrices}{23}{subsection.D.1}\protected@file@percent }
+\newlabel{app:transfer_cm}{{D.1}{23}{Cross-Dataset Transfer Confusion Matrices}{subsection.D.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Transfer-Learning Konfusionsmatrizen: (a) NSL-KDD $\rightarrow $ CIC-IDS-2017, (b) CIC-IDS-2017 $\rightarrow $ NSL-KDD für XGBoost. Forward-Transfer (a) zeigt moderate Generalisierung (Target Acc = 0.827), Reverse-Transfer (b) zeigt starke Degradation (Target Acc = 0.431).}}{23}{figure.caption.25}\protected@file@percent }
+\newlabel{fig:app_transfer_cm}{{16}{23}{Transfer-Learning Konfusionsmatrizen: (a) NSL-KDD $\rightarrow $ CIC-IDS-2017, (b) CIC-IDS-2017 $\rightarrow $ NSL-KDD für XGBoost. Forward-Transfer (a) zeigt moderate Generalisierung (Target Acc = 0.827), Reverse-Transfer (b) zeigt starke Degradation (Target Acc = 0.431)}{figure.caption.25}{}}
+\@writefile{toc}{\contentsline {paragraph}{Transfer-Pattern-Analyse}{23}{paragraph*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {D.2}Harmonisierte Evaluation}{24}{subsection.D.2}\protected@file@percent }
+\newlabel{app:harmonized}{{D.2}{24}{Harmonisierte Evaluation}{subsection.D.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Harmonisierte Cross-Dataset Evaluation: Performance bei PCA-alignierten Features (20 Komponenten, 94.7\% erklärte Varianz). Threshold-Tuning via Grid Search (0.1--0.9 in 0.1-Schritten).}}{24}{figure.caption.27}\protected@file@percent }
+\newlabel{fig:app_harmonized}{{17}{24}{Harmonisierte Cross-Dataset Evaluation: Performance bei PCA-alignierten Features (20 Komponenten, 94.7\% erklärte Varianz). Threshold-Tuning via Grid Search (0.1--0.9 in 0.1-Schritten)}{figure.caption.27}{}}
+\@writefile{toc}{\contentsline {paragraph}{Harmonisierungs-Effekte}{24}{paragraph*.28}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Nützliche LaTeX-Referenz}{25}{paragraph*.28}\protected@file@percent }
+\newlabel{lst:fib}{{1}{28}{Fibonacci-Beispiel}{lstlisting.1}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Fibonacci-Beispiel}}{28}{lstlisting.1}\protected@file@percent }
+\newlabel{lst:mini}{{2}{28}{Minimalbeispiel}{lstlisting.2}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Minimalbeispiel}}{28}{lstlisting.2}\protected@file@percent }
+\expandafter\ifx\csname c@figure@totc\endcsname\relax\newcounter{figure@totc}\fi\setcounter{figure@totc}{17}
 \expandafter\ifx\csname c@table@totc\endcsname\relax\newcounter{table@totc}\fi\setcounter{table@totc}{2}
 \abx@aux@read@bbl@mdfivesum{2F063B767018B3CC0EF39B0C86AE4F64}
 \abx@aux@defaultrefcontext{0}{Belavagi2016}{nyt/global//global/global}
@@ -203,4 +235,4 @@
 \abx@aux@defaultrefcontext{0}{Tavallaee2009}{nyt/global//global/global}
 \abx@aux@defaultrefcontext{0}{Vinayakumar2019}{nyt/global//global/global}
 \abx@aux@defaultrefcontext{0}{GlobalRisksReport2024}{nyt/global//global/global}
-\gdef \@abspage@last{29}
+\gdef \@abspage@last{35}

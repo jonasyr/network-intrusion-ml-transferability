@@ -1,7 +1,7 @@
 \babel@toc {english}{}\relax 
 \babel@toc {ngerman}{}\relax 
-\contentsline {section}{Abbildungsverzeichnis}{II}{Doc-Start}%
-\contentsline {section}{Abkürzungsverzeichnis}{III}{Doc-Start}%
+\contentsline {section}{Abbildungsverzeichnis}{IV}{Doc-Start}%
+\contentsline {section}{Abkürzungsverzeichnis}{V}{Doc-Start}%
 \contentsline {section}{\numberline {1}Einleitung}{1}{section.1}%
 \contentsline {subsection}{\numberline {1.1}Motivation und Problemstellung}{1}{subsection.1.1}%
 \contentsline {subsection}{\numberline {1.2}Forschungsfrage und Zielsetzung}{1}{subsection.1.2}%
@@ -32,5 +32,17 @@
 \contentsline {paragraph}{PR-Kurven vs. ROC-Kurven}{17}{paragraph*.15}%
 \contentsline {subsection}{\numberline {B.4}Konfusionsmatrizen NSL-KDD}{18}{subsection.B.4}%
 \contentsline {subsection}{\numberline {B.5}Konfusionsmatrizen CIC-IDS-2017}{18}{subsection.B.5}%
-\contentsline {section}{\numberline {C}Pseudocode}{19}{appendix.C}%
-\contentsline {section}{Nützliche LaTeX-Referenz}{20}{appendix.C}%
+\contentsline {section}{\numberline {C}Cross-Validation und Statistische Analysen}{19}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}Cross-Validation Vergleich}{19}{subsection.C.1}%
+\contentsline {subsection}{\numberline {C.2}CV Results Distribution}{20}{subsection.C.2}%
+\contentsline {paragraph}{Variabilitäts-Interpretation}{20}{paragraph*.20}%
+\contentsline {subsection}{\numberline {C.3}Statistische Vergleichsanalysen}{21}{subsection.C.3}%
+\contentsline {paragraph}{Signifikanz-Befunde}{21}{paragraph*.22}%
+\contentsline {subsection}{\numberline {C.4}Konvergenzanalyse}{22}{subsection.C.4}%
+\contentsline {paragraph}{Konvergenz-Interpretation}{22}{paragraph*.24}%
+\contentsline {section}{\numberline {D}Cross-Dataset Transfer und Generalisierung}{23}{appendix.D}%
+\contentsline {subsection}{\numberline {D.1}Cross-Dataset Transfer Confusion Matrices}{23}{subsection.D.1}%
+\contentsline {paragraph}{Transfer-Pattern-Analyse}{23}{paragraph*.26}%
+\contentsline {subsection}{\numberline {D.2}Harmonisierte Evaluation}{24}{subsection.D.2}%
+\contentsline {paragraph}{Harmonisierungs-Effekte}{24}{paragraph*.28}%
+\contentsline {section}{Nützliche LaTeX-Referenz}{25}{paragraph*.28}%

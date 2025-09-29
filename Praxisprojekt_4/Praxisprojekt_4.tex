@@ -734,8 +734,142 @@ giveninits=true % Nur Initialen für Vornamen
         \label{fig:app_cm_cic}
     \end{figure}
     
-    \section{Pseudocode}
-    (Optionaler Inhalt des Anhangs.)
+    \section{Cross-Validation und Statistische Analysen}
+    \label{app:cross_validation}
+    
+    \subsection{Cross-Validation Vergleich}
+    \label{app:cv_comparison}
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{../data/results/paper_figures/cross_validation_comparison.png}
+        \caption{Cross-Validation Performance-Vergleich NSL-KDD vs. CIC-IDS-2017: 
+        5-Fold stratifizierte CV mit Konfidenzintervallen (95\% CI). 
+        Fehlerbalken indizieren Variabilität über Folds.}
+        \source{Eigene Darstellung.}
+        \label{fig:app_cv_comparison}
+    \end{figure}
+    
+    \subsection{CV Results Distribution}
+    \label{app:cv_boxplot}
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\textwidth]{../data/results/cv_results_boxplot.png}
+        \caption{Boxplot-Verteilung der Cross-Validation Accuracy: 
+        Median (zentrale Linie), Interquartilbereich (Box), Whiskers (1.5×IQR), 
+        Ausreißer (Punkte). SVM-Linear zeigt extreme Variabilität über Folds 
+        (IQR = 0.43, Range = 0.33--0.83).}
+        \source{Eigene Darstellung.}
+        \label{fig:app_cv_boxplot}
+    \end{figure}
+    
+    \paragraph{Variabilitäts-Interpretation}
+    \begin{itemize}
+        \item \textbf{Niedrige Variabilität (XGBoost, LightGBM):} IQR < 0.0005, 
+        indiziert robuste Performance unabhängig von Fold-Zusammensetzung
+        \item \textbf{Hohe Variabilität (SVM-Linear):} IQR = 0.43, 
+        deutet auf Sensitivität gegenüber Datenpartitionierung hin
+        \item \textbf{Ausreißer-Erkennung:} Naive Bayes zeigt 2 Ausreißer-Folds 
+        bei NSL-KDD (möglicherweise U2R-Attack-Cluster)
+    \end{itemize}
+    
+    \subsection{Statistische Vergleichsanalysen}
+    \label{app:statistical_comparison}
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{../data/results/confusion_matrices/cv_statistical_analysis_scientific.pdf}
+        \caption{Statistische Vergleichsanalyse Top-5 Modelle: 
+        Pairwise t-Tests mit Bonferroni-Korrektur ($\alpha = 0.01$). 
+        Heatmap zeigt p-Werte, Sterne indizieren Signifikanz 
+        (*** p < 0.001, ** p < 0.01, * p < 0.05).}
+        \source{Eigene Darstellung.}
+        \label{fig:app_statistical}
+    \end{figure}
+    
+    \paragraph{Signifikanz-Befunde}
+    Aus statistical\_comparison.csv (gekürzt):
+    \begin{itemize}
+        \item \textbf{XGBoost vs. LightGBM:} Nicht signifikant (p = 0.385, 
+        Cohen's d = 0.31) $\rightarrow$ vergleichbare Performance
+        \item \textbf{XGBoost vs. Naive Bayes:} Hochsignifikant (p < 0.001, 
+        Cohen's d = 26.76) $\rightarrow$ deutlicher Performance-Unterschied
+        \item \textbf{Random Forest vs. Decision Tree:} Signifikant (p = 0.006, 
+        Cohen's d = 4.53) $\rightarrow$ RF überlegen
+    \end{itemize}
+    
+    \subsection{Konvergenzanalyse}
+    \label{app:convergence}
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.85\textwidth]{../data/results/scientific_analysis/convergence_analysis/cv_convergence_analysis.pdf}
+        \caption{Cross-Validation Konvergenzanalyse: Kumulative Mean Accuracy 
+        $\pm$ SD über Folds 1--5. Konvergenz ab Fold 3 indiziert ausreichende 
+        k-Wahl. Gestrichelte Linie = finale 5-Fold Mean.}
+        \source{Eigene Darstellung.}
+        \label{fig:app_convergence}
+    \end{figure}
+    
+    \paragraph{Konvergenz-Interpretation}
+    \begin{itemize}
+        \item \textbf{Schnelle Konvergenz (Fold 2--3):} XGBoost, LightGBM, 
+        Random Forest $\rightarrow$ stabile Performance
+        \item \textbf{Langsame Konvergenz (Fold 4--5):} SVM-Linear, Naive Bayes 
+        $\rightarrow$ höhere Sensitivität gegenüber Datensplit
+        \item \textbf{Empfehlung:} k=5 ausreichend, k=10 würde SD nur marginal 
+        reduzieren (< 0.0001)
+    \end{itemize}
+
+    \section{Cross-Dataset Transfer und Generalisierung}
+    \label{app:transfer_analysis}
+
+    \subsection{Cross-Dataset Transfer Confusion Matrices}
+    \label{app:transfer_cm}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\textwidth]{../data/results/confusion_matrices/cross_dataset_scientific_transfer.pdf}
+        \caption{Transfer-Learning Konfusionsmatrizen: (a) NSL-KDD $\rightarrow$ 
+        CIC-IDS-2017, (b) CIC-IDS-2017 $\rightarrow$ NSL-KDD für XGBoost. 
+        Forward-Transfer (a) zeigt moderate Generalisierung (Target Acc = 0.827), 
+        Reverse-Transfer (b) zeigt starke Degradation (Target Acc = 0.431).}
+        \source{Eigene Darstellung.}
+        \label{fig:app_transfer_cm}
+    \end{figure}
+
+    \paragraph{Transfer-Pattern-Analyse}
+    \begin{itemize}
+        \item \textbf{Forward (NSL→CIC):} Off-Diagonal-Muster bei Normal→Attack 
+        (17\% FPR) aufgrund unterschiedlicher Feature-Skalierung
+        \item \textbf{Reverse (CIC→NSL):} Starke Attack→Normal Misklassifikation 
+        (56\% FNR) durch veraltete Attack-Signaturen in NSL-KDD
+        \item \textbf{Asymmetrie:} Forward-Transfer robuster aufgrund höherer 
+        NSL-KDD-Generalisierung (simplere Features)
+    \end{itemize}
+
+    \subsection{Harmonisierte Evaluation}
+    \label{app:harmonized}
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\textwidth]{../data/results/paper_figures/harmonized_evaluation_summary.png}
+        \caption{Harmonisierte Cross-Dataset Evaluation: Performance bei 
+        PCA-alignierten Features (20 Komponenten, 94.7\% erklärte Varianz). 
+        Threshold-Tuning via Grid Search (0.1--0.9 in 0.1-Schritten).}
+        \source{Eigene Darstellung.}
+        \label{fig:app_harmonized}
+    \end{figure}
+
+    \paragraph{Harmonisierungs-Effekte}
+    Vergleich native vs. harmonisierte Features:
+    \begin{itemize}
+        \item \textbf{NSL→CIC (native):} Target F1 = 0.0041 (XGBoost)
+        \item \textbf{NSL→CIC (harmonisiert):} Target F1 = 0.5711 (139× Verbesserung)
+        \item \textbf{Erklärung:} PCA-Alignment reduziert Feature-Distribution-Mismatch 
+        (Wasserstein Distance: 0.148 → 0.082)
+    \end{itemize}
 
         % ---------- Nützliche LaTeX-Referenz ----------
 
