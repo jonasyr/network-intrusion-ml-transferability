@@ -282,57 +282,57 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{titlepage}
         \thispagestyle{empty}
         \vspace*{-1cm}
-        
+
         % IU Logo
         \begin{center}
             \includegraphics[width=5cm]{/home/jonas/Documents/Studium/Allgemein/IU_Logo.png}
         \end{center}
-        
+
         \vspace{3cm}
-        
+
         % Projektarbeit
         \begin{center}
             {\fontsize{11pt}{13pt}\selectfont \thesistype}
         \end{center}
-        
+
         \vspace{2cm}
-        
+
         % University and Program
         \begin{center}
             {\fontsize{11pt}{13pt}\selectfont \university}
-            
+
             \vspace{0.5cm}
-            
+
             {\fontsize{11pt}{13pt}\selectfont Studiengang: \studyprogram}
         \end{center}
-        
+
         \vspace{2cm}
-        
+
         % Title
         \begin{center}
             {\bfseries\fontsize{12pt}{14pt}\selectfont \papertitle}
         \end{center}
-        
+
         \vspace{2cm}
-        
+
         % Author details
         \begin{center}
             {\fontsize{11pt}{13pt}\selectfont \authorname}
-            
+
             {\fontsize{11pt}{13pt}\selectfont Matrikelnummer: \matno}
-            
+
             {\fontsize{11pt}{13pt}\selectfont \address}
         \end{center}
-        
+
         \vspace{2cm}
-        
+
         % Supervisor and date
         \begin{center}
             {\fontsize{11pt}{13pt}\selectfont Betreuende Person: \advisor}
-            
+
             {\fontsize{11pt}{13pt}\selectfont Abgabedatum: \submissiondate}
         \end{center}
-        
+
         \vfill
     \end{titlepage}
 
@@ -470,9 +470,9 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{figure}[h]
         \centering
         \includegraphics[width=\textwidth]{../data/results/paper_figures/nsl_cic_model_performance_comparison.png}
-        \caption{Vergleichende Modellperformance NSL-KDD vs. CIC-IDS-2017: 
-        Accuracy, Precision, Recall und F1-Score über alle 12 evaluierten Algorithmen. 
-        Farbkodierung: Traditionelle ML (blau), Ensemble-Methoden (grün), 
+        \caption{Vergleichende Modellperformance NSL-KDD vs. CIC-IDS-2017:
+        Accuracy, Precision, Recall und F1-Score über alle 12 evaluierten Algorithmen.
+        Farbkodierung: Traditionelle ML (blau), Ensemble-Methoden (grün),
         Neuronale Netze (rot).}
         \source{Eigene Darstellung.}
         \label{fig:performance_comparison}
@@ -482,8 +482,8 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{figure}[h]
         \centering
         \includegraphics[width=0.9\textwidth]{../data/results/paper_figures/cross_dataset_transfer_analysis.png}
-        \caption{Bidirektionale Cross-Dataset-Transfer-Analyse: Performance-Degradation 
-        beim Transfer NSL-KDD $\leftrightarrow$ CIC-IDS-2017. Balken zeigen 
+        \caption{Bidirektionale Cross-Dataset-Transfer-Analyse: Performance-Degradation
+        beim Transfer NSL-KDD $\leftrightarrow$ CIC-IDS-2017. Balken zeigen
         Generalization Gap, Fehlerbalken indizieren Wasserstein Domain Divergence.}
         \source{Eigene Darstellung.}
         \label{fig:transfer_analysis}
@@ -497,8 +497,8 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{figure}[h]
         \centering
         \includegraphics[width=0.85\textwidth]{../data/results/paper_figures/dataset_comparison_overview.png}
-        \caption{Dataset-spezifische Performance-Charakteristika: 
-        (a) Accuracy-Scatter NSL-KDD vs. CIC, (b) Metrik-Boxplots, 
+        \caption{Dataset-spezifische Performance-Charakteristika:
+        (a) Accuracy-Scatter NSL-KDD vs. CIC, (b) Metrik-Boxplots,
         (c) Statistische Signifikanztests (p < 0.05).}
         \source{Eigene Darstellung.}
         \label{fig:dataset_overview}
@@ -535,10 +535,10 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{figure}[H]
         \centering
         \includegraphics[width=\textwidth]{../data/results/paper_figures/nsl_attack_distribution_analysis.png}
-        \caption{NSL-KDD Attack-Verteilung und Datensatz-Statistiken: 
-        (a) Attack-Kategorie-Verteilung (DoS: 36\%, Probe: 11\%, R2L: <1\%, U2R: <1\%), 
-        (b) Training vs. Testing Split-Analyse, 
-        (c) Attack-Severity-Matrix, 
+        \caption{NSL-KDD Attack-Verteilung und Datensatz-Statistiken:
+        (a) Attack-Kategorie-Verteilung (DoS: 36\%, Probe: 11\%, R2L: <1\%, U2R: <1\%),
+        (b) Training vs. Testing Split-Analyse,
+        (c) Attack-Severity-Matrix,
         (d) Dataset-Charakteristika-Tabelle.}
         \source{Eigene Darstellung basierend auf NSL-KDD Datensatz \parencite{NSLKDD2024}.}
         \label{fig:nsl_attack_dist}
@@ -558,10 +558,10 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{figure}[H]
         \centering
         \includegraphics[width=\textwidth]{../data/results/paper_figures/cic_attack_distribution_analysis.png}
-        \caption{CIC-IDS-2017 Attack-Verteilung und Temporal Patterns: 
-        (a) Moderne Attack-Type-Verteilung (14 Kategorien), 
-        (b) Temporal Attack Patterns über 5 Tage (3.-7. Juli 2017), 
-        (c) Attack-Severity-Heatmap, 
+        \caption{CIC-IDS-2017 Attack-Verteilung und Temporal Patterns:
+        (a) Moderne Attack-Type-Verteilung (14 Kategorien),
+        (b) Temporal Attack Patterns über 5 Tage (3.-7. Juli 2017),
+        (c) Attack-Severity-Heatmap,
         (d) Vergleichstabelle mit NSL-KDD.}
         \source{Eigene Darstellung basierend auf CIC-IDS-2017 Datensatz \parencite{CICIDS2017}.}
         \label{fig:cic_attack_dist}
@@ -581,9 +581,9 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{figure}[H]
         \centering
         \includegraphics[width=\textwidth]{../data/results/paper_figures/dataset_comparison_overview.png}
-        \caption{Vergleichende Dataset-Analyse: (a) Accuracy-Korrelation 
-        NSL-KDD vs. CIC (Pearson r = 0.72, p < 0.001), (b) Performance-Boxplots 
-        nach Dataset, (c) Statistische Signifikanztests (Welch's t-test), 
+        \caption{Vergleichende Dataset-Analyse: (a) Accuracy-Korrelation
+        NSL-KDD vs. CIC (Pearson r = 0.72, p < 0.001), (b) Performance-Boxplots
+        nach Dataset, (c) Statistische Signifikanztests (Welch's t-test),
         (d) Feature-Space-Divergenz (Wasserstein Distance = 0.148).}
         \source{Eigene Darstellung.}
         \label{fig:app_dataset_comparison}
@@ -591,10 +591,10 @@ giveninits=true % Nur Initialen für Vornamen
 
     \section{Within-Dataset Performance Details}
     \label{app:within_dataset}
-    
+
     \subsection{NSL-KDD ROC-Kurven}
     \label{app:nsl_roc}
-    
+
     \begin{figure}[H]
         \centering
         \begin{subfigure}[b]{0.48\textwidth}
@@ -608,27 +608,27 @@ giveninits=true % Nur Initialen für Vornamen
             \caption{Advanced-Modelle (6 Algorithmen)}
             \label{fig:nsl_roc_advanced}
         \end{subfigure}
-        \caption{ROC-Kurven NSL-KDD: (a) Baseline zeigt moderate Trennschärfe 
-        (AUC 0.35--1.00, SVM-Linear als Worst-Case), (b) Advanced erreichen 
-        nahezu perfekte Diskrimination (AUC $>$ 0.999 für XGBoost, LightGBM, 
+        \caption{ROC-Kurven NSL-KDD: (a) Baseline zeigt moderate Trennschärfe
+        (AUC 0.35--1.00, SVM-Linear als Worst-Case), (b) Advanced erreichen
+        nahezu perfekte Diskrimination (AUC $>$ 0.999 für XGBoost, LightGBM,
         Gradient Boosting). Diagonale = Random Classifier (AUC 0.5).}
         \source{Eigene Darstellung.}
         \label{fig:app_nsl_roc}
     \end{figure}
-    
+
     \paragraph{ROC-Interpretation}
     \begin{itemize}
-        \item \textbf{XGBoost/LightGBM:} Nahezu vertikaler Anstieg bei TPR $\approx$ 1.0, 
+        \item \textbf{XGBoost/LightGBM:} Nahezu vertikaler Anstieg bei TPR $\approx$ 1.0,
         FPR $\approx$ 0.0 indiziert optimale Klassifikation
-        \item \textbf{SVM-Linear:} AUC = 0.35 (schlechter als Random) aufgrund 
+        \item \textbf{SVM-Linear:} AUC = 0.35 (schlechter als Random) aufgrund
         nicht-linearer Separierbarkeit
-        \item \textbf{Naive Bayes:} AUC = 0.95 zeigt gute probabilistische Kalibrierung 
+        \item \textbf{Naive Bayes:} AUC = 0.95 zeigt gute probabilistische Kalibrierung
         trotz Feature-Unabhängigkeits-Annahme
     \end{itemize}
-    
+
     \subsection{CIC-IDS-2017 ROC-Kurven}
     \label{app:cic_roc}
-    
+
     \begin{figure}[H]
         \centering
         \begin{subfigure}[b]{0.48\textwidth}
@@ -640,16 +640,16 @@ giveninits=true % Nur Initialen für Vornamen
             \includegraphics[width=\textwidth]{../data/results/roc_curves/cic_ids_2017_advanced_scientific_roc.pdf}
             \caption{Advanced-Modelle}
         \end{subfigure}
-        \caption{ROC-Kurven CIC-IDS-2017: Vergleichbare AUC-Werte wie NSL-KDD, 
-        jedoch flacherer Anstieg bei niedrigen FPR-Werten aufgrund höherer 
+        \caption{ROC-Kurven CIC-IDS-2017: Vergleichbare AUC-Werte wie NSL-KDD,
+        jedoch flacherer Anstieg bei niedrigen FPR-Werten aufgrund höherer
         Datensatz-Komplexität (79 Features vs. 41, moderne Attack-Vektoren).}
         \source{Eigene Darstellung.}
         \label{fig:app_cic_roc}
     \end{figure}
-    
+
     \subsection{Precision-Recall Kurven}
     \label{app:pr_curves}
-    
+
     \begin{figure}[H]
         \centering
         \begin{subfigure}[b]{0.48\textwidth}
@@ -671,29 +671,29 @@ giveninits=true % Nur Initialen für Vornamen
             \includegraphics[width=\textwidth]{../data/results/precision_recall_curves/cic_ids_2017_advanced_scientific_pr.pdf}
             \caption{CIC-IDS-2017 Advanced}
         \end{subfigure}
-        \caption{Precision-Recall Trade-Off-Analyse: PR-Kurven sind besonders 
-        informativ bei Klassenimbalance (CIC: 83\% Normal). Average Precision (AP) 
-        aggregiert Performance über alle Schwellenwerte. Baseline-Modelle zeigen 
-        stärkeren Precision-Drop bei hohem Recall (rechte Kurvenabschnitte) im 
+        \caption{Precision-Recall Trade-Off-Analyse: PR-Kurven sind besonders
+        informativ bei Klassenimbalance (CIC: 83\% Normal). Average Precision (AP)
+        aggregiert Performance über alle Schwellenwerte. Baseline-Modelle zeigen
+        stärkeren Precision-Drop bei hohem Recall (rechte Kurvenabschnitte) im
         Vergleich zu Advanced-Modellen.}
         \source{Eigene Darstellung.}
         \label{fig:app_pr_curves}
     \end{figure}
-    
+
     \paragraph{PR-Kurven vs. ROC-Kurven}
     Bei starker Klassenimbalance (CIC-IDS-2017):
     \begin{itemize}
-        \item \textbf{ROC-Kurven:} Können übermäßig optimistisch wirken 
+        \item \textbf{ROC-Kurven:} Können übermäßig optimistisch wirken
         (hohe TN-Zahlen dominieren)
-        \item \textbf{PR-Kurven:} Fokussieren auf Minority Class (Attack), 
+        \item \textbf{PR-Kurven:} Fokussieren auf Minority Class (Attack),
         daher realistischere Einschätzung
-        \item \textbf{Beispiel:} Random Forest CIC-IDS hat ROC-AUC = 1.0, 
+        \item \textbf{Beispiel:} Random Forest CIC-IDS hat ROC-AUC = 1.0,
         aber AP = 0.999 (minimale Precision-Degradation bei hohem Recall)
     \end{itemize}
-    
+
     \subsection{Konfusionsmatrizen NSL-KDD}
     \label{app:cm_nsl}
-    
+
     \begin{figure}[H]
         \centering
         \begin{subfigure}[b]{0.48\textwidth}
@@ -705,16 +705,16 @@ giveninits=true % Nur Initialen für Vornamen
             \includegraphics[width=\textwidth]{../data/results/confusion_matrices/nsl_kdd_advanced_scientific_cm.pdf}
             \caption{Advanced-Modelle}
         \end{subfigure}
-        \caption{Konfusionsmatrizen NSL-KDD (normalisiert pro True Label): 
-        Diagonalelemente = korrekte Klassifikationen (idealer Wert: 1.0). 
+        \caption{Konfusionsmatrizen NSL-KDD (normalisiert pro True Label):
+        Diagonalelemente = korrekte Klassifikationen (idealer Wert: 1.0).
         SVM-Linear zeigt starke False-Negative-Rate (dunklere Off-Diagonal-Werte).}
         \source{Eigene Darstellung.}
         \label{fig:app_cm_nsl}
     \end{figure}
-    
+
     \subsection{Konfusionsmatrizen CIC-IDS-2017}
     \label{app:cm_cic}
-    
+
     \begin{figure}[H]
         \centering
         \begin{subfigure}[b]{0.48\textwidth}
@@ -726,99 +726,99 @@ giveninits=true % Nur Initialen für Vornamen
             \includegraphics[width=\textwidth]{../data/results/confusion_matrices/cic_ids_2017_advanced_scientific_cm.pdf}
             \caption{Advanced-Modelle}
         \end{subfigure}
-        \caption{Konfusionsmatrizen CIC-IDS-2017: Naive Bayes zeigt charakteristische 
-        Bias zur Attack-Klasse (hohe False-Positive-Rate bei Normal $\rightarrow$ 
-        Attack), während Decision Tree nahezu perfekte Klassifikation erreicht 
+        \caption{Konfusionsmatrizen CIC-IDS-2017: Naive Bayes zeigt charakteristische
+        Bias zur Attack-Klasse (hohe False-Positive-Rate bei Normal $\rightarrow$
+        Attack), während Decision Tree nahezu perfekte Klassifikation erreicht
         (Diagonale $\approx$ 1.0).}
         \source{Eigene Darstellung.}
         \label{fig:app_cm_cic}
     \end{figure}
-    
+
     \section{Cross-Validation und Statistische Analysen}
     \label{app:cross_validation}
-    
+
     \subsection{Cross-Validation Vergleich}
     \label{app:cv_comparison}
-    
+
     \begin{figure}[H]
         \centering
         \includegraphics[width=\textwidth]{../data/results/paper_figures/cross_validation_comparison.png}
-        \caption{Cross-Validation Performance-Vergleich NSL-KDD vs. CIC-IDS-2017: 
-        5-Fold stratifizierte CV mit Konfidenzintervallen (95\% CI). 
+        \caption{Cross-Validation Performance-Vergleich NSL-KDD vs. CIC-IDS-2017:
+        5-Fold stratifizierte CV mit Konfidenzintervallen (95\% CI).
         Fehlerbalken indizieren Variabilität über Folds.}
         \source{Eigene Darstellung.}
         \label{fig:app_cv_comparison}
     \end{figure}
-    
+
     \subsection{CV Results Distribution}
     \label{app:cv_boxplot}
-    
+
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.9\textwidth]{../data/results/cv_results_boxplot.png}
-        \caption{Boxplot-Verteilung der Cross-Validation Accuracy: 
-        Median (zentrale Linie), Interquartilbereich (Box), Whiskers (1.5×IQR), 
-        Ausreißer (Punkte). SVM-Linear zeigt extreme Variabilität über Folds 
+        \caption{Boxplot-Verteilung der Cross-Validation Accuracy:
+        Median (zentrale Linie), Interquartilbereich (Box), Whiskers (1.5×IQR),
+        Ausreißer (Punkte). SVM-Linear zeigt extreme Variabilität über Folds
         (IQR = 0.43, Range = 0.33--0.83).}
         \source{Eigene Darstellung.}
         \label{fig:app_cv_boxplot}
     \end{figure}
-    
+
     \paragraph{Variabilitäts-Interpretation}
     \begin{itemize}
-        \item \textbf{Niedrige Variabilität (XGBoost, LightGBM):} IQR < 0.0005, 
+        \item \textbf{Niedrige Variabilität (XGBoost, LightGBM):} IQR < 0.0005,
         indiziert robuste Performance unabhängig von Fold-Zusammensetzung
-        \item \textbf{Hohe Variabilität (SVM-Linear):} IQR = 0.43, 
+        \item \textbf{Hohe Variabilität (SVM-Linear):} IQR = 0.43,
         deutet auf Sensitivität gegenüber Datenpartitionierung hin
-        \item \textbf{Ausreißer-Erkennung:} Naive Bayes zeigt 2 Ausreißer-Folds 
+        \item \textbf{Ausreißer-Erkennung:} Naive Bayes zeigt 2 Ausreißer-Folds
         bei NSL-KDD (möglicherweise U2R-Attack-Cluster)
     \end{itemize}
-    
+
     \subsection{Statistische Vergleichsanalysen}
     \label{app:statistical_comparison}
-    
+
     \begin{figure}[H]
         \centering
         \includegraphics[width=\textwidth]{../data/results/confusion_matrices/cv_statistical_analysis_scientific.pdf}
-        \caption{Statistische Vergleichsanalyse Top-5 Modelle: 
-        Pairwise t-Tests mit Bonferroni-Korrektur ($\alpha = 0.01$). 
-        Heatmap zeigt p-Werte, Sterne indizieren Signifikanz 
+        \caption{Statistische Vergleichsanalyse Top-5 Modelle:
+        Pairwise t-Tests mit Bonferroni-Korrektur ($\alpha = 0.01$).
+        Heatmap zeigt p-Werte, Sterne indizieren Signifikanz
         (*** p < 0.001, ** p < 0.01, * p < 0.05).}
         \source{Eigene Darstellung.}
         \label{fig:app_statistical}
     \end{figure}
-    
+
     \paragraph{Signifikanz-Befunde}
     Aus statistical\_comparison.csv (gekürzt):
     \begin{itemize}
-        \item \textbf{XGBoost vs. LightGBM:} Nicht signifikant (p = 0.385, 
+        \item \textbf{XGBoost vs. LightGBM:} Nicht signifikant (p = 0.385,
         Cohen's d = 0.31) $\rightarrow$ vergleichbare Performance
-        \item \textbf{XGBoost vs. Naive Bayes:} Hochsignifikant (p < 0.001, 
+        \item \textbf{XGBoost vs. Naive Bayes:} Hochsignifikant (p < 0.001,
         Cohen's d = 26.76) $\rightarrow$ deutlicher Performance-Unterschied
-        \item \textbf{Random Forest vs. Decision Tree:} Signifikant (p = 0.006, 
+        \item \textbf{Random Forest vs. Decision Tree:} Signifikant (p = 0.006,
         Cohen's d = 4.53) $\rightarrow$ RF überlegen
     \end{itemize}
-    
+
     \subsection{Konvergenzanalyse}
     \label{app:convergence}
-    
+
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.85\textwidth]{../data/results/scientific_analysis/convergence_analysis/cv_convergence_analysis.pdf}
-        \caption{Cross-Validation Konvergenzanalyse: Kumulative Mean Accuracy 
-        $\pm$ SD über Folds 1--5. Konvergenz ab Fold 3 indiziert ausreichende 
+        \caption{Cross-Validation Konvergenzanalyse: Kumulative Mean Accuracy
+        $\pm$ SD über Folds 1--5. Konvergenz ab Fold 3 indiziert ausreichende
         k-Wahl. Gestrichelte Linie = finale 5-Fold Mean.}
         \source{Eigene Darstellung.}
         \label{fig:app_convergence}
     \end{figure}
-    
+
     \paragraph{Konvergenz-Interpretation}
     \begin{itemize}
-        \item \textbf{Schnelle Konvergenz (Fold 2--3):} XGBoost, LightGBM, 
+        \item \textbf{Schnelle Konvergenz (Fold 2--3):} XGBoost, LightGBM,
         Random Forest $\rightarrow$ stabile Performance
-        \item \textbf{Langsame Konvergenz (Fold 4--5):} SVM-Linear, Naive Bayes 
+        \item \textbf{Langsame Konvergenz (Fold 4--5):} SVM-Linear, Naive Bayes
         $\rightarrow$ höhere Sensitivität gegenüber Datensplit
-        \item \textbf{Empfehlung:} k=5 ausreichend, k=10 würde SD nur marginal 
+        \item \textbf{Empfehlung:} k=5 ausreichend, k=10 würde SD nur marginal
         reduzieren (< 0.0001)
     \end{itemize}
 
@@ -831,9 +831,9 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{figure}[H]
         \centering
         \includegraphics[width=\textwidth]{../data/results/confusion_matrices/cross_dataset_scientific_transfer.pdf}
-        \caption{Transfer-Learning Konfusionsmatrizen: (a) NSL-KDD $\rightarrow$ 
-        CIC-IDS-2017, (b) CIC-IDS-2017 $\rightarrow$ NSL-KDD für XGBoost. 
-        Forward-Transfer (a) zeigt moderate Generalisierung (Target Acc = 0.827), 
+        \caption{Transfer-Learning Konfusionsmatrizen: (a) NSL-KDD $\rightarrow$
+        CIC-IDS-2017, (b) CIC-IDS-2017 $\rightarrow$ NSL-KDD für XGBoost.
+        Forward-Transfer (a) zeigt moderate Generalisierung (Target Acc = 0.827),
         Reverse-Transfer (b) zeigt starke Degradation (Target Acc = 0.431).}
         \source{Eigene Darstellung.}
         \label{fig:app_transfer_cm}
@@ -841,11 +841,11 @@ giveninits=true % Nur Initialen für Vornamen
 
     \paragraph{Transfer-Pattern-Analyse}
     \begin{itemize}
-        \item \textbf{Forward (NSL→CIC):} Off-Diagonal-Muster bei Normal→Attack 
+        \item \textbf{Forward (NSL→CIC):} Off-Diagonal-Muster bei Normal→Attack
         (17\% FPR) aufgrund unterschiedlicher Feature-Skalierung
-        \item \textbf{Reverse (CIC→NSL):} Starke Attack→Normal Misklassifikation 
+        \item \textbf{Reverse (CIC→NSL):} Starke Attack→Normal Misklassifikation
         (56\% FNR) durch veraltete Attack-Signaturen in NSL-KDD
-        \item \textbf{Asymmetrie:} Forward-Transfer robuster aufgrund höherer 
+        \item \textbf{Asymmetrie:} Forward-Transfer robuster aufgrund höherer
         NSL-KDD-Generalisierung (simplere Features)
     \end{itemize}
 
@@ -855,8 +855,8 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.9\textwidth]{../data/results/paper_figures/harmonized_evaluation_summary.png}
-        \caption{Harmonisierte Cross-Dataset Evaluation: Performance bei 
-        PCA-alignierten Features (20 Komponenten, 94.7\% erklärte Varianz). 
+        \caption{Harmonisierte Cross-Dataset Evaluation: Performance bei
+        PCA-alignierten Features (20 Komponenten, 94.7\% erklärte Varianz).
         Threshold-Tuning via Grid Search (0.1--0.9 in 0.1-Schritten).}
         \source{Eigene Darstellung.}
         \label{fig:app_harmonized}
@@ -867,7 +867,7 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{itemize}
         \item \textbf{NSL→CIC (native):} Target F1 = 0.0041 (XGBoost)
         \item \textbf{NSL→CIC (harmonisiert):} Target F1 = 0.5711 (139× Verbesserung)
-        \item \textbf{Erklärung:} PCA-Alignment reduziert Feature-Distribution-Mismatch 
+        \item \textbf{Erklärung:} PCA-Alignment reduziert Feature-Distribution-Mismatch
         (Wasserstein Distance: 0.148 → 0.082)
     \end{itemize}
 
@@ -880,9 +880,9 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{figure}[H]
         \centering
         \includegraphics[width=\textwidth]{../data/results/scientific_analysis/learning_curves/model_learning_curves.pdf}
-        \caption{Lernkurven Top-3 Modelle bei variierenden Trainingsdatengrößen 
-        (1k--100k Samples): Training Accuracy (durchgezogene Linie) vs. 
-        Validation Accuracy (gestrichelt). Schattierte Bereiche = 95\% CI 
+        \caption{Lernkurven Top-3 Modelle bei variierenden Trainingsdatengrößen
+        (1k--100k Samples): Training Accuracy (durchgezogene Linie) vs.
+        Validation Accuracy (gestrichelt). Schattierte Bereiche = 95\% CI
         über 3 Wiederholungen.}
         \source{Eigene Darstellung.}
         \label{fig:app_learning_curves}
@@ -890,18 +890,18 @@ giveninits=true % Nur Initialen für Vornamen
 
     \paragraph{Lernkurven-Interpretation}
     \begin{itemize}
-        \item \textbf{XGBoost:} 
+        \item \textbf{XGBoost:}
         \begin{itemize}
             \item Konvergenz bei 20k Samples (Val Acc = 0.995)
             \item Minimaler Overfitting-Gap (Train-Val Diff < 0.005)
             \item Data-Efficient Learning (Plateau-Effekt)
         \end{itemize}
-        \item \textbf{LightGBM:} 
+        \item \textbf{LightGBM:}
         \begin{itemize}
             \item Ähnliches Verhalten wie XGBoost
             \item Leicht höhere Varianz bei kleinen Sample Sizes (< 10k)
         \end{itemize}
-        \item \textbf{Random Forest:} 
+        \item \textbf{Random Forest:}
         \begin{itemize}
             \item Langsame Konvergenz (Plateau erst bei 50k Samples)
             \item Höherer Overfitting-Gap (Train-Val Diff = 0.015 bei 10k)
@@ -912,10 +912,10 @@ giveninits=true % Nur Initialen für Vornamen
     \paragraph{Praktische Implikationen}
     Für IDS-Deployments mit begrenzten Trainingsdaten:
     \begin{itemize}
-        \item \textbf{< 10k Samples:} XGBoost/LightGBM bevorzugen 
+        \item \textbf{< 10k Samples:} XGBoost/LightGBM bevorzugen
         (Val Acc > 0.98)
         \item \textbf{10k--50k Samples:} Alle Modelle vergleichbar
-        \item \textbf{> 50k Samples:} Random Forest akzeptabel, 
+        \item \textbf{> 50k Samples:} Random Forest akzeptabel,
         aber längere Trainingszeit (siehe Anhang F)
     \end{itemize}
 
@@ -928,8 +928,8 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{figure}[H]
         \centering
         \includegraphics[width=\textwidth]{../data/results/scientific_analysis/comparative_analysis/timing_performance_analysis.pdf}
-        \caption{Training Time vs. Accuracy Trade-Off: Bubble-Chart mit 
-        Bubble-Größe proportional zu Inferenzzeit. Optimale Modelle in oberer 
+        \caption{Training Time vs. Accuracy Trade-Off: Bubble-Chart mit
+        Bubble-Größe proportional zu Inferenzzeit. Optimale Modelle in oberer
         linker Region (hohe Accuracy, niedrige Training Time).}
         \source{Eigene Darstellung. Hardware: [aus README].}
         \label{fig:app_timing}
@@ -938,23 +938,23 @@ giveninits=true % Nur Initialen für Vornamen
     \paragraph{Effizienz-Ranking}
     Aus timing\_analysis\_real\_timing\_summary.json:
     \begin{enumerate}
-        \item \textbf{XGBoost:} Efficiency = 2.07 Acc/s (0.38s Training, 0.807 Acc)
+        \item \textbf{XGBoost:} Efficiency = 2.62 Acc/s (0.38s Training, 0.999 Acc)
         \item \textbf{LightGBM:} Efficiency = 1.38 Acc/s (0.58s Training, 0.814 Acc)
-        \item \textbf{Decision Tree:} Efficiency = 0.46 Acc/s (2.17s, 0.997 Acc, 
+        \item \textbf{Decision Tree:} Efficiency = 0.46 Acc/s (2.17s, 0.997 Acc,
         Within-Dataset)
         \item \textbf{Random Forest (Forward):} Efficiency = 0.20 Acc/s (4.06s, 0.805 Acc)
-        \item \textbf{Random Forest (Reverse):} Efficiency = 0.005 Acc/s 
+        \item \textbf{Random Forest (Reverse):} Efficiency = 0.005 Acc/s
         (183.48s, 0.991 Acc, \textbf{48× langsamer als Forward!})
     \end{enumerate}
 
     \paragraph{Reverse-Transfer Performance-Paradox}
     CIC→NSL-KDD Training dauert signifikant länger trotz kleinerer Target-Größe:
     \begin{itemize}
-        \item \textbf{Ursache:} Großer Source-Datensatz (CIC: 2.8M Samples) 
+        \item \textbf{Ursache:} Großer Source-Datensatz (CIC: 2.8M Samples)
         erfordert längeres Training
-        \item \textbf{RF-spezifisch:} n\_estimators=200 × bootstrapping über 
+        \item \textbf{RF-spezifisch:} n\_estimators=200 × bootstrapping über
         2.8M Samples = 560M Samples total
-        \item \textbf{Mitigation:} Sampling-basiertes Training (z.B. 100k 
+        \item \textbf{Mitigation:} Sampling-basiertes Training (z.B. 100k
         Sample-Subset) reduziert Zeit auf \textasciitilde10s bei nur -2\% Accuracy
     \end{itemize}
 
@@ -967,7 +967,7 @@ giveninits=true % Nur Initialen für Vornamen
         \label{tab:deployment}
         \begin{tabular}{lp{4cm}p{4cm}l}
             \toprule
-            \textbf{Szenario} & \textbf{Constraints} & \textbf{Empfohlenes Modell} 
+            \textbf{Szenario} & \textbf{Constraints} & \textbf{Empfohlenes Modell}
             & \textbf{Grund} \\
             \midrule
             Real-Time IDS & < 100ms Inferenz & XGBoost & Schnellste Inferenz (23ms) \\
@@ -986,256 +986,25 @@ giveninits=true % Nur Initialen für Vornamen
     \begin{figure}[H]
         \centering
         \includegraphics[width=\textwidth]{../data/results/scientific_analysis/comparative_analysis/comprehensive_model_dashboard.pdf}
-        \caption{Comprehensive Multi-Metrik Dashboard: 
-        (a) Radar-Chart aller Performance-Metriken, 
-        (b) Parallel-Koordinaten-Plot für Metrik-Interaktion, 
-        (c) Hierarchische Clustering-Dendrogram ähnlicher Modelle, 
+        \caption{Comprehensive Multi-Metrik Dashboard:
+        (a) Radar-Chart aller Performance-Metriken,
+        (b) Parallel-Koordinaten-Plot für Metrik-Interaktion,
+        (c) Hierarchische Clustering-Dendrogram ähnlicher Modelle,
         (d) Principal Component Biplot für Modell-Distanzen im Metrik-Raum.}
         \source{Eigene Darstellung.}
         \label{fig:app_dashboard}
     \end{figure}
 
     \paragraph{Cluster-Analyse-Befunde}
-    Hierarchisches Clustering (Ward-Linkage, Euclidean Distance) identifiziert:
+    Hierarchisches Clustering (Ward-Linkage, Euclidean Distance, z-score normalisiert) identifiziert:
     \begin{itemize}
-        \item \textbf{Cluster 1 (High-Performance):} XGBoost, LightGBM, Extra Trees 
+        \item \textbf{Cluster 1 (High-Performance):} XGBoost, LightGBM, Extra Trees
         (Distanz < 0.05)
-        \item \textbf{Cluster 2 (Moderate):} Random Forest, Gradient Boosting, 
+        \item \textbf{Cluster 2 (Moderate):} Random Forest, Gradient Boosting,
         Decision Tree
         \item \textbf{Cluster 3 (Baseline):} Logistic Regression, k-NN, MLP
         \item \textbf{Outlier:} SVM-Linear (Distanz > 0.8 zu allen Clustern)
     \end{itemize}
-
-        % ---------- Nützliche LaTeX-Referenz ----------
-
-    \clearpage
-    \section*{Nützliche LaTeX-Referenz}
-    \addtoTOC{Nützliche LaTeX-Referenz}
-
-    \subsection*{Zitieren nach APA 7 (biblatex-apa)}
-    Indirektes Zitat: \verb|\parencite{Goodfellow2016}| → (Goodfellow et al., 2016)\\
-    Mit Seitenzahl: \verb|\parencite[S.~123]{Bishop2006}|\\
-    Direktzitat ≤40 Wörter: „…“ \verb|\parencite[S.~45]{Hastie2009}|\\
-    Blockzitat ≥40 Wörter:
-
-    \begin{verbatim}
-        \begin{blockzitat}
-            Langes Zitat ohne Anführungszeichen …
-        \end{blockzitat}
-    \end{verbatim}
-
-    \subsection*{Abbildungen}
-    \begin{verbatim}
-        \begin{figure}[h]
-            \centering
-            \includegraphics[width=0.85\textwidth]{pfad/zur/datei}
-            \caption{Titel der Abbildung.}
-            \source{Quelle: Eigene Darstellung / Autor, Jahr, S.~xx.}
-            \label{fig:beispiel}
-        \end{figure}
-    \end{verbatim}
-    Querverweis: „siehe Abb.~\verb|\ref{fig:beispiel}|“.
-
-    \subsection*{Tabellen}
-    \begin{verbatim}
-        \begin{table}[h]
-            \centering
-            \begin{tabular}{lcc}
-                \toprule
-                \textbf{Variable} & \textbf{Gruppe A} & \textbf{Gruppe B} \\
-                \midrule
-                x & 1{,}23 & 4{,}56 \\
-                \bottomrule
-            \end{tabular}
-            \caption{Titel der Tabelle.}
-            \source{Quelle: Eigene Darstellung.}
-            \label{tab:beispiel}
-        \end{table}
-    \end{verbatim}
-    Querverweis: „siehe Tab.~\verb|\ref{tab:beispiel}|“.
-
-    \subsection*{Gleichungen}
-    Einzeln:
-    \begin{verbatim}
-        \begin{equation}
-            E = mc^2
-        \end{equation}
-    \end{verbatim}
-
-    Mehrzeilig (nummeriert):
-    \begin{verbatim}
-        \begin{align}
-            \hat{R}(\theta) &= \frac{1}{N}\sum_{i=1}^{N}\ell(y_i,f_\theta(x_i)) + \lambda\lVert\theta\rVert_2^2,\\
-            \ell(y,\hat{y}) &= -\big[y\log\hat{y} + (1-y)\log(1-\hat{y})\big].
-        \end{align}
-    \end{verbatim}
-
-    \subsection*{Listen}
-    \begin{verbatim}
-        \begin{itemize}
-            \item Punkt A
-            \item Punkt B
-        \end{itemize}
-
-        \begin{enumerate}
-            \item Erstens
-            \item Zweitens
-        \end{enumerate}
-    \end{verbatim}
-
-    \subsection*{Fußnoten}
-    \verb|Text\footnote{Inhalt der Fußnote in 10 pt.}|
-
-    \subsection*{Einheiten und Zahlen (siunitx)}
-    \verb|\SI{12,5}{\kilo\meter\per\hour}| → \SI{12,5}{\kilo\meter\per\hour}\\
-    \verb|\num{12345,678}| → \num{12345,678}
-
-    \subsection*{Quellen in Abbildungen/Tabellen}
-    Direkt unter \verb|\caption| einfügen: \verb|\source{Quelle: …}| (10 pt).
-
-    \subsection*{Platzhalter \& Blindtext}
-    Platzhalterbild: \verb|\includegraphics{example-image}| (aus Paket \verb|mwe|).\\
-    Kurzer Blindtext:
-    \begin{verbatim}
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    \end{verbatim}
-
-    \subsection*{Bibliografie-Einträge (BibTeX mit Biber)}
-    \textbf{Wichtige Eintragstypen:}
-    \begin{verbatim}
-@book{key,
-  author = {Nachname, Vorname},
-  year = {2023},
-  title = {Titel des Buches},
-  subtitle = {Untertitel (optional)},
-  publisher = {Verlag},
-  address = {Ort},
-  edition = {2}, % nur bei 2. Auflage oder höher
-  doi = {10.1000/xyz}
-}
-
-@article{key,
-  author = {Nachname, Vorname and Zweiter, Autor},
-  year = {2023},
-  title = {Titel des Artikels},
-  journaltitle = {Name der Zeitschrift},
-  volume = {42},
-  number = {3},
-  pages = {123--145},
-  doi = {10.1000/xyz}
-}
-
-@online{key,
-  author = {Nachname, Vorname},
-  year = {2023},
-  title = {Titel der Webseite},
-  url = {https://example.com},
-  urldate = {2024-01-15}
-}
-    \end{verbatim}
-
-    \textbf{Biber-spezifische Felder:}
-    \begin{itemize}
-        \item \verb|journaltitle| statt \verb|journal| (APA-konform)
-        \item \verb|location| statt \verb|address| (moderne biblatex-Syntax)
-        \item \verb|date| statt \verb|year| für komplexere Datumsangaben
-    \end{itemize}
-
-\subsection*{Code-Beispiele in LaTeX}
-
-\textbf{Einfacher Python-Code:}
-
-\begin{lstlisting}[language=Python, caption={Fibonacci-Beispiel}, label={lst:fib}]
-    def fibonacci(n: int) -> list[int]:
-    """Berechnet die ersten n Fibonacci-Zahlen."""
-    seq = [0, 1]
-    for i in range(2, n):
-    seq.append(seq[-1] + seq[-2])
-    return seq[:n]
-
-
-    if __name__ == "__main__":
-    print("Fibonacci(10):", fibonacci(10))
-\end{lstlisting}
-
-\textbf{Ausgabe:}
-\begin{verbatim}
-    Fibonacci(10): [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
-\end{verbatim}
-
----
-
-\textbf{Inline-Nutzung (LaTeX-Syntax wörtlich):}
-\begin{verbatim}
-    \begin{lstlisting}[language=Python, caption={Minimalbeispiel}, label={lst:mini}]
-        def foo(x):
-        return x**2
-    \end{lstlisting}
-\end{verbatim}
-
-\textbf{Tatsächliches Listing (ausführbarer Code):}
-\begin{lstlisting}[caption={Minimalbeispiel}, label={lst:mini}]
-    def foo(x):
-    return x**2
-\end{lstlisting}
-
-\textbf{Ausgabe:}
-\begin{verbatim}
-    >>> foo(5)
-    25
-\end{verbatim}
-
-    ---
-
-    \textbf{Code aus Datei einbinden:}
-    \lstinline[language=TeX]|\lstinputlisting[language=Python, caption={Script X}, label={lst:scriptx}]{path/to/script.py}|
-
-
-
-
-    \subsection*{Erweiterte LaTeX-Tipps}
-
-    \textbf{Mathematik:}
-    \begin{itemize}
-        \item Inline-Mathe: \verb|$E = mc^2$| → $E = mc^2$
-        \item Display-Mathe: \verb|\[E = mc^2\]| (unnummeriert)
-        \item Nummerierte Gleichung: \verb|\begin{equation}...\end{equation}|
-        \item Griechische Buchstaben: \verb|\alpha, \beta, \gamma| → $\alpha, \beta, \gamma$
-    \end{itemize}
-
-    \textbf{Querverweise:}
-    \begin{itemize}
-        \item Label setzen: \verb|\label{fig:beispiel}|
-        \item Verweis: \verb|\ref{fig:beispiel}| oder \verb|\autoref{fig:beispiel}|
-        \item Seitenverweis: \verb|\pageref{fig:beispiel}|
-    \end{itemize}
-
-    \textbf{Typografie:}
-    \begin{itemize}
-        \item Geschützte Leerzeichen: \verb|Abb.~\ref{fig:1}|
-        \item Anführungszeichen: \verb|\enquote{Text}| (sprachabhängig)
-        \item Gedankenstrich: \verb|--| (Bindestrich), \verb|---| (Gedankenstrich)
-        \item Auslassungspunkte: \verb|\ldots| → …
-    \end{itemize}
-
-    \textbf{Häufige Probleme und Lösungen:}
-    \begin{itemize}
-        \item Biber-Cache löschen: \verb|biber --cache-clear|
-        \item Umlaute: Verwende \verb|fontspec| mit LuaLaTeX/XeLaTeX
-        \item Lange URLs: \verb|\url{...}| oder \verb|\href{url}{Text}|
-        \item Overfull hbox: \verb|\sloppy| oder manuelle Zeilenumbrüche
-    \end{itemize}
-
-    \subsection*{Kompilierreihenfolge mit Biber}
-    \textbf{Standard:} LuaLaTeX → Biber → LuaLaTeX → LuaLaTeX
-
-    \textbf{VS Code/Automatisierung:}
-    \begin{itemize}
-        \item LaTeX Workshop Extension konfigurieren
-        \item \verb|latexmkrc| für automatische Biber-Ausführung
-        \item Overleaf nutzt automatisch die richtige Reihenfolge
-    \end{itemize}
-
 
     % ========= Ende =========
 \end{document}
