@@ -9,7 +9,8 @@
 \babel@aux{english}{}
 \babel@aux{ngerman}{}
 \@writefile{toc}{\contentsline {section}{Abbildungsverzeichnis}{IV}{Doc-Start}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Abkürzungsverzeichnis}{V}{Doc-Start}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Tabellenverzeichnis}{V}{Doc-Start}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Abkürzungsverzeichnis}{VI}{Doc-Start}\protected@file@percent }
 \abx@aux@refcontext{nyt/apasortcite//global/global}
 \abx@aux@cite{0}{GlobalRisksReport2024}
 \abx@aux@segm{0}{0}{GlobalRisksReport2024}
@@ -215,13 +216,38 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Harmonisierte Cross-Dataset Evaluation: Performance bei PCA-alignierten Features (20 Komponenten, 94.7\% erklärte Varianz). Threshold-Tuning via Grid Search (0.1--0.9 in 0.1-Schritten).}}{24}{figure.caption.27}\protected@file@percent }
 \newlabel{fig:app_harmonized}{{17}{24}{Harmonisierte Cross-Dataset Evaluation: Performance bei PCA-alignierten Features (20 Komponenten, 94.7\% erklärte Varianz). Threshold-Tuning via Grid Search (0.1--0.9 in 0.1-Schritten)}{figure.caption.27}{}}
 \@writefile{toc}{\contentsline {paragraph}{Harmonisierungs-Effekte}{24}{paragraph*.28}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{Nützliche LaTeX-Referenz}{25}{paragraph*.28}\protected@file@percent }
-\newlabel{lst:fib}{{1}{28}{Fibonacci-Beispiel}{lstlisting.1}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Fibonacci-Beispiel}}{28}{lstlisting.1}\protected@file@percent }
-\newlabel{lst:mini}{{2}{28}{Minimalbeispiel}{lstlisting.2}{}}
-\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Minimalbeispiel}}{28}{lstlisting.2}\protected@file@percent }
-\expandafter\ifx\csname c@figure@totc\endcsname\relax\newcounter{figure@totc}\fi\setcounter{figure@totc}{17}
-\expandafter\ifx\csname c@table@totc\endcsname\relax\newcounter{table@totc}\fi\setcounter{table@totc}{2}
+\@writefile{toc}{\contentsline {section}{\numberline {E}Learning Curves und Trainingsanalysen}{25}{appendix.E}\protected@file@percent }
+\newlabel{app:learning_curves}{{E}{25}{Learning Curves und Trainingsanalysen}{appendix.E}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {E.1}Model Learning Curves}{25}{subsection.E.1}\protected@file@percent }
+\newlabel{app:learning_curves_detail}{{E.1}{25}{Model Learning Curves}{subsection.E.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Lernkurven Top-3 Modelle bei variierenden Trainingsdatengrößen (1k--100k Samples): Training Accuracy (durchgezogene Linie) vs. Validation Accuracy (gestrichelt). Schattierte Bereiche = 95\% CI über 3 Wiederholungen.}}{25}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:app_learning_curves}{{18}{25}{Lernkurven Top-3 Modelle bei variierenden Trainingsdatengrößen (1k--100k Samples): Training Accuracy (durchgezogene Linie) vs. Validation Accuracy (gestrichelt). Schattierte Bereiche = 95\% CI über 3 Wiederholungen}{figure.caption.29}{}}
+\@writefile{toc}{\contentsline {paragraph}{Lernkurven-Interpretation}{25}{paragraph*.30}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Praktische Implikationen}{26}{paragraph*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {F}Computational Efficiency Analysis}{27}{appendix.F}\protected@file@percent }
+\newlabel{app:efficiency}{{F}{27}{Computational Efficiency Analysis}{appendix.F}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {F.1}Timing Performance Analysis}{27}{subsection.F.1}\protected@file@percent }
+\newlabel{app:timing_analysis}{{F.1}{27}{Timing Performance Analysis}{subsection.F.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Training Time vs. Accuracy Trade-Off: Bubble-Chart mit Bubble-Größe proportional zu Inferenzzeit. Optimale Modelle in oberer linker Region (hohe Accuracy, niedrige Training Time).}}{27}{figure.caption.32}\protected@file@percent }
+\newlabel{fig:app_timing}{{19}{27}{Training Time vs. Accuracy Trade-Off: Bubble-Chart mit Bubble-Größe proportional zu Inferenzzeit. Optimale Modelle in oberer linker Region (hohe Accuracy, niedrige Training Time)}{figure.caption.32}{}}
+\@writefile{toc}{\contentsline {paragraph}{Effizienz-Ranking}{27}{paragraph*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Reverse-Transfer Performance-Paradox}{27}{paragraph*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {F.2}Real-World Deployment Considerations}{28}{subsection.F.2}\protected@file@percent }
+\newlabel{app:deployment}{{F.2}{28}{Real-World Deployment Considerations}{subsection.F.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Deployment-Szenarien und Modellempfehlungen}}{28}{table.caption.35}\protected@file@percent }
+\newlabel{tab:deployment}{{3}{28}{Deployment-Szenarien und Modellempfehlungen}{table.caption.35}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {G}Comprehensive Model Dashboard}{29}{appendix.G}\protected@file@percent }
+\newlabel{app:dashboard}{{G}{29}{Comprehensive Model Dashboard}{appendix.G}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces Comprehensive Multi-Metrik Dashboard: (a) Radar-Chart aller Performance-Metriken, (b) Parallel-Koordinaten-Plot für Metrik-Interaktion, (c) Hierarchische Clustering-Dendrogram ähnlicher Modelle, (d) Principal Component Biplot für Modell-Distanzen im Metrik-Raum.}}{29}{figure.caption.36}\protected@file@percent }
+\newlabel{fig:app_dashboard}{{20}{29}{Comprehensive Multi-Metrik Dashboard: (a) Radar-Chart aller Performance-Metriken, (b) Parallel-Koordinaten-Plot für Metrik-Interaktion, (c) Hierarchische Clustering-Dendrogram ähnlicher Modelle, (d) Principal Component Biplot für Modell-Distanzen im Metrik-Raum}{figure.caption.36}{}}
+\@writefile{toc}{\contentsline {paragraph}{Cluster-Analyse-Befunde}{29}{paragraph*.37}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{Nützliche LaTeX-Referenz}{30}{paragraph*.37}\protected@file@percent }
+\newlabel{lst:fib}{{1}{33}{Fibonacci-Beispiel}{lstlisting.1}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Fibonacci-Beispiel}}{33}{lstlisting.1}\protected@file@percent }
+\newlabel{lst:mini}{{2}{33}{Minimalbeispiel}{lstlisting.2}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Minimalbeispiel}}{33}{lstlisting.2}\protected@file@percent }
+\expandafter\ifx\csname c@figure@totc\endcsname\relax\newcounter{figure@totc}\fi\setcounter{figure@totc}{20}
+\expandafter\ifx\csname c@table@totc\endcsname\relax\newcounter{table@totc}\fi\setcounter{table@totc}{3}
 \abx@aux@read@bbl@mdfivesum{2F063B767018B3CC0EF39B0C86AE4F64}
 \abx@aux@defaultrefcontext{0}{Belavagi2016}{nyt/global//global/global}
 \abx@aux@defaultrefcontext{0}{CICIDS2017}{nyt/global//global/global}
@@ -235,4 +261,4 @@
 \abx@aux@defaultrefcontext{0}{Tavallaee2009}{nyt/global//global/global}
 \abx@aux@defaultrefcontext{0}{Vinayakumar2019}{nyt/global//global/global}
 \abx@aux@defaultrefcontext{0}{GlobalRisksReport2024}{nyt/global//global/global}
-\gdef \@abspage@last{35}
+\gdef \@abspage@last{41}
