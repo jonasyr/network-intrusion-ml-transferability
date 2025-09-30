@@ -500,17 +500,17 @@ giveninits=true % Nur Initialen für Vornamen
         \text{Transfer Ratio} = \frac{\text{Performance}_{\text{cross-dataset}}}{\text{Performance}_{\text{within-dataset}}}
     \end{equation}
 
-    Werte nahe 1.0 indizieren hohe Transferierbarkeit, während niedrige Werte auf domänenspezifische Überanpassung hindeuten. Die theoretische Erwartung basiert auf der Hypothese, dass robuste Algorithmen invariante Feature-Repräsentationen erlernen, die weniger anfällig für Domain-Specific-Bias sind.
+    Werte nahe 1.0 indizieren hohe Transferierbarkeit, während niedrige Werte auf domänenspezifische Überanpassung hindeuten. Die theoretische Erwartung basiert auf der Hypothese, dass robuste Algorithmen invariante Feature-Repräsentationen erlernen, die weniger anfällig für domänenspezifische Verzerrungen sind.
 
-    Die \textbf{Wasserstein-Distanz} bietet eine theoretisch fundierte Metrik zur Quantifizierung der Divergenz zwischen Datenverteilungen und ermöglicht die systematische Analyse der Domain-Gap zwischen NSL-KDD und CIC-IDS-2017. Diese Distanz-basierte Analyse kann prädiktive Insights bezüglich der erwarteten Transfer-Performance verschiedener Algorithmus-Klassen liefern.
+    Die \textbf{Wasserstein-Distanz} bietet eine theoretisch fundierte Metrik zur Quantifizierung der Divergenz zwischen Datenverteilungen und ermöglicht die systematische Analyse der Domänenlücke zwischen NSL-KDD und CIC-IDS-2017. Diese distanzbasierte Analyse kann prädiktive Einsichten bezüglich der erwarteten Transferleistung verschiedener Algorithmusklassen liefern.
 
     \subsection{Evaluationsmetriken und Cross-Dataset-Transferierbarkeit}
 
     Die Bewertung der zwölf ML-Modelle erfordert IDS-spezifische Metriken, die Klassenimbalance und praktische Deployment-Anforderungen berücksichtigen \parencite{Belavagi2016}. \textbf{Accuracy} kann bei imbalancierten Datensätzen irreführend sein, da ein "always normal"-Klassifikator bereits 95\% Accuracy erreicht. \textbf{F1-Score} harmonisiert Precision und Recall: $F_1 = 2 \cdot \frac{Precision \cdot Recall}{Precision + Recall}$ und bietet ausgewogene Performance-Bewertung \parencite{Hastie2009}.
 
-    \textbf{Cross-Dataset-Transferierbarkeit} quantifiziert die Generalisierungsfähigkeit zwischen NSL-KDD und CIC-IDS-2017 durch neuartige Transfer-Metriken. Die \textbf{Transfer Ratio} misst relative Performance-Retention: $TR = \frac{Performance_{cross}}{Performance_{within}}$, wobei Werte nahe 1.0 hohe Transferierbarkeit indizieren \parencite{Mourouzis2021}. Die \textbf{Generalization Gap} quantifiziert absolute Performance-Degradation: $GG = Performance_{source} - Performance_{target}$.
+    \textbf{Datensatzübergreifende Transferierbarkeit} quantifiziert die Generalisierungsfähigkeit zwischen NSL-KDD und CIC-IDS-2017 durch neuartige Transfer-Metriken. Die \textbf{Transfer Ratio} misst relative Leistungserhaltung: $TR = \frac{Performance_{cross}}{Performance_{within}}$, wobei Werte nahe 1.0 hohe Transferierbarkeit indizieren \parencite{Mourouzis2021}. Die \textbf{Generalization Gap} quantifiziert absolute Leistungsdegradation: $GG = Performance_{source} - Performance_{target}$.
 
-    \textbf{Computational Efficiency} wird durch Trainings- und Inferenzzeiten charakterisiert, kritisch für Echtzeit-IDS-Deployments. Ensemble-Modelle (XGBoost, LightGBM) bieten optimale Balance zwischen Accuracy und Effizienz, während k-NN hohe Inferenzzeiten bei großen Trainingsdatensätzen aufweist \parencite{Vinayakumar2019}. \textbf{5-Fold Cross-Validation} mit zeitlicher Stratifizierung verhindert Data Leakage und respektiert temporale Abhängigkeiten in Netzwerkdaten \parencite{Tavallaee2009}.
+    \textbf{Berechnungseffizienz} wird durch Trainings- und Inferenzzeiten charakterisiert, kritisch für Echtzeitanwendungen von IDS. Ensemble-Modelle (XGBoost, LightGBM) bieten optimale Balance zwischen Genauigkeit und Effizienz, während k-NN hohe Inferenzzeiten bei großen Trainingsdatensätzen aufweist \parencite{Vinayakumar2019}. \textbf{5-fache Kreuzvalidierung} mit zeitlicher Stratifizierung verhindert Datenleckage und respektiert zeitliche Abhängigkeiten in Netzwerkdaten \parencite{Tavallaee2009}.
 
     \section{Methodik}
 
@@ -537,19 +537,14 @@ giveninits=true % Nur Initialen für Vornamen
     % - mit Fault-Tolerance und Incremental Recovery für robuste long-running computational experiments
     % - Skalierbarkeit: Memory-adaptive execution von sample-based bis full-dataset processing (2.8M+ samples)
 
-    Die vorliegende Arbeit verfolgt ein \textbf{dreistufiges quantitatives Evaluationsframework}, das systematisch von einfachen Within-Dataset-Validierungen über bidirektionale Cross-Dataset-Transfers bis hin zu Feature-harmonisierten Generalisierungstests fortschreitet. Diese aufbauende Komplexitätssteigerung ermöglicht eine vollständige Charakterisierung der Transferierbarkeit von Machine-Learning-Modellen zwischen historischen (NSL-KDD, 2009) und modernen (CIC-IDS-2017, 2017) Netzwerkumgebungen. Der methodische Ansatz ist ausschließlich quantitativ ausgerichtet, da die Forschungsfrage - \textit{"Inwieweit sind Machine-Learning-Modelle für Netzwerk-Anomalieerkennung zwischen verschiedenen Datensätzen übertragbar?"} - eine messbare, vergleichbare Bewertung von Generalisierungsmetriken erfordert.
+    Die vorliegende Arbeit verfolgt ein \textbf{dreistufiges quantitatives Evaluationsframework}, das systematisch von datensatzinterner Validierung über bidirektionale datensatzübergreifende Transfers bis zu merkmalsharmonisiertem Transfer fortschreitet. Diese Komplexitätssteigerung ermöglicht eine vollständige Charakterisierung der Transferierbarkeit von Machine-Learning-Modellen zwischen historischen (NSL-KDD, 2009) und modernen (CIC-IDS-2017, 2017) Netzwerkumgebungen.
 
-    Die \textbf{Wahl eines quantitativen Designs} begründet sich in der Notwendigkeit, objektive Performance-Differenzen zwischen zwölf ML-Algorithmen unter kontrollierten experimentellen Bedingungen zu quantifizieren. Qualitative Ansätze (z. B. Experteninterviews zur Einschätzung von Modellrobustheit) würden subjektive Urteile einführen und die wissenschaftliche Reproduzierbarkeit einschränken. Stattdessen erlaubt die vollständig automatisierte Experimentalpipeline eine bias-freie Evaluation mit deterministischen Ergebnissen (RANDOM\_STATE=42 für alle stochastischen Komponenten).
+    Die \textbf{Wahl eines quantitativen Designs} begründet sich in der Notwendigkeit, objektive Leistungsunterschiede zwischen zwölf ML-Algorithmen unter kontrollierten Bedingungen zu quantifizieren. Die Forschungsfrage erfordert messbare Generalisierungsmetriken, die qualitative Ansätze nicht liefern können. Die vollständig automatisierte Experimentalpipeline gewährleistet verzerrungsfreie Evaluation mit deterministischen Ergebnissen (RANDOM\_STATE=42).
 
-    Das Forschungsdesign basiert auf drei hierarchischen Evaluationsebenen. Zunächst erfolgt eine \textbf{Within-Dataset-Validation}, bei der die Baseline-Performance der Modelle mithilfe einer 5-fach stratifizierten Kreuzvalidierung auf dem jeweiligen Trainingsdatensatz bestimmt wird. Dadurch entstehen Referenzwerte für die spätere Transferbewertung und es wird sichergestellt, dass beobachtete Performanceeinbußen im Cross-Dataset-Setting tatsächlich auf Domain-Shift zurückzuführen sind und nicht auf inhärente algorithmische Schwächen \parencite{Tavallaee2009}.
+    Das Forschungsdesign umfasst drei hierarchische Evaluationsebenen. Zunächst erfolgt eine \textbf{datensatzinterne Validierung} mittels 5-fach stratifizierter Kreuzvalidierung, die Referenzwerte für die spätere Transferbewertung schafft \parencite{Tavallaee2009}. Im nächsten Schritt folgt die \textbf{datensatzübergreifende Transferanalyse}, bei der Modelle, die auf NSL-KDD trainiert wurden, auf CIC-IDS-2017 getestet werden und umgekehrt. Diese bidirektionale Evaluation deckt potenzielle Asymmetrien auf \parencite{Ring2019}. Abschließend wird im \textbf{Featureharmonisiertem Transfer} die Inkompatibilität der Feature-Räume (41 vs. 79 Dimensionen) durch PCA-basierte Ausrichtung adressiert, bei dem beide Datensätze auf einen gemeinsamen 20-dimensionalen latenten Raum projiziert werden und dabei über 95 Prozent der Varianz erhalten bleiben \parencite{Goodfellow2016}.
 
-    Im nächsten Schritt folgt die \textbf{Cross-Dataset-Transfer-Analyse}, die das Kernexperiment darstellt. Hierbei werden Modelle, die auf NSL-KDD trainiert wurden, auf CIC-IDS-2017 getestet und umgekehrt, sodass eine bidirektionale Evaluation entsteht. Diese Analyse deckt potenzielle Asymmetrien auf und erlaubt die Untersuchung, ob die Transfer-Richtung (historisch → modern vs. modern → historisch) die Generalisierungsfähigkeit beeinflusst. Die Ergebnisse haben unmittelbare praktische Relevanz für den Einsatz von Intrusion Detection Systemen in Bedrohungsumgebungen, die sich stetig weiterentwickeln \parencite{Ring2019}.
+    Die methodische \textbf{Innovation} liegt in der Quantifizierung mittels neuartiger Transfer-Metriken: \textbf{Transfer Ratio} ($\text{TR} = \text{Performance}_{\text{target}} / \text{Performance}_{\text{source}}$), \textbf{Generalization Gap} ($\text{GG} = \text{Performance}_{\text{source}} - \text{Performance}_{\text{target}}$) und \textbf{Relative Performance Drop} ($\text{RPD} = (\text{GG} / \text{Performance}_{\text{source}}) \times 100$) \parencite{Mourouzis2021}.
 
-    Abschließend wird im Rahmen des \textbf{Feature-Harmonized Transfer} die fundamentale Inkompatibilität der Feature-Räume adressiert (NSL-KDD: 41 Dimensionen; CIC-IDS-2017: 79 Dimensionen). Zu diesem Zweck kommt eine PCA-basierte Alignment-Strategie zum Einsatz, bei der beide Datensätze auf einen gemeinsamen 20-dimensionalen latenten Raum projiziert werden. Da dabei über 95 \% der Varianz erhalten bleiben, ermöglicht dieses Vorgehen eine faire Vergleichbarkeit ohne Verzerrungen durch Feature-Engineering \parencite{Goodfellow2016}.
-
-    Die methodische \textbf{Innovation} liegt in der erstmaligen systematischen Quantifizierung von Cross-Dataset-Generalisierung mittels neuartiger Transfer-Metriken: \textbf{Transfer Ratio} ($\text{TR} = \frac{\text{Performance}_{\text{source}}}{\text{Performance}_{\text{target}}}$) zur Messung relativer Robustheit, \textbf{Generalization Gap} ($\text{GG} = \text{Performance}_{\text{source}} - \text{Performance}_{\text{target}}$) für absolute Degradation und \textbf{Relative Performance Drop} ($\text{RPD} = \frac{\text{GG}}{\text{Performance}_{\text{source}}} \times 100$) für modellübergreifende Vergleichbarkeit \parencite{Mourouzis2021}. Diese Metriken ermöglichen eine theoretisch fundierte Bewertung der praktischen Deployability von ML-Modellen in heterogenen Netzwerkumgebungen.
-
-    Die \textbf{Reproduzierbarkeit} wird durch strikte Einhaltung wissenschaftlicher Standards gesichert: Alle Experimente nutzen die offiziellen Datensatz-Splits (NSL-KDD: 125.973 Train / 22.544 Test), deterministisches Random-Seeding und eine versionierte Software-Umgebung (Python 3.8+, scikit-learn 1.3+, XGBoost 1.7+, LightGBM 3.3+). Die vollständig automatisierte 8-stufige Pipeline eliminiert manuelle Interventionen und gewährleistet Inter-Operator-Reliabilität.
 
     \subsection{Datengrundlage und Stichprobenauswahl}
     % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - DATENGRUNDLAGE
@@ -578,15 +573,11 @@ giveninits=true % Nur Initialen für Vornamen
     % - und erhält realistische Klassen-Proportionen für Transfer-Evaluation ohne artificial class balancing
     % - Class Imbalance: 83% normal vs. 17% attack in CIC-IDS-2017 reflects realistic network environments
 
-    Die empirische Evaluation basiert auf zwei etablierten Benchmark-Datensätzen, die komplementäre Perspektiven auf Netzwerk-Anomalieerkennung bieten und eine systematische Temporal-Transfer-Analyse über eine 19-Jahre-Technologie-Gap ermöglichen.
+    Die empirische Evaluation basiert auf zwei etablierten Benchmark-Datensätzen. \textbf{NSL-KDD (2009)} stellt eine kuratierte Revision des KDD Cup 99-Datensatzes dar und umfasst 125.973 Trainingsproben sowie 22.544 Testproben mit vier Angriffskategorien (DoS: 36\%, Probe: 11\%, R2L/U2R: <1\%) \parencite{Tavallaee2009}. Der Feature-Space besteht aus 41 verbindungsbasierten Attributen wie Protokoll-Typ, Verbindungsdauer und übertragene Bytes. Die Daten basieren auf simulierten Netzwerkangriffen aus 1998 \parencite{McHugh2000}.
 
-    \textbf{NSL-KDD (Network Security Laboratory – Knowledge Discovery and Data Mining, 2009)} stellt eine kuratierte Revision des ursprünglichen KDD Cup 99-Datensatzes dar, bei der systematische Duplikate und Trainingsbiases eliminiert wurden \parencite{Tavallaee2009}. Der Datensatz umfasst \textbf{125.973 Trainingssamples} und \textbf{22.544 dedizierte Testsamples}, die vier Hauptangriffskategorien abdecken: Denial-of-Service (DoS, 36\% der Attacks), Probe (11\%), Remote-to-Local (R2L, <1\%) und User-to-Root (U2R, <0,1\%). Die extreme Klassenimbalance bei U2R-Angriffen (nur 52 Samples im Testset) spiegelt realistische Szenarien wider, stellt jedoch eine methodische Herausforderung für ML-Algorithmen dar. Der Feature-Space besteht aus \textbf{41 connection-basierten Attributen}, darunter kategoriale Variablen (Protokoll-Typ: TCP/UDP/ICMP, Service-Typ, Flag-Status) und numerische Metriken (Verbindungsdauer, übertragene Bytes, Fehlerrate). Die Daten basieren auf simulierten Netzwerkangriffen aus dem Jahr 1998 (Lincoln Laboratory, MIT), was eine kontrollierte, aber potenziell limitierte externe Validität impliziert \parencite{McHugh2000}.
+    \textbf{CIC-IDS-2017 (2017)} repräsentiert eine moderne Alternative mit 2.830.540 Proben aus realistischem Netzwerkverkehr über fünf Tage \parencite{Sharafaldin2018}. Der Datensatz umfasst 14 moderne Angriffskategorien (Heartbleed, SQL-Injection, DDoS-Varianten) und 79 bidirektionale Flow-Features mit erweiterten statistischen Charakterisierungen. Die Klassenverteilung (83\% Normal, 17\% Angriff) ist realistischer als bei NSL-KDD.
 
-    \textbf{CIC-IDS-2017 (Canadian Institute for Cybersecurity Intrusion Detection System, 2017)} repräsentiert eine moderne Alternative mit \textbf{2.830.540 Samples} aus realistischen Netzwerkumgebungen (captured traffic, nicht simuliert). Die Datenerfassung erfolgte über fünf Tage (3.–7. Juli 2017) in einer realitätsnahen Testumgebung mit 25 Nutzern und 50 Maschinen \parencite{Sharafaldin2018}. Im Gegensatz zu NSL-KDD umfasst CIC-IDS-2017 \textbf{14 moderne Angriffskategorien}, darunter zeitgemäße Bedrohungen wie Heartbleed-Exploits, SQL-Injection, Cross-Site-Scripting (XSS), Botnet-Aktivitäten und DDoS-Varianten. Der Feature-Space ist mit \textbf{79 bidirektionalen Flow-Features} deutlich umfangreicher und beinhaltet erweiterte statistische Charakterisierungen wie Inter-Arrival-Time-Statistiken, Paket-Size-Distributionen und Flow-basierte Anomalie-Indikatoren. Die Klassenverteilung (83\% Normal, 17\% Attack) ist realistischer als bei NSL-KDD und vermeidet die dort beobachteten Extremimbalanzen.
-
-    Die \textbf{Stichprobenauswahl} folgt einem \textbf{memory-adaptiven Sampling-Protokoll}, das die experimentelle Durchführbarkeit auf verschiedenen Hardware-Konfigurationen gewährleistet, ohne die statistische Validität zu kompromittieren. Bei Systemen mit \textbf{>16 GB RAM} wird der vollständige Datensatz verwendet (SCIENTIFIC\_MODE=1 enforcement), während bei geringeren Ressourcen eine \textbf{stratifizierte Zufallsstichprobe} gezogen wird, die die ursprüngliche Klassenverteilung proportional erhält. Für NSL-KDD wird aufgrund der moderaten Datensatzgröße (148k Samples) stets der komplette Datensatz verwendet. Für CIC-IDS-2017 erfolgt bei Memory-Constraints ein stratifiziertes Downsampling auf 200k–500k Samples (7–18\% des Originals), wobei alle Angriffskategorien proportional repräsentiert bleiben. Dieses Vorgehen verhindert Sampling-Bias und erhält die externe Validität für Transfer-Evaluationen.
-
-    Die \textbf{Zugangslogistik} erfolgte über offizielle Repositories der Canadian Institute for Cybersecurity (University of New Brunswick), die beide Datensätze unter Open-Access-Lizenz bereitstellen. Ethische Bedenken sind nicht relevant, da die Daten vollständig anonymisiert und ohne personenbezogene Informationen vorliegen. Die Datensätze wurden im März 2025 heruntergeladen und mittels SHA-256-Checksummen auf Integrität validiert.
+    Die \textbf{Stichprobenauswahl} folgt einem speicheradaptiven Protokoll. Bei Systemen mit über 16 GB Arbeitsspeicher wird der vollständige Datensatz verwendet, während bei geringeren Ressourcen eine stratifizierte Zufallsstichprobe gezogen wird, die die ursprüngliche Klassenverteilung proportional erhält. Für CIC-IDS-2017 erfolgt bei Speicherbeschränkungen eine Reduktion auf 200.000 bis 500.000 Proben. Beide Datensätze wurden im März 2025 heruntergeladen und mittels SHA-256-Prüfsummen validiert. Die Ergebnisse aus dieser Arbeit stammen aus den vollständigen Datensätzen.
 
     \subsection{Experimenteller Ablauf und Evaluationsframework}
     % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - EXPERIMENTELLER ABLAUF
@@ -641,6 +632,18 @@ giveninits=true % Nur Initialen für Vornamen
     % - mit kritischen Systemressourcen und potential hardware failures
     % - Checkpoint-System: Periodische Model-State-Speicherung für Unterbrechungsresilienz
 
+    Das experimentelle Framework implementiert eine vollständig automatisierte 8-stufige Pipeline, die von explorativer Datenanalyse über Modelltraining bis zur publikationsreifen Visualisierung reicht. Jede Phase ist als eigenständiges Python-Script konzipiert, was inkrementelle Ausführung, Fehlertoleranz und modulare Erweiterbarkeit gewährleistet.
+
+    Die erste Phase umfasst eine konsolenbasierte explorative Datenanalyse zur Inspektion der Datensatz-Charakteristika ohne persistente Outputs. Diese Phase validiert die erfolgreiche Datensatzladung, analysiert Klassenverteilungen und identifiziert potentielle Datenqualitätsprobleme wie fehlende Werte, Duplikate oder Ausreißer. In der zweiten Phase werden sechs interpretierbare Referenzalgorithmen trainiert, nämlich Random Forest, Logistic Regression, Decision Tree, Naive Bayes, k-Nearest Neighbors und Linear SVM. Die Algorithmuswahl repräsentiert diverse Lernparadigmen und bildet die Baseline für spätere Vergleiche. Zur Adressierung der Klassenimbalance wird systematisch \texttt{class\_weight="balanced"} verwendet, wodurch inverse Klassenfrequenzen als Gewichte dienen \parencite{Hastie2009}. Trainierte Modelle werden mittels pickle serialisiert und im Verzeichnis \texttt{data/models/} gespeichert.
+
+    Die dritte Phase ergänzt die Baseline durch sechs moderne Ensemble-Verfahren, konkret XGBoost, LightGBM, Gradient Boosting, Extra Trees, Multi-Layer Perceptron und einen Voting Classifier. Diese Modelle repräsentieren moderne ML-Praxis für Cybersecurity-Anwendungen und bieten überlegene Leistung bei erhöhter Modellkomplexität \parencite{Vinayakumar2019}. Die Implementierung inkludiert eine elegante Fehlerbehandlung für gescheiterte Trainings, wobei Fehlermeldungen dokumentiert werden, ohne die Gesamtpipeline zu unterbrechen. In der vierten Phase erfolgt eine 5-Fold Stratified Cross-Validation für Within-Dataset-Robustheit, bei der jedes Modell fünfmal trainiert und validiert wird, während die Klassenverteilung in allen Folds proportional erhalten bleibt. Die Aggregation erfolgt mittels Mittelwert und Standardabweichung über die Folds, ergänzt durch Bootstrap-Konfidenzintervalle mit 1000 Iterationen bei 95 Prozent Konfidenz zur Unsicherheitsquantifizierung. Statistische Signifikanztests in Form von Paired t-Tests mit Bonferroni-Korrektur identifizieren signifikante Performance-Differenzen zwischen Modellen \parencite{Hastie2009}.
+
+    Die fünfte Phase implementiert das Kernexperiment mit bidirektionalen Transfer-Tests, bei denen Modelle, die auf NSL-KDD trainiert wurden, ohne erneutes Training auf CIC-IDS-2017 evaluiert werden und umgekehrt. Die Leistungsdegradation wird mittels der zuvor beschriebenen Transfer-Metriken quantifiziert, ergänzt durch die Berechnung der Wasserstein-Distanz zwischen Quell- und Ziel-Feature-Verteilungen zur Quantifizierung der theoretischen Domänendivergenz. In der sechsten Phase erfolgt ein Feature-Space-Alignment mittels PCA-Projektion auf 20 gemeinsame Dimensionen, wobei beide Datensätze zunächst mittels StandardScaler auf Basis der Source-Statistiken skaliert und anschließend auf den ersten 20 Hauptkomponenten projiziert werden. Für CIC-IDS-2017 mit seinen 2,8 Millionen Samples wird Incremental Learning via SGDClassifier mit \texttt{partial\_fit()} implementiert, wobei Daten in 20.000-Sample-Batches verarbeitet werden, um memory-efficient large-scale training zu ermöglichen \parencite{Bishop2006}.
+
+    Die siebte Phase aggregiert alle Einzelergebnisse aus datensatzinterner, datensatzübergreifender und harmonisierter Evaluation in konsolidierte CSV- und JSON-Dateien. Diese Phase inkludiert Zeitmessungen für Trainings- und Inferenzzeiten, Metadatenerhaltung für Hyperparameter und Datensatzgrößen sowie statistische Berichterstattung mit Konfidenzintervallen und p-Werten. Abschließend generiert die achte Phase publikationsreife Abbildungen mit 300 DPI, PDF-Export und LaTeX-kompatiblem Format. Dies umfasst Performance-Vergleichsdiagramme, Cross-Dataset-Transfer-Analysen, ROC-Kurven, Precision-Recall-Kurven, Konfusionsmatrizen und statistische Dashboards, wobei alle Visualisierungen Farbenblind-freundliche Paletten und wissenschaftliche Grafikstandards verwenden.
+
+    Die technische Infrastruktur basiert auf Python 3.8 oder höher mit etablierten ML-Bibliotheken wie scikit-learn 1.3 oder höher, XGBoost 1.7 oder höher und LightGBM 3.3 oder höher. Die Pipeline ist plattformunabhängig für Linux, macOS und Windows ausgelegt und inkludiert automatische Umgebungsvalidierung zur Prävention von Dependency-Fehlern. Die Fault-Tolerance wird durch inkrementelle Ergebnisspeicherung gewährleistet, sodass bei Systemfehlern die Ausführung ab der letzten erfolgreichen Phase fortgesetzt werden kann.
+
     \subsection{Feature-Engineering und Harmonisierung}
     % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - FEATURE-ENGINEERING
     %
@@ -673,6 +676,13 @@ giveninits=true % Nur Initialen für Vornamen
     % Validierung: Comprehensive Unit Tests für Alignment-Konsistenz, Shape-Kompatibilität, numerische Stabilität
     % - Begründung: Automated quality assurance für complex feature transformation pipeline
     % - prevents silent failures in high-dimensional feature space alignment procedures
+
+    Die Inkompatibilität zwischen NSL-KDD (41 Features) und CIC-IDS-2017 (79 Features) erfordert eine \textbf{Zwei-Ebenen-Harmonisierungsstrategie}. Auf der ersten Ebene erfolgen semantische Feature-Mappings, bei denen durch Domain-Knowledge sechs gemeinsame Features identifiziert wurden: duration, forward\_bytes, backward\_bytes, total\_bytes, bytes\_per\_second und byte\_ratio. Diese Features sind protokollunabhängig, korrelieren mit Angriffsindikatoren und liegen in beiden Datensätzen mit vergleichbarer semantischer Definition vor \parencite{Gharib2016}. Die Validierung erfolgte mittels Korrelationsanalyse (Pearson r > 0,85).
+
+    Auf der zweiten Ebene wird eine statistische Ausrichtungspipeline implementiert. Die StandardScaler-Normalisierung erfolgt als Z-Score-Transformation unter Verwendung der Quelldatensatz-Statistiken, sodass der Zieldatensatz durch die "Linse" des Quellmodells betrachtet wird \parencite{Goodfellow2016}. Anschließend werden beide Datensätze auf die ersten 20 Hauptkomponenten projiziert, die über 95 Prozent der kumulativen Varianz erklären. Dieser Kompromiss wurde empirisch validiert: 15 Komponenten führten zu höherer Transferdegradation, während 25 Komponenten nur marginale Verbesserungen bei erhöhter Overfitting-Gefahr zeigten.
+
+    Die Domänendivergenz-Quantifizierung erfolgt mittels Wasserstein-Distanz zwischen den PCA-angepassten Feature-Verteilungen. Die Implementierung inkludiert automatisierte Fehlerbehandlung mit UTF-8-Parsing, fehlende Werte-Imputation und IQR-basierter Ausreißer-Erkennung, wobei alle Vorverarbeitungsschritte ausschließlich auf Basis des Quelldatensatzes parametrisiert werden, um Datenleckage zu vermeiden.
+
 
     \subsection{Modellauswahl und Hyperparameter-Konfiguration}
     % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - MODELLAUSWAHL
@@ -737,6 +747,10 @@ giveninits=true % Nur Initialen für Vornamen
     % - Begründung: Vollständige Transparenz über Algorithmus-Limitationen bei memory-constrained
     % - oder high-dimensional Szenarien für realistic performance assessment
 
+    Die Evaluation umfasst zwölf Algorithmen, die sich in Baseline- und Advanced-Modelle unterteilen. Die sechs Baseline-Modelle umfassen Random Forest (n\_estimators=200, max\_depth=25), Logistic Regression (solver="saga", C=1.0), Decision Tree (max\_depth=25), k-Nearest Neighbors (k=3), Linear SVM (kernel="linear") und Naive Bayes (GaussianNB). Diese decken Ensemble-Methoden, lineare Klassifikatoren, instanzbasiertes und probabilistisches Lernen ab \parencite{Hastie2009}.
+
+    Die sechs Advanced-Modelle umfassen XGBoost (n\_estimators=400, max\_depth=6, learning\_rate=0.1), LightGBM (n\_estimators=400, learning\_rate=0.05, num\_leaves=31), Gradient Boosting, Extra Trees, ein Multi-Layer Perceptron (hidden\_layers=(128,64), ReLU-Aktivierung, vorzeitiges Stoppen) und einen Voting Classifier mit Soft-Voting-Kombination. Diese repräsentieren moderne ML-Praxis für Cybersecurity-Anwendungen \parencite{Vinayakumar2019}. Die Hyperparameter folgen praxisorientierten Standardkonfigurationen ohne umfassende Rastersuche, um Hyperparameter-Überanpassung zu vermeiden. Die Behandlung des Klassenungleichgewichts erfolgt durch \texttt{class\_weight="balanced"}.
+
     \subsection{Evaluationsmetriken und Transfer-Learning-Assessment}
     % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - EVALUATIONSMETRIKEN
     %
@@ -796,7 +810,13 @@ giveninits=true % Nur Initialen für Vornamen
     % - Begründung: Identifikation asymmetrischer Generalisierungsmuster
     % - zwischen historical-to-modern vs. modern-to-historical Transfer-Richtungen für temporal robustness assessment
 
-    \subsection{Experimentelle Kontrolle und Qualitätssicherung}
+    Für die datensatzinterne Leistung werden Genauigkeit, Präzision, Sensitivität, F1-Score und ROC-AUC verwendet, die internationale Vergleichbarkeit ermöglichen. Die 5-fache stratifizierte Kreuzvalidierung liefert robuste Leistungsschätzungen mit Bootstrap-Konfidenzintervallen zur Unsicherheitsquantifizierung.
+
+    Für die datensatzübergreifende Transferbewertung werden neuartige Metriken eingesetzt. Die Transfer Ratio quantifiziert als Quotient aus Ziel- und Quellleistung die relative Generalisierungsqualität. Die Generalisierungslücke ergibt sich als Differenz und zeigt die absolute Leistungsdegradation. Der relative Leistungsabfall wird als prozentuale Degradation berechnet und ermöglicht modellübergreifende Transfer-Qualitätsvergleiche. Die Domänendivergenz mittels Wasserstein-Distanz quantifiziert die theoretisch fundierte Messung der Datensatzähnlichkeit \parencite{Mourouzis2021}.
+
+    Die statistische Validierung erfolgt durch Bootstrap-Konfidenzintervalle, paarweise t-Tests mit Bonferroni-Korrektur (α=0.05) und Cohen's d für praktische Signifikanz-Bewertung. Die bidirektionale Transfer-Asymmetrie identifiziert asymmetrische Generalisierungsmuster zwischen historischen zu modernen und modernen zu historischen Transferrichtungen.
+
+    \subsection{Qualitätssicherung und wissenschaftliche Standards}
     % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - EXPERIMENTELLE KONTROLLE
     %
     % Objektivität durch vollständige Automatisierung:
@@ -836,85 +856,11 @@ giveninits=true % Nur Initialen für Vornamen
     % - Real-Time Memory Monitoring mit MemoryMonitor Context Manager für Resource-Tracking
     % - prevents out-of-memory failures bei memory-intensive algorithmen
 
-    \subsection{Memory-Adaptation und Computational Challenges}
-    % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - MEMORY-ADAPTATION
-    %
-    % Adaptive Memory Management System für scalable execution:
-    % - Begründung: Scientific Mode Enforcement mit SCIENTIFIC_MODE=1 forciert Full-Dataset-Usage (>16GB RAM)
-    % - für maximale wissenschaftliche Rigorosität und realistische large-scale evaluation scenarios
-    % - Dynamic Memory Configuration: 32GB→30K Batch, 16GB→20K Batch, <16GB→Reduced Dataset
-    % - adaptive scaling basierend auf available system resources ohne compromising statistical validity
-    % - Real-Time Memory Monitoring: MemoryMonitor Context Manager für Resource-Tracking
-    % - proactive resource management prevents Out-of-Memory-Failures bei memory-intensive Algorithmen
-    % - Intelligent Garbage Collection: Explizite del statements und gc.collect() nach Processing-Phasen
-    % - optimized memory footprint für sustained long-running computational experiments
-    %
-    % Incremental Learning für Large-Scale-Datasets (wissenschaftliche Innovation):
-    % - Begründung: SGDClassifier mit partial_fit() für CIC-Full-Dataset (2.8M Samples)
-    % - scalable Learning ohne Memory-Overflow, repräsentiert realistic deployment scenarios
-    % - Chunk-basiertes Streaming: 20K Sample Batches mit Class-Balance-Preservation
-    % - maintains statistical properties der original dataset distribution bei memory-efficient processing
-    % - Adaptive Sample Weighting: Inverse Frequency Weighting basierend auf kumulativer Class-Distribution
-    % - dynamic compensation für inherente class imbalance (83% normal vs. 17% attack) ohne aggressive resampling
-    % - Online Class-Weight-Adaptation: Dynamic Gewichtsanpassung während Incremental Training
-    % - real-time adaptation to evolving class distributions in streaming scenarios
-    %
-    % Computational Efficiency Optimizations für praxisnahe Performance:
-    % - Begründung: Model-Specific Tuning mit tree_method="hist" für XGBoost, algorithm="kd_tree" für k-NN
-    % - optimized algorithm variants für large-scale datasets ohne accuracy degradation
-    % - Parallel Processing: n_jobs=-1 für CPU-Kern-Auslastung bei Ensemble-Modellen
-    % - computational efficiency bei umfangreichen Experimenten ohne compromising result quality
-    % - Early Stopping: MLP validation_fraction=0.1, max_iter=120 für Overfitting-Prävention
-    % - automatic regularization und computational efficiency bei deep learning components
-    % - Checkpoint System: Automatic Model Persistence mit pickle für Intermediate-Results
-    % - fault-tolerance für continuation von unterbrochenen long-running experiments
+    Die Objektivität wird durch vollständige Automatisierung ohne manuelle Eingriffe gewährleistet. Die deterministische Reproduzierbarkeit erfolgt durch (RANDOM\_STATE=42), und standardisierte Datenaufteilungen respektieren die offiziellen Datensatz-Partitionierungen. Die Zuverlässigkeit wird durch 5-fache Kreuzvalidierung mit statistischer Aggregation und fehlertolerante Ausführung durch schrittweise Ergebnisspeicherung erreicht. Umfassende Modultests umfassen über 15 Tests für Feature-Harmonisierung, Metriken und Datenverarbeitungspipeline.
+    
+    Die Validität zeigt sich in mehreren Dimensionen. Die Konstruktvalidität wird durch theoretisch fundierte Transfer-Metriken erreicht, die externe Validität durch etablierte Benchmark-Datensätze und die interne Validität durch kontrollierte experimentelle Bedingungen ohne Datenleckage. Die ethischen Aspekte sind durch die Verwendung öffentlich verfügbarer, anonymisierter Datensätze ohne personenbezogene Informationen abgedeckt.
 
-    \subsection{Methodische Abgrenzungen und wissenschaftliche Limitationen}
-    % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - METHODISCHE ABGRENZUNGEN
-    %
-    % Bewusste Scope-Einschränkungen mit wissenschaftlicher Begründung:
-    % - Begründung: Fokus auf Supervised Binary Classification (Normal vs. Attack) ohne Multi-Class-Granularität
-    % - ermöglicht focused analysis der fundamental transfer learning challenges
-    % - ohne complexity dilution durch attack-type-specific classification nuances
-    % - Statische Feature-Sets ohne Real-Time-Feature-Engineering oder Online-Adaptation
-    % - controlled experimental conditions für systematic comparative evaluation
-    % - eliminiert dynamic feature engineering als confounding variable
-    % - Cross-Sectional-Design ohne Temporal-Drift-Modeling oder Concept-Drift-Adaptation
-    % - snapshot-based evaluation ermöglicht reproducible benchmarking
-    % - temporal drift analysis würde separate longitudinal study design erfordern
-    % - Ausschluss von Deep Learning: CNNs/RNNs aufgrund Computational-Constraints und Interpretability
-    % - focus auf interpretable ML für cybersecurity domain expert acceptance
-    % - computational feasibility für comprehensive comparative study
-    %
-    % Inhärente Limitationen mit transparent acknowledgment:
-    % - Begründung: Dataset Temporal Gap mit 19-Jahre Technology-Evolution zwischen NSL-KDD (1998) und CIC-IDS-2017 (2017)
-    % - reflects realistic challenge of temporal transfer in evolving cybersecurity landscape
-    % - provides unique opportunity für temporal generalization assessment
-    % - Feature Space Heterogenität: Nur 6 gemeinsame Features aus 41+79 verfügbaren Dimensionen
-    % - conservative approach ensures semantic feature alignment validity
-    % - trade-off zwischen feature richness und cross-dataset compatibility
-    % - Simulated vs. Real Traffic: NSL-KDD basiert auf simulierten, CIC auf realen Network-Captures
-    % - complementary data sources provide robustness assessment across simulation/reality gap
-    % - Geographic Bias: Beide Datensätze stammen aus nordamerikanischen Forschungsumgebungen
-    % - limitation für global generalizability, acknowledged für future international validation
-    %
-    % Threat to Validity mit wissenschaftlicher Reflexion:
-    % - Begründung: External Validity - Generalisierbarkeit auf andere Netzwerk-Topologien unbekannt
-    % - requires future validation in diverse network environments (IoT, 5G, cloud)
-    % - Construct Validity - PCA-Alignment könnte task-relevante Information eliminieren
-    % - trade-off zwischen dimensionality reduction und information preservation
-    % - validated durch explained variance retention >95%
-    % - Temporal Validity - Performance-Trends möglicherweise nicht auf zukünftige Bedrohungen übertragbar
-    % - inherent limitation von static ML models für evolving threat landscape
-    %
-    % Ethische Überlegungen und Responsible AI:
-    % - Begründung: Datenschutz durch Verwendung öffentlich verfügbarer, anonymisierter Benchmark-Datensätze
-    % - Compliance mit Forschungsethik-Standards ohne Privacy-Risiken für reale Netzwerknutzer
-    % - Computational Carbon Footprint: Energy-efficient Algorithm-Selection und Resource-Optimization
-    % - Responsible AI-Practices durch minimierte environmental impact bei extensiven Experimenten
-    % - Bias Awareness: Acknowledged geographic und temporal bias für transparent limitation disclosure
-
-
+    Die wissenschaftlichen Limitationen umfassen die Beschränkung auf überwachte binäre Klassifikation ohne Mehrklassen-Granularität, die Verwendung statischer Feature-Sets ohne Echtzeitanpassung und ein Querschnittsdesign ohne zeitliche Drift-Modellierung. Die Feature-Space-Heterogenität mit nur sechs gemeinsamen Features aus insgesamt 120 verfügbaren Dimensionen stellt einen konservativen Ansatz dar. Die zeitliche Lücke zwischen den Datensätzen von 19 Jahren spiegelt realistische Herausforderungen des zeitlichen Transfers wider, und die geografische Beschränkung auf nordamerikanische Forschungsumgebungen limitiert die globale Generalisierbarkeit.
     \section{Ergebnisse}
 
     % Abbildung 1: Zentrale Performance-Übersicht
