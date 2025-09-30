@@ -1176,24 +1176,15 @@ giveninits=true % Nur Initialen für Vornamen
         \centering
         \includegraphics[width=\textwidth]{../data/results/scientific_analysis/comparative_analysis/comprehensive_model_dashboard.pdf}
         \caption{Comprehensive Multi-Metrik Dashboard:
-        (a) Radar-Chart aller Performance-Metriken,
-        (b) Parallel-Koordinaten-Plot für Metrik-Interaktion,
-        (c) Hierarchische Clustering-Dendrogram ähnlicher Modelle,
-        (d) Principal Component Biplot für Modell-Distanzen im Metrik-Raum.}
+        (a) Best F1-Score per Dataset mit Top-Modell pro Konfiguration,
+        (b) Model Consistency Across Datasets (Variationskoeffizient, niedriger = konsistenter),
+        (c) F1-Score Distribution by Dataset mit Baseline/Advanced Boxplots,
+        (d) Average Model Ranking über alle Metriken (niedriger = besser),
+        (e) Performance vs Speed Trade-off Scatter-Plot (F1 vs. Prediction Time),
+        (f) Dataset Performance Summary mit Mean/Best/Worst F1-Scores.}
         \source{Eigene Darstellung.}
         \label{fig:app_dashboard}
     \end{figure}
-
-    \paragraph{Cluster-Analyse-Befunde}
-    Hierarchisches Clustering (Ward-Linkage, Euclidean Distance, z-score normalisiert) identifiziert:
-    \begin{itemize}
-        \item \textbf{Cluster 1 (High-Performance):} XGBoost, LightGBM, Extra Trees
-        (Distanz < 0.05)
-        \item \textbf{Cluster 2 (Moderate):} Random Forest, Gradient Boosting,
-        Decision Tree
-        \item \textbf{Cluster 3 (Baseline):} Logistic Regression, k-NN, MLP
-        \item \textbf{Outlier:} SVM-Linear (Distanz > 0.8 zu allen Clustern)
-    \end{itemize}
 
     % ========= Ende =========
 \end{document}
