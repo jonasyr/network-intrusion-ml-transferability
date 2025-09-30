@@ -15,11 +15,33 @@
 \usepackage[scale=0.95]{tgheros}
 \renewcommand{\familydefault}{\sfdefault}
 
+% Microtype für besseren Blocksatz (optimiert für Sans-Serif)
+\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
+\microtypesetup{expansion=false} % Deaktiviere Expansion für Sans-Serif
+
+% Für explizite Textausrichtung
+\usepackage{ragged2e}
+\setlength{\RaggedRightParindent}{0pt} % Kein Einzug bei ragged2e
+
 % Zeilen & Absätze
 \usepackage{setspace}
 \onehalfspacing
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{6pt plus 2pt minus 1pt}
+
+% Optimierte Blocksatz-Einstellungen
+\tolerance=2000
+\emergencystretch=3em
+\hyphenpenalty=50
+\exhyphenpenalty=50
+\doublehyphendemerits=10000
+\finalhyphendemerits=5000
+\hbadness=2000
+\pretolerance=500
+
+% Sicherstellen, dass keine Einzüge verwendet werden
+\setlength{\parindent}{0pt}
+\raggedbottom
 
 % Rest der Packages
 \usepackage{amsmath,amssymb}
@@ -400,14 +422,11 @@ giveninits=true % Nur Initialen für Vornamen
     % ---------- Hauptteil: arabische Seitenzahlen ab "Einleitung" ----------
     \pagenumbering{arabic}
     \setcounter{page}{1}
+    
+    % Blocksatz ohne Einzug sicherstellen
+    \setlength{\parindent}{0pt}
 
     \section{Einleitung}
-    \sloppy
-    \tolerance=9999
-    \emergencystretch=3em
-    \rightskip=0pt
-    \leftskip=0pt
-    \parfillskip=0pt plus 1fil
 
     \subsection{Motivation und Problemstellung}
 
