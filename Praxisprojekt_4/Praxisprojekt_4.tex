@@ -632,17 +632,13 @@ giveninits=true % Nur Initialen für Vornamen
     % - mit kritischen Systemressourcen und potential hardware failures
     % - Checkpoint-System: Periodische Model-State-Speicherung für Unterbrechungsresilienz
 
-    Das experimentelle Framework implementiert eine vollständig automatisierte 8-stufige Pipeline, die von explorativer Datenanalyse über Modelltraining bis zur publikationsreifen Visualisierung reicht. Jede Phase ist als eigenständiges Python-Script konzipiert, was inkrementelle Ausführung, Fehlertoleranz und modulare Erweiterbarkeit gewährleistet.
+    Das experimentelle Framework implementiert eine vollständig automatisierte 8-stufige Pipeline, die als eigenständige Python-Scripts konzipiert ist. Die Pipeline beginnt mit explorativer Datenanalyse zur Validierung der Datensatzladung und Identifikation von Datenqualitätsproblemen. Anschließend erfolgt das Training von sechs Baseline-Algorithmen (Random Forest, Logistic Regression, Decision Tree, Naive Bayes, k-NN, Linear SVM) und sechs Advanced-Modellen (XGBoost, LightGBM, Gradient Boosting, Extra Trees, MLP, Voting Classifier). Zur Adressierung der Klassenimbalance wird systematisch \texttt{class\_weight="balanced"} verwendet \parencite{Hastie2009,Vinayakumar2019}.
 
-    Die erste Phase umfasst eine konsolenbasierte explorative Datenanalyse zur Inspektion der Datensatz-Charakteristika ohne persistente Outputs. Diese Phase validiert die erfolgreiche Datensatzladung, analysiert Klassenverteilungen und identifiziert potentielle Datenqualitätsprobleme wie fehlende Werte, Duplikate oder Ausreißer. In der zweiten Phase werden sechs interpretierbare Referenzalgorithmen trainiert, nämlich Random Forest, Logistic Regression, Decision Tree, Naive Bayes, k-Nearest Neighbors und Linear SVM. Die Algorithmuswahl repräsentiert diverse Lernparadigmen und bildet die Baseline für spätere Vergleiche. Zur Adressierung der Klassenimbalance wird systematisch \texttt{class\_weight="balanced"} verwendet, wodurch inverse Klassenfrequenzen als Gewichte dienen \parencite{Hastie2009}. Trainierte Modelle werden mittels pickle serialisiert und im Verzeichnis \texttt{data/models/} gespeichert.
+    Die Within-Dataset-Robustheit wird durch 5-Fold Stratified Cross-Validation evaluiert, bei der die Aggregation mittels Mittelwert und Standardabweichung erfolgt und durch Bootstrap-Konfidenzintervalle (1000 Iterationen, 95\% CI) ergänzt wird. Paired t-Tests mit Bonferroni-Korrektur identifizieren signifikante Performance-Differenzen zwischen Modellen. Das Kernexperiment implementiert bidirektionale Transfer-Tests, bei denen Modelle ohne Retraining auf dem Target-Dataset evaluiert werden. Die Wasserstein-Distanz zwischen Feature-Distributionen quantifiziert die theoretische Domain-Divergenz.
 
-    Die dritte Phase ergänzt die Baseline durch sechs moderne Ensemble-Verfahren, konkret XGBoost, LightGBM, Gradient Boosting, Extra Trees, Multi-Layer Perceptron und einen Voting Classifier. Diese Modelle repräsentieren moderne ML-Praxis für Cybersecurity-Anwendungen und bieten überlegene Leistung bei erhöhter Modellkomplexität \parencite{Vinayakumar2019}. Die Implementierung inkludiert eine elegante Fehlerbehandlung für gescheiterte Trainings, wobei Fehlermeldungen dokumentiert werden, ohne die Gesamtpipeline zu unterbrechen. In der vierten Phase erfolgt eine 5-Fold Stratified Cross-Validation für Within-Dataset-Robustheit, bei der jedes Modell fünfmal trainiert und validiert wird, während die Klassenverteilung in allen Folds proportional erhalten bleibt. Die Aggregation erfolgt mittels Mittelwert und Standardabweichung über die Folds, ergänzt durch Bootstrap-Konfidenzintervalle mit 1000 Iterationen bei 95 Prozent Konfidenz zur Unsicherheitsquantifizierung. Statistische Signifikanztests in Form von Paired t-Tests mit Bonferroni-Korrektur identifizieren signifikante Performance-Differenzen zwischen Modellen \parencite{Hastie2009}.
+    Für das Feature-Space-Alignment werden beide Datensätze mittels StandardScaler auf Basis der Source-Statistiken skaliert und auf 20 Hauptkomponenten projiziert. Für CIC-IDS-2017 wird Incremental Learning via SGDClassifier mit \texttt{partial\_fit()} in 20.000-Sample-Batches implementiert \parencite{Bishop2006}. Die Pipeline konsolidiert alle Ergebnisse in CSV- und JSON-Dateien und generiert abschließend publikationsreife Visualisierungen (300 DPI, PDF-Export) mit colorblind-friendly Paletten.
 
-    Die fünfte Phase implementiert das Kernexperiment mit bidirektionalen Transfer-Tests, bei denen Modelle, die auf NSL-KDD trainiert wurden, ohne erneutes Training auf CIC-IDS-2017 evaluiert werden und umgekehrt. Die Leistungsdegradation wird mittels der zuvor beschriebenen Transfer-Metriken quantifiziert, ergänzt durch die Berechnung der Wasserstein-Distanz zwischen Quell- und Ziel-Feature-Verteilungen zur Quantifizierung der theoretischen Domänendivergenz. In der sechsten Phase erfolgt ein Feature-Space-Alignment mittels PCA-Projektion auf 20 gemeinsame Dimensionen, wobei beide Datensätze zunächst mittels StandardScaler auf Basis der Source-Statistiken skaliert und anschließend auf den ersten 20 Hauptkomponenten projiziert werden. Für CIC-IDS-2017 mit seinen 2,8 Millionen Samples wird Incremental Learning via SGDClassifier mit \texttt{partial\_fit()} implementiert, wobei Daten in 20.000-Sample-Batches verarbeitet werden, um memory-efficient large-scale training zu ermöglichen \parencite{Bishop2006}.
-
-    Die siebte Phase aggregiert alle Einzelergebnisse aus datensatzinterner, datensatzübergreifender und harmonisierter Evaluation in konsolidierte CSV- und JSON-Dateien. Diese Phase inkludiert Zeitmessungen für Trainings- und Inferenzzeiten, Metadatenerhaltung für Hyperparameter und Datensatzgrößen sowie statistische Berichterstattung mit Konfidenzintervallen und p-Werten. Abschließend generiert die achte Phase publikationsreife Abbildungen mit 300 DPI, PDF-Export und LaTeX-kompatiblem Format. Dies umfasst Performance-Vergleichsdiagramme, Cross-Dataset-Transfer-Analysen, ROC-Kurven, Precision-Recall-Kurven, Konfusionsmatrizen und statistische Dashboards, wobei alle Visualisierungen Farbenblind-freundliche Paletten und wissenschaftliche Grafikstandards verwenden.
-
-    Die technische Infrastruktur basiert auf Python 3.8 oder höher mit etablierten ML-Bibliotheken wie scikit-learn 1.3 oder höher, XGBoost 1.7 oder höher und LightGBM 3.3 oder höher. Die Pipeline ist plattformunabhängig für Linux, macOS und Windows ausgelegt und inkludiert automatische Umgebungsvalidierung zur Prävention von Dependency-Fehlern. Die Fault-Tolerance wird durch inkrementelle Ergebnisspeicherung gewährleistet, sodass bei Systemfehlern die Ausführung ab der letzten erfolgreichen Phase fortgesetzt werden kann.
+    Die technische Infrastruktur basiert auf Python 3.8+ mit scikit-learn 1.3+, XGBoost 1.7+ und LightGBM 3.3+. Die Pipeline inkludiert automatische Umgebungsvalidierung und gewährleistet Fault-Tolerance durch inkrementelle Ergebnisspeicherung.
 
     \subsection{Feature-Engineering und Harmonisierung}
     % PERFEKTIONIERTE ULTIMATIVE METHODIKSTRUKTUR - FEATURE-ENGINEERING
@@ -857,49 +853,70 @@ giveninits=true % Nur Initialen für Vornamen
     % - prevents out-of-memory failures bei memory-intensive algorithmen
 
     Die Objektivität wird durch vollständige Automatisierung ohne manuelle Eingriffe gewährleistet. Die deterministische Reproduzierbarkeit erfolgt durch (RANDOM\_STATE=42), und standardisierte Datenaufteilungen respektieren die offiziellen Datensatz-Partitionierungen. Die Zuverlässigkeit wird durch 5-fache Kreuzvalidierung mit statistischer Aggregation und fehlertolerante Ausführung durch schrittweise Ergebnisspeicherung erreicht. Umfassende Modultests umfassen über 15 Tests für Feature-Harmonisierung, Metriken und Datenverarbeitungspipeline.
-    
+
     Die Validität zeigt sich in mehreren Dimensionen. Die Konstruktvalidität wird durch theoretisch fundierte Transfer-Metriken erreicht, die externe Validität durch etablierte Benchmark-Datensätze und die interne Validität durch kontrollierte experimentelle Bedingungen ohne Datenleckage. Die ethischen Aspekte sind durch die Verwendung öffentlich verfügbarer, anonymisierter Datensätze ohne personenbezogene Informationen abgedeckt.
 
     Die wissenschaftlichen Limitationen umfassen die Beschränkung auf überwachte binäre Klassifikation ohne Mehrklassen-Granularität, die Verwendung statischer Feature-Sets ohne Echtzeitanpassung und ein Querschnittsdesign ohne zeitliche Drift-Modellierung. Die Feature-Space-Heterogenität mit nur sechs gemeinsamen Features aus insgesamt 120 verfügbaren Dimensionen stellt einen konservativen Ansatz dar. Die zeitliche Lücke zwischen den Datensätzen von 19 Jahren spiegelt realistische Herausforderungen des zeitlichen Transfers wider, und die geografische Beschränkung auf nordamerikanische Forschungsumgebungen limitiert die globale Generalisierbarkeit.
+
     \section{Ergebnisse}
 
-    % Abbildung 1: Zentrale Performance-Übersicht
-    \begin{figure}[h]
+    Die empirische Evaluation der zwölf Machine-Learning-Modelle über drei Evaluationsebenen hinweg liefert differenzierte Erkenntnisse zur datensatzinternen Performance, Cross-Validation-Robustheit und datensatzübergreifenden Transferierbarkeit.
+
+    \begin{figure}[H]
         \centering
         \includegraphics[width=\textwidth]{../data/results/paper_figures/nsl_cic_model_performance_comparison.png}
-        \caption{Vergleichende Modellperformance NSL-KDD vs. CIC-IDS-2017:
-        Accuracy, Precision, Recall und F1-Score über alle 12 evaluierten Algorithmen.
-        Farbkodierung: Traditionelle ML (blau), Ensemble-Methoden (grün),
-        Neuronale Netze (rot).}
+        \caption{Vergleichende Modellperformance NSL-KDD vs. CIC-IDS-2017: Accuracy, Precision, Recall und F1-Score über alle 12 evaluierten Algorithmen. Farbkodierung: Traditionelle ML (blau), Ensemble-Methoden (grün), Neuronale Netze (rot).}
         \source{Eigene Darstellung.}
         \label{fig:performance_comparison}
     \end{figure}
 
-    % Abbildung 2: Kernforschungsfrage - Cross-Dataset Transfer
-    \begin{figure}[h]
+    \subsection{Datensatzinterne Modellperformance}
+
+    Die datensatzinterne Evaluation zeigt eine klare Dominanz der Advanced-Modelle. Auf NSL-KDD erreicht LightGBM die höchste Performance mit Accuracy 0.9994 und F1-Score 0.9992, gefolgt von XGBoost (0.9992/0.9991) und Extra Trees (0.9989/0.9989). Die ROC-AUC-Werte konvergieren gegen 1.0000 für alle Advanced-Modelle. Unter den Baseline-Algorithmen zeigt Random Forest mit Accuracy 0.9987 die beste Performance, während Decision Tree (0.9976) und k-NN (0.9966) ebenfalls hohe Klassifikationsgüte aufweisen. Linear SVM versagt fundamental mit Accuracy 0.2905 und ROC-AUC 0.3517, signifikant unterhalb des Random-Classifier-Niveaus.
+
+    Auf CIC-IDS-2017 führt XGBoost mit Accuracy 0.9991 und F1-Score 0.9976, gefolgt von LightGBM (0.9991/0.9972). Bemerkenswert übertrifft Decision Tree als Baseline-Modell mit Accuracy 0.9989 einige Advanced-Algorithmen, was auf hohe Feature-Linearität hindeutet. Naive Bayes versagt auf CIC-IDS-2017 mit Accuracy 0.3770 bei extremer Imbalance zwischen Precision (0.8620) und Recall (0.3770). Detaillierte ROC-Kurven und Konfusionsmatrizen finden sich in den Anhängen \ref{app:nsl_roc}, \ref{app:cic_roc} und \ref{app:cm_nsl}.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.85\textwidth]{../data/results/paper_figures/dataset_comparison_overview.png}
+        \caption{Dataset-spezifische Performance-Charakteristika: (a) Accuracy-Scatter NSL-KDD vs. CIC, (b) Metrik-Boxplots, (c) Statistische Signifikanztests (p < 0.05).}
+        \source{Eigene Darstellung.}
+        \label{fig:dataset_overview}
+    \end{figure}
+
+    \subsection{Cross-Validation und Statistische Robustheit}
+
+    Die 5-fache stratifizierte Kreuzvalidierung offenbart unterschiedliche Robustheitsniveaus. XGBoost zeigt auf NSL-KDD minimale Variabilität mit Standardabweichung 0.0001 und Konfidenzintervall [0.9990, 0.9994], während LightGBM ähnliche Stabilität aufweist (Std 0.0002). Advanced-Modelle zeigen konsistent Std < 0.0003, während Linear SVM extreme Instabilität mit Std 0.1808 und CI [0.3637, 0.8657] manifestiert.
+
+    Paarweise t-Tests mit Bonferroni-Korrektur ($\alpha = 0.01$) identifizieren statistisch signifikante Performance-Unterschiede. XGBoost vs. LightGBM zeigt keine signifikanten Differenzen (p = 0.385, Cohen's d = 0.31), während XGBoost vs. Naive Bayes hochsignifikant divergiert (p < 0.001, Cohen's d = 26.76). Die vollständige statistische Vergleichsmatrix findet sich in Anhang \ref{app:statistical_comparison}.
+
+    \subsection{Datensatzübergreifende Transferierbarkeit}
+
+    Die Cross-Dataset-Evaluation offenbart fundamentale Asymmetrien in der bidirektionalen Transferierbarkeit zwischen NSL-KDD und CIC-IDS-2017.
+
+    \begin{figure}[H]
         \centering
         \includegraphics[width=0.9\textwidth]{../data/results/paper_figures/cross_dataset_transfer_analysis.png}
-        \caption{Bidirektionale Cross-Dataset-Transfer-Analyse: Performance-Degradation
-        beim Transfer NSL-KDD $\leftrightarrow$ CIC-IDS-2017. Balken zeigen
-        Generalization Gap, Fehlerbalken indizieren Wasserstein Domain Divergence.}
+        \caption{Bidirektionale Cross-Dataset-Transfer-Analyse: Performance-Degradation beim Transfer NSL-KDD $\leftrightarrow$ CIC-IDS-2017. Balken zeigen Generalization Gap, Fehlerbalken indizieren Wasserstein Domain Divergence.}
         \source{Eigene Darstellung.}
         \label{fig:transfer_analysis}
     \end{figure}
 
-    % Tabelle 1: Performance Summary (kompakt, Top-5)
-    % Anpassen: Nur Top-5 Zeilen zeigen, Rest ins Anhang
-    \input{../data/results/paper_figures/nsl_cic_performance_summary_table.tex}
+    Beim Forward-Transfer (NSL-KDD → CIC-IDS-2017) zeigt XGBoost die robusteste Generalisierung mit Transfer Ratio 0.9907 und minimalem relativem Drop von 0.93 Prozent (Generalization Gap 0.0077). LightGBM erreicht Transfer Ratio 0.9470 bei 5.30 Prozent Degradation, während Random Forest moderate Transferfähigkeit mit Ratio 0.4282 und 57.18 Prozent Drop aufweist.
 
-    % Optional - wenn Platz: Dataset Comparison Overview
-    \begin{figure}[h]
-        \centering
-        \includegraphics[width=0.85\textwidth]{../data/results/paper_figures/dataset_comparison_overview.png}
-        \caption{Dataset-spezifische Performance-Charakteristika:
-        (a) Accuracy-Scatter NSL-KDD vs. CIC, (b) Metrik-Boxplots,
-        (c) Statistische Signifikanztests (p < 0.05).}
-        \source{Eigene Darstellung.}
-        \label{fig:dataset_overview}
-    \end{figure}
+    Der Reverse-Transfer (CIC-IDS-2017 → NSL-KDD) manifestiert dramatisch höhere Degradation. XGBoost erreicht lediglich Transfer Ratio 0.4386 mit relativem Drop von 56.14 Prozent (Generalization Gap 0.5521), entsprechend einer 71.7-fachen Verschlechterung gegenüber Forward-Transfer. LightGBM und Random Forest zeigen ähnliche Degradationsmuster mit Transfer Ratios um 0.44.
+
+    Die durchschnittliche Generalization Gap beträgt 0.280 für Forward-Transfer und 0.547 für Reverse-Transfer, entsprechend einem Asymmetrie-Faktor von 1.95. Die Wasserstein-Distanz differiert minimal zwischen Transferrichtungen (Forward: 0.1476, Reverse: 0.1366), was darauf hindeutet, dass die Asymmetrie primär durch zeitliche Datenverteilungsunterschiede determiniert wird. Detaillierte Transfer-Konfusionsmatrizen finden sich in Anhang \ref{app:transfer_cm}.
+
+    \subsection{Feature-harmonisierte Evaluation}
+
+    Die PCA-basierte Feature-Alignment-Strategie mit Projektion auf 20 Hauptkomponenten (kumulative Varianz 95.7 Prozent) verbessert die Transfer-Performance substanziell. Für Forward-Transfer NSL-KDD → CIC-IDS-2017 erreicht das harmonisierte Modell Target-F1-Score 0.5711, entsprechend einer 139-fachen Verbesserung gegenüber nativem Transfer (F1 0.0041 für XGBoost). Das optimale Klassifikationsschwellenwert von 0.7 wurde mittels Grid-Search identifiziert.
+
+    Der Reverse-Transfer CIC-IDS-2017 → NSL-KDD zeigt trotz Harmonisierung schwache Performance mit Target-F1-Score 0.1076, was auf fundamentale Inkompatibilität zwischen modernen CIC-Features und historischen NSL-KDD-Angriffsmustern hindeutet. Die Wasserstein-Distanz reduziert sich durch PCA-Alignment von 0.148 auf 0.082, jedoch persistiert die Transfer-Asymmetrie. Eine genaue Visualisierung findet sich in Anhang \ref{app:harmonized}
+
+    \subsection{Computational Efficiency}
+
+    XGBoost zeigt mit 0.38 Sekunden die höchste Trainingseffizienz für Forward-Transfer (Efficiency 2.62 Accuracy/s), gefolgt von LightGBM (0.58s, Efficiency 1.38). Der Reverse-Transfer manifestiert dramatisch erhöhte Trainingszeiten: Random Forest benötigt 183.48 Sekunden (45-fache Verlangsamung), während XGBoost (9.36s) und LightGBM (8.15s) moderate Verlangsamung zeigen. Die vollständige Timing-Analyse findet sich in Anhang \ref{app:timing_analysis}.
 
     \section{Diskussion}
     Ergebnisse interpretieren, Limitationen, Implikationen.
