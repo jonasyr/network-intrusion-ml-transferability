@@ -7,7 +7,7 @@
 % ---------- Pakete: Sprache, Schrift, Mikrotypografie ----------
 \usepackage[a4paper,margin=2cm]{geometry} % 2,00 cm Ränder
 \usepackage[ngerman,english]{babel}       % Silbentrennung DE/EN
-\usepackage{microtype}                    % Mikrotypografie (Silbentrennung/Zeilenumbrüche)
+\usepackage[activate={true,nocompatibility},final,tracking=true,factor=1100,stretch=10,shrink=10]{microtype} % Mikrotypografie für LuaLaTeX
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{iftex}
@@ -32,6 +32,9 @@ Scale=1.0
 \onehalfspacing                           % 1,5-zeilig
 \setlength{\parindent}{0pt}               % kein Einzug
 \setlength{\parskip}{6pt}                 % 6 pt Abstand nach Absatz
+
+% Ragged2e für späteren Blocksatz
+\usepackage{ragged2e}
 
 % ---------- Mathe, Grafik, Tabellen ----------
 \usepackage{amsmath,amssymb}
@@ -110,9 +113,9 @@ Scale=1.0
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{3}
 
-% Jede Section (Ebene 1) startet auf neuer Seite
-\usepackage{etoolbox}
-\pretocmd{\section}{\clearpage}{}{}
+% Jede Section (Ebene 1) startet auf neuer Seite - ENTFERNT für IU-Compliance
+% \usepackage{etoolbox}
+% \pretocmd{\section}{\clearpage}{}{}
 
 % ---------- Inhaltsverzeichnis: nur Ebene 1 fett ----------
 \usepackage{tocloft}
@@ -132,6 +135,14 @@ Scale=1.0
 
 % ---------- Hyperlinks schwarz (keine Farben/Rahmen) ----------
 \usepackage[hidelinks]{hyperref}
+\hypersetup{
+    pdftitle={Inwieweit sind Machine-Learning-Modelle f\"ur Netzwerk-Anomalieerkennung zwischen verschiedenen Datens\"atzen \"ubertragbar?},
+    pdfauthor={Jonas Weirauch},
+    pdfsubject={B.Sc. Informatik -- Projektarbeit},
+    pdfkeywords={Machine Learning, Netzwerk-Anomalieerkennung, Cross-Dataset-Transfer, IDS},
+    pdfcreator={LuaLaTeX},
+    pdfproducer={LaTeX}
+}
 
 % ---------- APA7 Literatur (Biber) + deutscher Mapping ----------
 \usepackage[
@@ -285,53 +296,49 @@ giveninits=true % Nur Initialen für Vornamen
 
         % IU Logo
         \begin{center}
-            \includegraphics[width=5cm]{/home/jonas/Documents/Studium/Allgemein/IU_Logo.png}
-        \end{center}
-
-        \vspace{3cm}
-
-        % Projektarbeit
-        \begin{center}
-            {\fontsize{11pt}{13pt}\selectfont \thesistype}
+            % Fallback wenn Logo nicht vorhanden
+            \IfFileExists{/home/jonas/Documents/Studium/Allgemein/IU_Logo.png}
+            {\includegraphics[width=5cm]{/home/jonas/Documents/Studium/Allgemein/IU_Logo.png}}
+            {\textbf{\Large Internationale Hochschule Duales Studium}}
         \end{center}
 
         \vspace{2cm}
 
-        % University and Program
+        % University and Program (IU-konforme Reihenfolge)
         \begin{center}
-            {\fontsize{11pt}{13pt}\selectfont \university}
+            {\fontsize{11pt}{13pt}\selectfont Internationale Hochschule Duales Studium}
 
             \vspace{0.5cm}
 
-            {\fontsize{11pt}{13pt}\selectfont Studiengang: \studyprogram}
+            {\fontsize{11pt}{13pt}\selectfont Studiengang: B.Sc. Informatik}
         \end{center}
 
-        \vspace{2cm}
+        \vspace{1cm}
+
+        % Art der Arbeit
+        \begin{center}
+            {\fontsize{11pt}{13pt}\selectfont Projektarbeit}
+        \end{center}
+
+        \vspace{1.5cm}
 
         % Title
         \begin{center}
-            {\bfseries\fontsize{12pt}{14pt}\selectfont \papertitle}
+            {\bfseries\fontsize{14pt}{16pt}\selectfont Inwieweit sind Machine-Learning-Modelle f\"ur\\Netzwerk-Anomalieerkennung zwischen verschiedenen\\Datens\"atzen \"ubertragbar?}
         \end{center}
 
         \vspace{2cm}
 
-        % Author details
-        \begin{center}
-            {\fontsize{11pt}{13pt}\selectfont \authorname}
-
-            {\fontsize{11pt}{13pt}\selectfont Matrikelnummer: \matno}
-
-            {\fontsize{11pt}{13pt}\selectfont \address}
-        \end{center}
-
-        \vspace{2cm}
-
-        % Supervisor and date
-        \begin{center}
-            {\fontsize{11pt}{13pt}\selectfont Betreuende Person: \advisor}
-
-            {\fontsize{11pt}{13pt}\selectfont Abgabedatum: \submissiondate}
-        \end{center}
+        % Author details (IU-konforme Formatierung)
+        \begin{flushleft}
+            \begin{tabular}{@{}ll}
+                \textbf{Verfasser:} & Jonas Weirauch \\
+                \textbf{Matrikelnummer:} & 10237021 \\
+                \textbf{Adresse:} & Im Wiesengrund 19, 55286 Sulzheim \\
+                \textbf{Betreuende Person:} & Dominic Lindner \\
+                \textbf{Abgabedatum:} & 30.09.2025 \\
+            \end{tabular}
+        \end{flushleft}
 
         \vfill
     \end{titlepage}
@@ -396,14 +403,22 @@ giveninits=true % Nur Initialen für Vornamen
     % ---------- Hauptteil: arabische Seitenzahlen ab "Einleitung" ----------
     \pagenumbering{arabic}
     \setcounter{page}{1}
-
+    
+    % BLOCKSATZ SOFORT AKTIVIEREN
+    \let\raggedright\relax
+    \let\centering\relax  
+    \let\raggedleft\relax
+    
     \section{Einleitung}
     \subsection{Motivation und Problemstellung}
 
+    \parfillskip=0pt plus 1fil\relax
     Mit über 10,5 Billionen US-Dollar geschätzten jährlichen Schäden bis 2025 stellen Cyberangriffe eine der größten globalen Bedrohungen dar \parencite{GlobalRisksReport2024}. Diese besorgniserregenden Statistiken unterstreichen die akute Notwendigkeit wirksamer Sicherheitsvorkehrungen zum Schutz kritischer Infrastrukturen \parencite{Taman2024}.
 
+    \parfillskip=0pt plus 1fil\relax
     Traditionelle signaturbasierte Intrusion Detection Systeme (IDS) erreichen zunehmend ihre Grenzen bei der Erkennung neuartiger Zero-Day-Exploits und unbekannter Angriffsmuster \parencite{Ring2019,Belavagi2016}. Machine Learning (ML) bietet das Potenzial, diese Limitationen zu überwinden, jedoch ist die tatsächliche Wirksamkeit verschiedener ML-Modelle in heterogenen Netzwerken noch nicht vollständig geklärt. Ein kritisches Problem stellt dabei die Generalisierungsfähigkeit dar: Während Modelle auf spezifischen Trainingsdaten exzellente Leistungen erzielen, zeigen sie oft dramatische Leistungseinbußen beim Transfer auf neue Netzwerkumgebungen \parencite{Ring2019}.
 
+    \parfillskip=0pt plus 1fil\relax
     \textbf{Forschungslücke}: Bisherige Studien konzentrieren sich primär auf Within-Dataset-Evaluationen und vernachlässigen die praktisch relevante Frage der Cross-Dataset-Transferierbarkeit \parencite{Mourouzis2021}. Die systematische Bewertung der Generalisierungsfähigkeit zwischen fundamental verschiedenen Netzwerk-Datensätzen, insbesondere zwischen historischen Benchmarks wie NSL-KDD und modernen Datensätzen wie CIC-IDS-2017, bleibt eine unzureichend erforschte, aber praxiskritische Herausforderung.
 
     \subsection{Forschungsfrage und Zielsetzung}
@@ -506,6 +521,8 @@ giveninits=true % Nur Initialen für Vornamen
 
     Die \textbf{No Free Lunch Theorem} impliziert, dass universell optimale Algorithmen nicht existieren \parencite{Bishop2006}. Folglich erfordert praktisches IDS-Deployment domänenspezifische Modellselektion basierend auf empirischer Cross-Domain-Robustheit eher als Within-Domain-Performance \parencite{Mourouzis2021}.
 
+    \clearpage
+
     \section{Methodik}
 
     Basierend auf den theoretischen Fundamenten zur Cross-Dataset-Transferierbarkeit und den identifizierten methodischen Herausforderungen wird im Folgenden das empirische Evaluationsframework systematisch entwickelt \parencite{Weirauch2025}.
@@ -569,6 +586,8 @@ giveninits=true % Nur Initialen für Vornamen
     Die Validität zeigt sich in mehreren Dimensionen. Die Konstruktvalidität wird durch theoretisch fundierte Transfer-Metriken erreicht, die externe Validität durch etablierte Benchmark-Datensätze und die interne Validität durch kontrollierte experimentelle Bedingungen ohne Datenleckage. Die ethischen Aspekte sind durch die Verwendung öffentlich verfügbarer, anonymisierter Datensätze ohne personenbezogene Informationen abgedeckt.
 
     Die wissenschaftlichen Limitationen umfassen die Beschränkung auf überwachte binäre Klassifikation ohne Mehrklassen-Granularität, die Verwendung statischer Feature-Sets ohne Echtzeitanpassung und ein Querschnittsdesign ohne zeitliche Drift-Modellierung. Die Feature-Space-Heterogenität mit nur sechs gemeinsamen Features aus insgesamt 120 verfügbaren Dimensionen stellt einen konservativen Ansatz dar. Die zeitliche Lücke zwischen den Datensätzen von 19 Jahren spiegelt realistische Herausforderungen des zeitlichen Transfers wider, und die geografische Beschränkung auf nordamerikanische Forschungsumgebungen limitiert die globale Generalisierbarkeit.
+
+    \clearpage
 
     \section{Ergebnisse}
 
@@ -655,6 +674,8 @@ giveninits=true % Nur Initialen für Vornamen
     Mehrere Einschränkungen qualifizieren die Generalisierbarkeit der Befunde. Die Reduktion auf binäre Klassifikation (Normal vs. Angriff) vernachlässigt die praktisch relevante Granularität von Angriffssubkategorien. Die statische Feature-Extraktion ohne adaptive Echtzeitanpassung reflektiert nicht die Dynamik produktiver IDS-Systeme \parencite{Vinayakumar2019}. Die Feature-Space-Harmonisierung auf lediglich sechs gemeinsame Dimensionen stellt einen konservativen, möglicherweise suboptimalen Ansatz dar; alternative Verfahren wie Deep Transfer Learning oder Domain Adversarial Neural Networks könnten überlegene Transferleistung erzielen \parencite{Goodfellow2016}. Die geografische Beschränkung auf nordamerikanische Forschungsdatensätze limitiert die Übertragbarkeit auf globale Netzwerkinfrastrukturen mit abweichenden Traffic-Patterns. Zudem verhindert das Querschnittsdesign Aussagen über langfristige Concept-Drift-Resistenz.
 
     Die Befunde unterstreichen die Notwendigkeit kontinuierlicher Modellvalidierung bei Cross-Domain-Deployments und legen nahe, dass historische Benchmark-Datensätze trotz ihres Alters weiterhin wissenschaftlichen Wert für Transfer-Learning-Forschung besitzen, jedoch nicht unkritisch für moderne Produktivumgebungen eingesetzt werden sollten.
+
+    \clearpage
 
     \section{Fazit}
 
