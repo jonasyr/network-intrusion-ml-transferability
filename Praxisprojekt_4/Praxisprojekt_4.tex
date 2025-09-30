@@ -1,40 +1,35 @@
-% !TeX program = lualatex
+
 % Für echtes Arial/Calibri: lualatex/xelatex + biber verwenden.
 % Fallback mit pdflatex funktioniert (sans: TeX Gyre Heros).
 
 \documentclass[11pt,a4paper]{article}
 
-% ---------- Pakete: Sprache, Schrift, Mikrotypografie ----------
-\usepackage[a4paper,margin=2cm]{geometry} % 2,00 cm Ränder
-\usepackage[ngerman,english]{babel}       % Silbentrennung DE/EN
-\usepackage[activate={true,nocompatibility},final,tracking=true,factor=1100,stretch=10,shrink=10]{microtype} % Mikrotypografie für LuaLaTeX
+% MINIMALE PRÄAMBEL - NUR IU-VORGABEN
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage[ngerman,english]{babel}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{iftex}
-\ifPDFTeX
-% Fallback: pdfLaTeX (Arial-ähnlich)
-\usepackage[scale=0.95]{tgheros}   % TeX Gyre Heros ~ Helvetica/Arial
-\renewcommand{\familydefault}{\sfdefault}
-\else
-% Echte Systemschriften mit Lua/XeLaTeX:
-\usepackage{fontspec}
 \usepackage{xcolor}
-\setmainfont{Arial}[
-Ligatures=TeX,
-Scale=1.0
-]
-% Optionaler alternativer Sans-Font:
-% \setmainfont{Calibri}[Ligatures=TeX,Scale=1.0]
-\fi
 
-% ---------- Zeilen & Absätze ----------
+% Font
+\usepackage[scale=0.95]{tgheros}
+\renewcommand{\familydefault}{\sfdefault}
+
+% Zeilen & Absätze
 \usepackage{setspace}
-\onehalfspacing                           % 1,5-zeilig
-\setlength{\parindent}{0pt}               % kein Einzug
-\setlength{\parskip}{6pt}                 % 6 pt Abstand nach Absatz
+\onehalfspacing
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
 
-% Ragged2e für späteren Blocksatz
-\usepackage{ragged2e}
+% Rest der Packages
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{siunitx}
+\usepackage{csquotes}
+\usepackage{listings}
 
 % ---------- Mathe, Grafik, Tabellen ----------
 \usepackage{amsmath,amssymb}
@@ -286,7 +281,9 @@ giveninits=true % Nur Initialen für Vornamen
 % ============================================================
 \begin{document}
     \selectlanguage{ngerman}
-
+    \makeatletter
+    \@flushglue = 0pt plus 1fil
+    \makeatother
     % ---------- Titelblatt (zählt als I, ohne Zahl) ----------
     \pagenumbering{Roman}
     \setcounter{page}{1}
@@ -403,23 +400,22 @@ giveninits=true % Nur Initialen für Vornamen
     % ---------- Hauptteil: arabische Seitenzahlen ab "Einleitung" ----------
     \pagenumbering{arabic}
     \setcounter{page}{1}
-    
-    % BLOCKSATZ SOFORT AKTIVIEREN
-    \let\raggedright\relax
-    \let\centering\relax  
-    \let\raggedleft\relax
-    
+
     \section{Einleitung}
+    \sloppy
+    \tolerance=9999
+    \emergencystretch=3em
+    \rightskip=0pt
+    \leftskip=0pt
+    \parfillskip=0pt plus 1fil
+
     \subsection{Motivation und Problemstellung}
 
-    \parfillskip=0pt plus 1fil\relax
     Mit über 10,5 Billionen US-Dollar geschätzten jährlichen Schäden bis 2025 stellen Cyberangriffe eine der größten globalen Bedrohungen dar \parencite{GlobalRisksReport2024}. Diese besorgniserregenden Statistiken unterstreichen die akute Notwendigkeit wirksamer Sicherheitsvorkehrungen zum Schutz kritischer Infrastrukturen \parencite{Taman2024}.
 
-    \parfillskip=0pt plus 1fil\relax
     Traditionelle signaturbasierte Intrusion Detection Systeme (IDS) erreichen zunehmend ihre Grenzen bei der Erkennung neuartiger Zero-Day-Exploits und unbekannter Angriffsmuster \parencite{Ring2019,Belavagi2016}. Machine Learning (ML) bietet das Potenzial, diese Limitationen zu überwinden, jedoch ist die tatsächliche Wirksamkeit verschiedener ML-Modelle in heterogenen Netzwerken noch nicht vollständig geklärt. Ein kritisches Problem stellt dabei die Generalisierungsfähigkeit dar: Während Modelle auf spezifischen Trainingsdaten exzellente Leistungen erzielen, zeigen sie oft dramatische Leistungseinbußen beim Transfer auf neue Netzwerkumgebungen \parencite{Ring2019}.
 
-    \parfillskip=0pt plus 1fil\relax
-    \textbf{Forschungslücke}: Bisherige Studien konzentrieren sich primär auf Within-Dataset-Evaluationen und vernachlässigen die praktisch relevante Frage der Cross-Dataset-Transferierbarkeit \parencite{Mourouzis2021}. Die systematische Bewertung der Generalisierungsfähigkeit zwischen fundamental verschiedenen Netzwerk-Datensätzen, insbesondere zwischen historischen Benchmarks wie NSL-KDD und modernen Datensätzen wie CIC-IDS-2017, bleibt eine unzureichend erforschte, aber praxiskritische Herausforderung.
+    Bisherige Studien konzentrieren sich primär auf Within-Dataset-Evaluationen und vernachlässigen die praktisch relevante Frage der Cross-Dataset-Transferierbarkeit \parencite{Mourouzis2021}. Die systematische Bewertung der Generalisierungsfähigkeit zwischen fundamental verschiedenen Netzwerk-Datensätzen, insbesondere zwischen historischen Benchmarks wie NSL-KDD und modernen Datensätzen wie CIC-IDS-2017, bleibt eine unzureichend erforschte, aber praxiskritische Herausforderung.
 
     \subsection{Forschungsfrage und Zielsetzung}
 
@@ -577,7 +573,7 @@ giveninits=true % Nur Initialen für Vornamen
 
     Für die datensatzübergreifende Transferbewertung werden neuartige Metriken eingesetzt. Die Transfer Ratio quantifiziert als Quotient aus Ziel- und Quellleistung die relative Generalisierungsqualität. Die Generalisierungslücke ergibt sich als Differenz und zeigt die absolute Leistungsdegradation. Der relative Leistungsabfall wird als prozentuale Degradation berechnet und ermöglicht modellübergreifende Transfer-Qualitätsvergleiche. Die Domänendivergenz mittels Wasserstein-Distanz quantifiziert die theoretisch fundierte Messung der Datensatzähnlichkeit \parencite{Mourouzis2021}.
 
-    Die statistische Validierung erfolgt durch Bootstrap-Konfidenzintervalle, paarweise t-Tests mit Bonferroni-Korrektur (α=0.05) und Cohen's d für praktische Signifikanz-Bewertung. Die bidirektionale Transfer-Asymmetrie identifiziert asymmetrische Generalisierungsmuster zwischen historischen zu modernen und modernen zu historischen Transferrichtungen.
+    Die statistische Validierung erfolgt durch Bootstrap-Konfidenzintervalle, paarweise t-Tests mit Bonferroni-Korrektur ($\alpha=0.05$) und Cohen's d für praktische Signifikanz-Bewertung. Die bidirektionale Transfer-Asymmetrie identifiziert asymmetrische Generalisierungsmuster zwischen historischen zu modernen und modernen zu historischen Transferrichtungen.
 
     \subsection{Qualitätssicherung und wissenschaftliche Standards}
 

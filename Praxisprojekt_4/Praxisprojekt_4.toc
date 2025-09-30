@@ -14,7 +14,7 @@
 \contentsline {subsection}{\numberline {2.5}Transfer Learning und Cross-Dataset-Generalisierung}{3}{subsection.2.5}%
 \contentsline {subsection}{\numberline {2.6}Evaluationsmetriken}{4}{subsection.2.6}%
 \contentsline {subsection}{\numberline {2.7}Moderne Cybersecurity-Bedrohungslandschaft}{4}{subsection.2.7}%
-\contentsline {subsection}{\numberline {2.8}Performance-Evaluation und Deployment-Herausforderungen}{5}{subsection.2.8}%
+\contentsline {subsection}{\numberline {2.8}Performance-Evaluation und Deployment-Herausforderungen}{4}{subsection.2.8}%
 \contentsline {subsection}{\numberline {2.9}Cross-Domain-Transferierbarkeit: Methodische Herausforderungen}{5}{subsection.2.9}%
 \contentsline {section}{\numberline {3}Methodik}{6}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Forschungsdesign und methodische Begründung}{6}{subsection.3.1}%
