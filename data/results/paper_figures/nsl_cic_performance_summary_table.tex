@@ -1,14 +1,15 @@
 \begin{table}[htbp]
 \centering
-\caption{Machine Learning Models Performance Comparison on NSL-KDD Dataset}
+\caption{Top-22 Machine Learning Models Performance Ranking: NSL-KDD Dataset}
 \label{tab:model_performance}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{cllccccc}
 \toprule
 \textbf{Rank} & \textbf{Model} & \textbf{Category} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{ROC-AUC} \\
 \midrule
 1 & Lightgbm & Ensemble Methods & 0.9994 & 0.9994 & 0.9994 & 0.9994 & 1.0000 \\
 2 & Xgboost & Ensemble Methods & 0.9993 & 0.9993 & 0.9993 & 0.9993 & 1.0000 \\
-3 & Xgboost & Ensemble Methods & 0.9991 & 0.9991 & 0.9991 & 0.9991 & 1.0000 \\
+3 & Extra Trees & Ensemble Methods & 0.9991 & 0.9991 & 0.9991 & 0.9991 & 0.9999 \\
 4 & Lightgbm & Ensemble Methods & 0.9990 & 0.9990 & 0.9990 & 0.9990 & 1.0000 \\
 5 & Voting Classifier & Ensemble Methods & 0.9990 & 0.9990 & 0.9990 & 0.9990 & 1.0000 \\
 6 & Decision Tree & Traditional ML & 0.9989 & 0.9989 & 0.9989 & 0.9989 & 0.9994 \\
@@ -31,5 +32,6 @@
 21 & Naive Bayes & Traditional ML & 0.3770 & 0.8620 & 0.3770 & 0.3932 & 0.6584 \\
 22 & Svm Linear & Other & 0.2905 & 0.2848 & 0.2905 & 0.2805 & 0.3517 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
