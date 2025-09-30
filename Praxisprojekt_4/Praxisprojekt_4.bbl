@@ -640,6 +640,42 @@
       \verb 10.1109/ACCESS.2019.2895334
       \endverb
     \endentry
+    \entry{Weirauch2025}{misc}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=b26974238730a6e5b2d212bf85cde54f}{%
+           family={Weirauch},
+           familyi={W\bibinitperiod},
+           given={Jonas},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {GitHub}%
+      }
+      \strng{namehash}{b26974238730a6e5b2d212bf85cde54f}
+      \strng{fullhash}{b26974238730a6e5b2d212bf85cde54f}
+      \strng{bibnamehash}{b26974238730a6e5b2d212bf85cde54f}
+      \strng{authorbibnamehash}{b26974238730a6e5b2d212bf85cde54f}
+      \strng{authornamehash}{b26974238730a6e5b2d212bf85cde54f}
+      \strng{authorfullhash}{b26974238730a6e5b2d212bf85cde54f}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{GitHub repository}
+      \field{note}{Cross-dataset transferability analysis of ML models for network intrusion detection using NSL-KDD and CIC-IDS-2017 datasets}
+      \field{title}{network-intrusion-ml-transferability}
+      \field{year}{2025}
+      \verb{urlraw}
+      \verb https://github.com/jonasyr/network-intrusion-ml-transferability
+      \endverb
+      \verb{url}
+      \verb https://github.com/jonasyr/network-intrusion-ml-transferability
+      \endverb
+    \endentry
     \entry{GlobalRisksReport2024}{report}{}
       \name{author}{1}{}{%
         {{un=0,uniquepart=base,hash=9f6d16e0eaf271813481bd46be0c7a35}{%
@@ -1346,6 +1382,42 @@
       \range{pages}{26}
       \verb{doi}
       \verb 10.1109/ACCESS.2019.2895334
+      \endverb
+    \endentry
+    \entry{Weirauch2025}{misc}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=b26974238730a6e5b2d212bf85cde54f}{%
+           family={Weirauch},
+           familyi={W\bibinitperiod},
+           given={Jonas},
+           giveni={J\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {GitHub}%
+      }
+      \strng{namehash}{b26974238730a6e5b2d212bf85cde54f}
+      \strng{fullhash}{b26974238730a6e5b2d212bf85cde54f}
+      \strng{bibnamehash}{b26974238730a6e5b2d212bf85cde54f}
+      \strng{authorbibnamehash}{b26974238730a6e5b2d212bf85cde54f}
+      \strng{authornamehash}{b26974238730a6e5b2d212bf85cde54f}
+      \strng{authorfullhash}{b26974238730a6e5b2d212bf85cde54f}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{GitHub repository}
+      \field{note}{Cross-dataset transferability analysis of ML models for network intrusion detection using NSL-KDD and CIC-IDS-2017 datasets}
+      \field{title}{network-intrusion-ml-transferability}
+      \field{year}{2025}
+      \verb{urlraw}
+      \verb https://github.com/jonasyr/network-intrusion-ml-transferability
+      \endverb
+      \verb{url}
+      \verb https://github.com/jonasyr/network-intrusion-ml-transferability
       \endverb
     \endentry
     \entry{GlobalRisksReport2024}{report}{}
