@@ -37,7 +37,6 @@ python experiments/05_cross_dataset_evaluation.py
 │   └── results/                # Experimentelle Ergebnisse
 ├── experiments/                # Experimentelle Pipeline (01-10)
 ├── src/                        # Core Implementation
-├── Paper/Praxisprojekt_4.pdf  # Wissenschaftliche Arbeit
 └── docs/                       # Methodologie & Ergebnisse
 ```
 
