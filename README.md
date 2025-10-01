@@ -12,7 +12,6 @@ Diese Arbeit untersucht systematisch die **Cross-Dataset-Transferabilität** von
 **Zentrale Ergebnisse:**
 - 38.6% durchschnittlicher Leistungsverlust bei Cross-Dataset-Transfer
 - XGBoost zeigt beste Cross-Dataset-Stabilität
-- CIC-IDS-2017 → NSL-KDD Transfer erfolgreicher als umgekehrt
 
 ## Schnellstart
 
